@@ -37,3 +37,13 @@ a {
 a:hover {
     color:#400000;
 }
+
+.profile-pic {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  margin-bottom: 1em;
+}
+
