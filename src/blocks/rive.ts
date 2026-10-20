@@ -1,5 +1,7 @@
 import type { Block } from 'payload'
 
+import { riveFileFilter } from '@/domain/uploads'
+
 /** A Rive animation (.riv uploaded to media), such as Luma, Licorn's mascot. */
 export const RiveBlock: Block = {
   slug: 'rive',
@@ -11,7 +13,7 @@ export const RiveBlock: Block = {
       name: 'file',
       type: 'upload',
       relationTo: 'media',
-      filterOptions: { mimeType: { equals: 'application/octet-stream' } },
+      filterOptions: riveFileFilter,
       admin: { description: 'The .riv file. Without it, the still image is shown.' },
     },
     {

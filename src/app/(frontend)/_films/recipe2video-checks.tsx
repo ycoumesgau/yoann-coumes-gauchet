@@ -25,7 +25,7 @@ const fade = (t: number, a: number, b: number) =>
 const OK = 'var(--ok, #1E7338)'
 const OK_SOFT = 'var(--ok-soft, color-mix(in srgb, var(--ok, #1E7338) 14%, var(--surf)))'
 
-/** The published Short (YouTube). */
+/** The published Short (YouTube): part of the film, like its drawings (ADR-4, Amendment 2). */
 const VIDEO_ID = 'LtwZ65Jc2eY'
 
 /** The seven cards of the plan; their words are `row.<n>.title`, `.duration`, `.rule`. */
@@ -227,7 +227,7 @@ function Stage({ t, width: w, texts }: StageProps) {
           <iframe
             src={youtubeSrc(embed, true)}
             title={texts['video.title']}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allow="encrypted-media; picture-in-picture; fullscreen; autoplay"
             referrerPolicy="strict-origin-when-cross-origin"
             allowFullScreen
             style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 0 }}

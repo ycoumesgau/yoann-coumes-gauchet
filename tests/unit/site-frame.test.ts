@@ -67,3 +67,15 @@ describe('skip link', () => {
     expect(render([])).not.toContain('skip-link')
   })
 })
+
+describe('footer links at render', () => {
+  it('leaves out a link the validator would refuse', () => {
+    const html = render([
+      { id: 'a', label: 'Bad', url: 'javascript:alert(1)' },
+      { id: 'b', label: 'Mail', url: 'mailto:someone@example.com' },
+    ] as Site['links'])
+    expect(html).not.toContain('javascript:')
+    expect(html).not.toContain('>Bad<')
+    expect(html).toContain('href="mailto:someone@example.com"')
+  })
+})

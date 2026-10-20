@@ -1,5 +1,6 @@
 import type React from 'react'
 
+import { footerLinkUrl } from '@/domain/links'
 import { localeOfPath, pagePath } from '@/domain/locale-routing'
 import type { Locale } from '@/domain/locales'
 import type { Site } from '@/payload-types'
@@ -104,7 +105,8 @@ export function SiteFrame({
           {site.links?.length ? (
             <span className="footer-links">
               {site.links.map((link) =>
-                link.label ? (
+                // A row saved before the validator, or written around it, is not rendered.
+                link.label && footerLinkUrl(link.url) === true ? (
                   <a
                     key={link.id ?? link.url}
                     href={footerLinkHref(locale, link.url)}

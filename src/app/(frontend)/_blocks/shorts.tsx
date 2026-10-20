@@ -108,7 +108,7 @@ export function Shorts({
             src={src}
             title={video.title}
             loading="lazy"
-            allow={`encrypted-media; picture-in-picture; fullscreen${started ? '; autoplay' : ''}`}
+            allow={`encrypted-media; picture-in-picture; fullscreen${started && video.platform === 'youtube' ? '; autoplay' : ''}`}
             referrerPolicy="strict-origin-when-cross-origin"
             onLoad={(event) => {
               // Ask the player to report its state (YouTube's iframe API handshake).

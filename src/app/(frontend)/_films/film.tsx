@@ -75,6 +75,7 @@ function FilmStill({ demo, film, texts }: { demo: DemoKey; film: FilmModule; tex
       className="film-still"
       data-demo={demo}
       aria-hidden
+      inert
       style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}
     >
       <div

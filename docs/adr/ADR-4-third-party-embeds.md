@@ -51,3 +51,12 @@ automatically" on the series of shorts. So, on that one player only:
   validates the line).
 
 Every other player keeps the decision above: no `autoplay`.
+
+## Amendment 2 — the Recipe2Video film ends on its Short (2026-10-20, L3d)
+
+The Recipe2Video film (`_films/recipe2video-checks.tsx`) ends on the published Short it planned,
+shown as a thumbnail from `i.ytimg.com` with a play button. The player loads only when the
+visitor presses that button, and then plays at once (`autoplay` delegated, `allow` limited to
+`encrypted-media; picture-in-picture; fullscreen; autoplay`): the press is the visitor's choice
+to play. The video id is part of the film, like its drawings, so it lives in the code, not in
+Payload.

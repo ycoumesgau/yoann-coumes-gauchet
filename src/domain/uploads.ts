@@ -9,6 +9,11 @@
 export const OCTET_STREAM = 'application/octet-stream'
 export const RIVE_TYPES = [OCTET_STREAM, 'text/plain'] as const
 
+/** What the rive block may pick in media: a `.riv`, typed either way. */
+export const riveFileFilter = {
+  and: [{ mimeType: { in: [...RIVE_TYPES] } }, { filename: { like: '.riv' } }],
+}
+
 export const isAllowedOctetStream = (mimeType: unknown, filename: unknown): boolean =>
   !(RIVE_TYPES as readonly unknown[]).includes(mimeType) ||
   (typeof filename === 'string' && /^[^/\\]+\.riv$/i.test(filename))

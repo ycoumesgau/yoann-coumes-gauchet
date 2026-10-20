@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { isAllowedOctetStream } from '@/domain/uploads'
+import { isAllowedOctetStream, riveFileFilter, RIVE_TYPES } from '@/domain/uploads'
+import { RiveBlock } from '@/blocks/rive'
 
 describe('uploads', () => {
   it('accepts a Rive file as a binary upload', () => {
@@ -21,5 +22,16 @@ describe('uploads', () => {
 
   it('leaves the other accepted types to Payload', () => {
     expect(isAllowedOctetStream('image/png', 'photo.png')).toBe(true)
+  })
+})
+
+describe('the rive block picker', () => {
+  it('offers a .riv typed either way, nothing else', () => {
+    expect(riveFileFilter).toEqual({
+      and: [{ mimeType: { in: [...RIVE_TYPES] } }, { filename: { like: '.riv' } }],
+    })
+    expect(RIVE_TYPES).toContain('text/plain')
+    const file = RiveBlock.fields.find((f) => 'name' in f && f.name === 'file')
+    expect(file && 'filterOptions' in file ? file.filterOptions : null).toBe(riveFileFilter)
   })
 })
