@@ -54,7 +54,7 @@ export function Shorts({
   const frame = useRef<HTMLIFrameElement | null>(null)
   const strip = useRef<HTMLDivElement | null>(null)
   const ended = useRef<string | null>(null)
-  const moved = useRef(false)
+  const scrolledTo = useRef(0)
   const video = videos[index] ?? videos[0]
   const count = videos.length
   const playing = video?.videoId ?? ''
@@ -67,16 +67,15 @@ export function Shorts({
   // Bring the chosen thumbnail into the strip, never on load and never by
   // scrolling the page itself.
   useEffect(() => {
-    if (!moved.current) {
-      moved.current = true
-      return
-    }
+    if (scrolledTo.current === index) return
+    scrolledTo.current = index
     const box = strip.current
     const item = box?.querySelector<HTMLElement>(`[data-index="${index}"]`)
     if (!box || !item) return
+    const offset = item.getBoundingClientRect().left - box.getBoundingClientRect().left
     const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     box.scrollTo({
-      left: item.offsetLeft - (box.clientWidth - item.offsetWidth) / 2,
+      left: box.scrollLeft + offset - (box.clientWidth - item.offsetWidth) / 2,
       behavior: still ? 'auto' : 'smooth',
     })
   }, [index])
