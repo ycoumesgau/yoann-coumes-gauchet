@@ -27,7 +27,7 @@ The detailed brief (content, demos, Claude Design) lives in Yoann's project file
 | L2b   | OAuth server (ADR-2), deletion confirmation; connector added in claude.ai   | Merged, connector live |
 | L3a   | `/en` and `/fr` URLs, language from the browser, visible switch, `hreflang` | Merged                 |
 | L3b   | Page blocks as plain HTML, players on click (ADR-4), media on Supabase S3   | Merged                 |
-| L3c   | Players loaded with the page (ADR-4 decided by Yoann), notice field removed | In review              |
+| L3c   | Players loaded with the page (ADR-4 decided by Yoann), notice field removed | Merged                 |
 | L3    | Front end from the mockup; content entered through the MCP server           | Waits for the mockup   |
 | L4    | Demos, in batches                                                           | To do                  |
 | L5    | Lighthouse, repository public, DNS switched to Vercel                       | Yoann's go             |
@@ -113,3 +113,6 @@ Source: Yoann's project file `synthese/03-site-refonte-concept.md` §3 (2026-10-
   page explains it (his words in the ADR; the session had stated the CNIL risk). The click gate,
   the `site.thirdPartyNotice` field and the unused video poster are removed (migration
   `direct_embeds`; both were empty in production).
+- 2026-10-20: privacy page published through the MCP server (slug `privacy`, FR and EN), text
+  validated by Yoann with an e-mail contact only (no postal address); `site.name` set and a
+  footer link to `/privacy`. The footer now keeps `rel="me"` for external profiles only.

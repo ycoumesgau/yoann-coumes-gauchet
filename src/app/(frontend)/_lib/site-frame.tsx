@@ -6,6 +6,13 @@ import type { Site } from '@/payload-types'
 
 import { LanguageSwitch } from './language-switch'
 
+/**
+ * `rel="me"` claims the linked page is the same person's profile: only for an
+ * external link, never for one of the site's own pages (the privacy page).
+ */
+export const footerLinkRel = (url: string): 'me' | undefined =>
+  /^https?:\/\//i.test(url) ? 'me' : undefined
+
 /** Header (name, navigation, language switch) and footer around a page. */
 export function SiteFrame({
   site,
@@ -41,7 +48,7 @@ export function SiteFrame({
         <footer>
           {site.links.map((link) =>
             link.label ? (
-              <a key={link.id ?? link.url} href={link.url} rel="me">
+              <a key={link.id ?? link.url} href={link.url} rel={footerLinkRel(link.url)}>
                 {link.label}
               </a>
             ) : null,
