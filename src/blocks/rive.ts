@@ -22,6 +22,7 @@ export const RiveBlock: Block = {
       name: 'fallback',
       type: 'upload',
       relationTo: 'media',
+      filterOptions: { mimeType: { like: 'image/' } },
       admin: {
         description: 'Still image shown when animation is unavailable or motion is reduced.',
       },

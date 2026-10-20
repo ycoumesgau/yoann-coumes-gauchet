@@ -296,6 +296,8 @@ export interface Project {
 export interface Media {
   id: number;
   alt: string;
+  prefix?: string | null;
+  _objectKey?: string | null;
   createdBy?: {
     relationTo: 'users';
     value: number | User;
@@ -842,6 +844,8 @@ export interface ProjectsSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  prefix?: T;
+  _objectKey?: T;
   createdBy?: T;
   updatedBy?: T;
   updatedAt?: T;
@@ -1020,6 +1024,10 @@ export interface Site {
       }[]
     | null;
   /**
+   * Shown under a video or a playlist before it loads: nothing is requested from YouTube, TikTok, Instagram or Spotify until the visitor clicks (ADR-4).
+   */
+  thirdPartyNotice?: string | null;
+  /**
    * Profiles and contact links shown in the footer.
    */
   links?:
@@ -1053,6 +1061,7 @@ export interface SiteSelect<T extends boolean = true> {
         page?: T;
         id?: T;
       };
+  thirdPartyNotice?: T;
   links?:
     | T
     | {

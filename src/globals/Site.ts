@@ -20,6 +20,16 @@ export const Site: GlobalConfig = {
       ],
     },
     {
+      name: 'thirdPartyNotice',
+      type: 'textarea',
+      localized: true,
+      admin: {
+        description:
+          'Shown under a video or a playlist before it loads: nothing is requested from YouTube, ' +
+          'TikTok, Instagram or Spotify until the visitor clicks (ADR-4).',
+      },
+    },
+    {
       name: 'links',
       type: 'array',
       admin: { description: 'Profiles and contact links shown in the footer.' },

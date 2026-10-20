@@ -21,6 +21,9 @@ const nextConfig: NextConfig = {
     },
   ],
   images: {
+    // Next keeps a resized image 4 hours by default, past the moment its media goes to the
+    // trash; five minutes bounds how long a trashed image stays reachable (ADR-3).
+    minimumCacheTTL: 300,
     localPatterns: [
       {
         pathname: '/api/media/file/**',
