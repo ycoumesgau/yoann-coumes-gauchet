@@ -536,7 +536,7 @@ export function WsbCurveThumb({ texts }: { texts: FilmTexts }): React.ReactNode 
       {funded ? (
         <text
           x={(x7 - 10).toFixed(1)}
-          y={(yTop - 12).toFixed(1)}
+          y={(yTop - (repayments ? 28 : 12)).toFixed(1)}
           style={{
             fontFamily: 'var(--mono)',
             fontSize: '13px',
@@ -549,8 +549,9 @@ export function WsbCurveThumb({ texts }: { texts: FilmTexts }): React.ReactNode 
       ) : null}
       {repayments ? (
         <text
-          x={384}
-          y={(yTop + 22).toFixed(1)}
+          // Above the end point, like the total: under it, the curve crosses the words.
+          x={(x7 - 10).toFixed(1)}
+          y={(yTop - 10).toFixed(1)}
           style={{
             fontFamily: 'var(--mono)',
             fontSize: '11px',
