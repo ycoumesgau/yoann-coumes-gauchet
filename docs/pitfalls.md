@@ -16,3 +16,12 @@ filtered query. Covered by `tests/db/pages-access.test.ts`.
 
 Payload 4 refuses Node < 24.15.0. The cloud session ships Node 22: install Node 24 before
 `pnpm install`.
+
+## 2026-10-20 — Payload 4: versions and the trash inherit `read`
+
+Without `readVersions`, Payload 4 copies `read` onto versions and rewrites its `where`
+(`node_modules/payload/dist/collections/config/defaults.js`). With `read: publishedOrAdmin`, an
+anonymous caller could read every version ever published, including one corrected or
+unpublished since. And the REST `find` honours `?trash=true`, which drops the "not trashed"
+filter: a trashed published page stayed public. Hence `readVersions: adminOnly` and a
+`deletedAt` condition in the anonymous read. Covered by `tests/db/public-surface.test.ts`.

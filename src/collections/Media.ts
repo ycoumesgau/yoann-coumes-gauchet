@@ -1,26 +1,31 @@
-import type { CollectionConfig } from 'payload'
+import { APIError, type CollectionConfig } from 'payload'
 
-import { adminOnly } from '@/domain/access'
+import { adminOnly, untrashedOrAdmin } from '@/domain/access'
+import { isAllowedOctetStream, OCTET_STREAM } from '@/domain/uploads'
 
 export const Media: CollectionConfig = {
   slug: 'media',
   access: {
-    // Media are public once uploaded: they only exist to be shown on the site.
-    read: () => true,
+    read: untrashedOrAdmin,
     create: adminOnly,
     update: adminOnly,
     delete: adminOnly,
+    readVersions: adminOnly,
   },
   trash: true,
+  hooks: {
+    beforeChange: [
+      ({ data }) => {
+        if (!isAllowedOctetStream(data.mimeType, data.filename)) {
+          throw new APIError('Only Rive animations (.riv) may be uploaded as binary files.', 400)
+        }
+        return data
+      },
+    ],
+  },
   fields: [{ name: 'alt', type: 'text', required: true, localized: true }],
   upload: {
-    // Images, short videos, the CV, and Rive animations (`.riv` arrives as octet-stream).
-    mimeTypes: [
-      'image/*',
-      'video/mp4',
-      'video/webm',
-      'application/pdf',
-      'application/octet-stream',
-    ],
+    // Images, short videos, the CV, and Rive animations (`.riv` only, see `domain/uploads.ts`).
+    mimeTypes: ['image/*', 'video/mp4', 'video/webm', 'application/pdf', OCTET_STREAM],
   },
 }

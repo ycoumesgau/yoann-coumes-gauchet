@@ -12,6 +12,7 @@ export const Projects: CollectionConfig = {
     create: adminOnly,
     update: adminOnly,
     delete: adminOnly,
+    readVersions: adminOnly,
   },
   trash: true,
   versions: { drafts: true },

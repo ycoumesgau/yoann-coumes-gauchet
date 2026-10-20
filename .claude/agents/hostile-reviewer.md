@@ -35,7 +35,7 @@ findings, **ignore them**.
   destructive tool that runs without Yoann's confirmation; a write missing from the audit log.
 - **Screens**: a gap with the validated Claude Design mockup; a forgotten state (empty, error,
   390 px); accessibility; user-facing text hard-coded instead of coming from Payload.
-- **Public copy**: a claim the reference document (`parcours-reference.md`) does not back.
+- **Public copy**: a claim Yoann's validated reference document (`/mnt/project-files/parcours/parcours-reference.md`, outside the repository) does not back.
 - **Tooling** (`.github/`, hooks, scripts): a secret printed, `permissions` wider than needed, PR
   input interpolated into a shell, a guard that a variable or flag can skip.
 

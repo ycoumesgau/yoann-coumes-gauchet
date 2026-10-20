@@ -1,4 +1,4 @@
-import { getPayload, type Payload } from 'payload'
+import { Forbidden, getPayload, type Payload } from 'payload'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import config from '@/payload.config'
@@ -95,7 +95,16 @@ describe('pages: drafts stay private, per locale', () => {
       draft: true,
       where: { slug: { equals: slug } },
     })
-    expect(result.docs.map((doc) => doc.title)).not.toContain('Unpublished edit')
+    // The draft read sees nothing (the latest version is a draft)...
+    expect(result.docs).toHaveLength(0)
+    // ...and the published row was not overwritten by the draft save.
+    const published = await payload.find({
+      collection: 'pages',
+      overrideAccess: false,
+      user: null,
+      where: { slug: { equals: slug } },
+    })
+    expect(published.docs.map((doc) => doc.title)).toEqual(['Draft only'])
   })
 
   it('refuses an anonymous write', async () => {
@@ -106,6 +115,6 @@ describe('pages: drafts stay private, per locale', () => {
         user: null,
         data: { title: 'Intrusion', slug: `${slug}-x` },
       }),
-    ).rejects.toThrow()
+    ).rejects.toThrow(Forbidden)
   })
 })

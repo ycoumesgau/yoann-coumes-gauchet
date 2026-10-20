@@ -19,7 +19,7 @@ The detailed brief (content, demos, Claude Design) lives in Yoann's project file
 | ----- | --------------------------------------------------------------------------- | -------------------- |
 | L0    | Method: CLAUDE.md, ADRs, hostile reviewer, hooks, pre-push, CI, PR template | In progress          |
 | L1    | Next 16.4 + Payload 4 beta, content model, FR/EN, first migration, tests    | In progress          |
-| L2a   | MCP plugin restricted, audit log, kill switch                               | To do                |
+| L2a   | MCP plugin, audit log, kill switch; close `llmInstructions` access (public) | To do                |
 | L2b   | OAuth server (ADR-2), connector added in claude.ai, deletion confirmation   | To do                |
 | L3    | Front end from the mockup; content entered through the MCP server           | Waits for the mockup |
 | L4    | Demos, in batches                                                           | To do                |
@@ -28,11 +28,42 @@ The detailed brief (content, demos, Claude Design) lives in Yoann's project file
 ## 2. Owed by Yoann
 
 - Create the Supabase EU project; set `DATABASE_URL` and `PAYLOAD_SECRET` in Vercel.
+- Create the administrator account **before** the deployment URL is shared or reachable: Payload
+  lets the first visitor of an empty `users` table create it.
 - Add the MCP connector in claude.ai (L2b).
 - Switch the DNS of `yoann.coumes-gauchet.fr` from Figma to Vercel (L5).
 
-## 3. Journal
+## 3. Open questions for Yoann
+
+- Default locale: `en` (assumed: a recruiter at Mistral reads English first), or `fr`?
+
+## 4. Demos
+
+Source: Yoann's project file `synthese/03-site-refonte-concept.md` §3 (2026-10-20). The ids are
+`src/domain/demos.ts`; what each one may show is decided there, not here.
+
+| Id  | Key                       | Demo                                             |
+| --- | ------------------------- | ------------------------------------------------ |
+| D1  | `paper-to-deliverable`    | Opening animation: from paper to the deliverable |
+| D2  | `nexcan-case`             | Nexcan, an invented case end to end              |
+| D3  | `photo-bench`             | The Photos bench, interactive, models anonymised |
+| D4  | `screening-toy`           | Name screening, a toy on invented names          |
+| D5  | `luma-video`              | Luma on video                                    |
+| D6  | `recipe-ingestion`        | Recipe ingestion, animated diagram               |
+| D7  | `recipe2video-validation` | Recipe2Video validation, before and after        |
+| D8  | `recipe2video-videos`     | The videos produced                              |
+| D9  | `build-log`               | The build log, as a dashboard                    |
+| D10 | `hostile-review`          | The hostile reviewer, explained                  |
+| D11 | `background-video`        | Video explainer of the career path               |
+| D12 | `ask-this-site`           | "Ask this site", closed corpus                   |
+| D13 | `accounting-agent`        | The accounting agent, diagram                    |
+
+## 5. Journal
 
 - 2026-10-20: L0 and L1 started. Content model: `pages` (blocks hero, section, project cards,
   demo, timeline), `projects`, `media`, `users`, global `site`. Mutation run: `publishedOrAdmin`
   returning `true` turns two database tests red.
+- 2026-10-20: hostile review of L0+L1. Fixed: old versions and trashed documents were public
+  (seen red in `tests/db/public-surface.test.ts` before the fix), `isAdmin` now requires a
+  `users` account, `.riv` is the only binary upload, the no-verify and memory guards have tests,
+  hooks use `$CLAUDE_PROJECT_DIR`, CI runs Postgres 17. Rejected findings are listed on PR #1.

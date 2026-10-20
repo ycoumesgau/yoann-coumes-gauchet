@@ -20,7 +20,7 @@ jobs:
     timeout-minutes: 20
     services:
       postgres:
-        image: postgres:16
+        image: postgres:17 # Supabase runs Postgres 17 for new projects
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: site

@@ -21,11 +21,16 @@ const eslintConfig = [
     rules: {
       'no-restricted-syntax': [
         'error',
-        {
-          selector: "Property[key.name='overrideAccess'][value.value=true]",
+        ...[
+          "Property[key.name='overrideAccess'][value.value=true]",
+          "Property[key.value='overrideAccess'][value.value=true]",
+          "Property[computed=true][key.value='overrideAccess']",
+          "Property[shorthand=true][key.name='overrideAccess']",
+        ].map((selector) => ({
+          selector,
           message:
             'overrideAccess: true bypasses access control. Pass the caller (`user` or `req`) instead.',
-        },
+        })),
       ],
     },
   },

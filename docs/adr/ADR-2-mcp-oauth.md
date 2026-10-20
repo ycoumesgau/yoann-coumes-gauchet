@@ -1,8 +1,8 @@
 # ADR-2 — An MCP server reachable from Claude, behind OAuth
 
-| Status                                     | Date       | Decided by |
-| ------------------------------------------ | ---------- | ---------- |
-| Accepted (mechanism of §4 to settle in L2) | 2026-10-20 | Yoann      |
+| Status                                               | Date       | Decided by |
+| ---------------------------------------------------- | ---------- | ---------- |
+| Accepted: §2 and §4 (Yoann); §1, §3, §5, §6 proposed | 2026-10-20 | Yoann      |
 
 ## Context (measured 2026-10-20)
 
@@ -22,18 +22,25 @@
 
 ## Decision
 
-1. **Tools**: the official plugin, restricted to a closed list of collections and globals, plus
-   custom tools where the generic ones fall short (publishing a locale, trash, restore).
+Yoann's words (2026-10-20): "le MCP a la main complète, y compris sur la suppression, mais modulo
+une confirmation de ma part". Points 2 and 4 carry them; 1, 3, 5 and 6 are proposals of the
+first session, kept unless Yoann says otherwise.
+
+1. **Tools** (proposed): everything an administrator does in `/admin` (create, edit, publish and
+   unpublish each locale, upload media, edit the global, trash, restore), through the official
+   plugin and custom tools where the generic ones fall short. Not exposed: the `users`
+   collection and the OAuth collections, which are the keys, not the content.
 2. **Auth**: an OAuth 2.1 server in this app, ported from Nexcan and reduced (one administrator,
    no tenants), wired into the plugin through `overrideGetAuthorizedMCP`. Every call re-checks
    that the grant still exists.
-3. **Writes** land as drafts; publishing is an explicit tool call. No bulk write.
+3. **Writes** (proposed) land as drafts; publishing is an explicit tool call, so a page never
+   goes public as a side effect of an edit.
 4. **Deletion**: a document goes to the trash first (reversible). Permanent deletion requires
    Yoann's confirmation outside the model's control. Mechanism settled in L2: a one-time
    confirmation link opening `/admin` (works on every Claude surface), unless MCP elicitation is
    shown to work in Claude.
-5. **Audit**: every MCP write is journaled (who, what, when, before, after).
-6. **Kill switch**: the endpoint answers 503 unless `ENABLE_MCP=true` and its keys are set.
+5. **Audit** (proposed): every MCP write is journaled (who, what, when, before, after).
+6. **Kill switch** (proposed): the endpoint answers 503 unless `ENABLE_MCP=true` and its keys are set.
 
 ## Consequences
 

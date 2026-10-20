@@ -12,6 +12,9 @@ export const Pages: CollectionConfig = {
     create: adminOnly,
     update: adminOnly,
     delete: adminOnly,
+    // Without it, Payload 4 derives version access from `read`: an old
+    // published version would stay public after a correction or an unpublish.
+    readVersions: adminOnly,
   },
   trash: true,
   versions: { drafts: true },

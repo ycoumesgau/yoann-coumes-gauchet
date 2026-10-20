@@ -16,7 +16,7 @@
 
 1. Payload **4.0.0-beta.3**, every `@payloadcms/*` package on that exact version; Next 16.4.2.
 2. **One Next.js app** serves the public site and `/admin`. No monorepo: Nexcan splits apps
-   because it has seven; this site has one.
+   because it has six; this site has one.
 3. Postgres adapter with `push: false`; schema changes go through committed migrations.
 4. Moving to a newer beta, or to 4.0 stable, is its own PR with the full CI.
 

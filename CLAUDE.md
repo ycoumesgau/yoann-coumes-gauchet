@@ -55,13 +55,16 @@ never from memory: a claim it does not back is not published.
    Payload, never hard-coded in a component.
 2. **Payload 4 stores `_status` per locale**: publishing English does not publish French, and a
    locale publishes only with its own required fields (`tests/db/pages-access.test.ts`).
-3. **Access**: every function starts from a refusal. The only anonymous access is the read of
-   published content (`publishedOrAdmin`) and of media. **`overrideAccess: true` is refused by
-   lint** in `src/`; pass the caller (`user` or `req`) instead.
+3. **Access**: every function starts from a refusal. The only anonymous reads are published,
+   untrashed documents (`publishedOrAdmin`), untrashed media, and the `site` global. Versions
+   are never public (`readVersions: adminOnly`, or Payload copies `read` onto them). Only a
+   `users` account is an administrator. **`overrideAccess: true` is refused by lint** in `src/`;
+   pass the caller (`user` or `req`) instead.
 4. **Migrations**: `payload migrate` only, in CI and production (`push: false`). Never edit a
    migration once applied anywhere. CI replays the chain from an empty database.
 5. **Content never arrives through a migration**: it is entered through the MCP server or `/admin`.
-6. **Nothing is deleted outright**: collections use `trash`; the MCP server deletes only after
+6. **Nothing is deleted outright**: content collections (`pages`, `projects`, `media`) use
+   `trash`, and a trashed document is never public; the MCP server deletes for good only after
    Yoann's explicit confirmation (ADR-2).
 7. **Secrets** live in Vercel only. `.env` is local and ignored. A token is never printed.
 8. **Never invent a fact about Yoann**, a figure, or a product rule: ask, or write an ADR.

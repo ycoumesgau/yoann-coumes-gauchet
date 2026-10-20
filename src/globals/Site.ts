@@ -1,12 +1,13 @@
 import type { GlobalConfig } from 'payload'
 
-import { adminOnly } from '@/domain/access'
+import { adminOnly, publicRead } from '@/domain/access'
 
 export const Site: GlobalConfig = {
   slug: 'site',
   access: {
-    read: () => true,
+    read: publicRead,
     update: adminOnly,
+    readVersions: adminOnly,
   },
   fields: [
     { name: 'name', type: 'text', required: true },

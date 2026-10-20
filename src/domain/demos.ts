@@ -1,7 +1,7 @@
 /**
  * Closed list of the site's demonstrations. A demo is React code; the CMS only
- * places it on a page and carries its caption and source. Ids follow
- * `docs/plans/site.md` (D1–D13).
+ * places it on a page and carries its caption and source. One id per demo of
+ * `docs/plans/site.md` §4 (D1–D13), in the same order.
  */
 export const demoKeys = [
   'paper-to-deliverable',
