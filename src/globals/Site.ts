@@ -2,6 +2,7 @@ import type { GlobalConfig } from 'payload'
 
 import { adminOnly, publicRead } from '@/domain/access'
 import { demoKeys } from '@/domain/demos'
+import { footerLinkUrl } from '@/domain/links'
 
 export const Site: GlobalConfig = {
   slug: 'site',
@@ -17,6 +18,7 @@ export const Site: GlobalConfig = {
       type: 'group',
       admin: { description: 'The words of the frame itself: menu, theme, screenshot viewer.' },
       fields: [
+        { name: 'skipToContent', type: 'text', localized: true },
         { name: 'menu', type: 'text', localized: true },
         { name: 'closeMenu', type: 'text', localized: true },
         { name: 'dark', type: 'text', localized: true },
@@ -66,7 +68,7 @@ export const Site: GlobalConfig = {
       },
       fields: [
         { name: 'label', type: 'text', required: true, localized: true },
-        { name: 'url', type: 'text', required: true },
+        { name: 'url', type: 'text', required: true, validate: footerLinkUrl },
       ],
     },
   ],

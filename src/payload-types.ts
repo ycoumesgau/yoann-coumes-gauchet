@@ -1605,6 +1605,7 @@ export interface Site {
    * The words of the frame itself: menu, theme, screenshot viewer.
    */
   labels?: {
+    skipToContent?: string | null;
     menu?: string | null;
     closeMenu?: string | null;
     dark?: string | null;
@@ -1673,6 +1674,7 @@ export interface SiteSelect<T extends boolean = true> {
   labels?:
     | T
     | {
+        skipToContent?: T;
         menu?: T;
         closeMenu?: T;
         dark?: T;

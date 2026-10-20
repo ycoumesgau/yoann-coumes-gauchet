@@ -14641,6 +14641,12 @@
       "name": "site_locales",
       "schema": "",
       "columns": {
+        "labels_skip_to_content": {
+          "name": "labels_skip_to_content",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
         "labels_menu": {
           "name": "labels_menu",
           "type": "varchar",
@@ -15475,6 +15481,12 @@
       "name": "_site_v_locales",
       "schema": "",
       "columns": {
+        "version_labels_skip_to_content": {
+          "name": "version_labels_skip_to_content",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
         "version_labels_menu": {
           "name": "version_labels_menu",
           "type": "varchar",
@@ -15996,6 +16008,6 @@
     "tables": {},
     "columns": {}
   },
-  "id": "6f71006a-68de-4648-8e8a-35ebfd14e1b4",
+  "id": "162c89a1-0a4b-4e01-a1f9-447e94da1086",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest'
 
-import { playerState, youtubeSrc } from '@/app/(frontend)/_blocks/shorts'
+import {
+  advancesOn,
+  isPlayerOrigin,
+  playerState,
+  youtubeSrc,
+} from '@/app/(frontend)/_blocks/shorts'
+import { footerLinkUrl, isOutboundUrl } from '@/domain/links'
 import {
   filmTextsByFilm,
   linkHref,
@@ -38,6 +44,15 @@ describe('method steps', () => {
     ] as PageBlock[]
     expect(stepFlags(blocks)).toEqual([null, 'step', 'in-step', 'in-step', 'step', null, null])
   })
+
+  it('ends a step at a hero or at the links to what comes next', () => {
+    const step = { blockType: 'section', number: '01', body } as PageBlock
+    const after = { blockType: 'callout', body } as unknown as PageBlock
+    const hero = { blockType: 'hero', headline: 'H' } as unknown as PageBlock
+    const next = { blockType: 'nextLinks', links: [] } as unknown as PageBlock
+    expect(stepFlags([step, hero, after])).toEqual(['step', null, null])
+    expect(stepFlags([step, next, after])).toEqual(['step', null, null])
+  })
 })
 
 describe('films and players', () => {
@@ -71,5 +86,39 @@ describe('film texts', () => {
       ]),
     ).toEqual({ 'wsb-funding': { total: '€162M funded' }, 'hostile-review': { total: 'Blocking' } })
     expect(filmTextsByFilm(undefined)).toEqual({})
+  })
+})
+
+describe('the series of shorts', () => {
+  it("hears only YouTube's own players", () => {
+    expect(isPlayerOrigin('https://www.youtube-nocookie.com')).toBe(true)
+    expect(isPlayerOrigin('https://www.youtube.com')).toBe(true)
+    expect(isPlayerOrigin('https://www.youtube.com.evil.example')).toBe(false)
+    expect(isPlayerOrigin('https://evil.example')).toBe(false)
+    expect(isPlayerOrigin('http://www.youtube.com')).toBe(false)
+  })
+
+  it('moves on once per video, though YouTube reports the end twice', () => {
+    expect(advancesOn(null, 'a')).toBe(true)
+    expect(advancesOn('a', 'a')).toBe(false)
+    expect(advancesOn('a', 'b')).toBe(true)
+  })
+})
+
+describe('addresses', () => {
+  it('lets a block link leave the site only to a web or mail address', () => {
+    expect(isOutboundUrl('https://a.b')).toBe(true)
+    expect(isOutboundUrl('mailto:a@b.c')).toBe(true)
+    expect(isOutboundUrl('javascript:alert(1)')).toBe(false)
+    expect(isOutboundUrl('/fr/nexcan')).toBe(false)
+  })
+
+  it('stores a footer link only as a web address or a path of this site', () => {
+    expect(footerLinkUrl('https://www.linkedin.com/in/ycoumesgau')).toBe(true)
+    expect(footerLinkUrl('/privacy')).toBe(true)
+    expect(footerLinkUrl('javascript:alert(1)')).not.toBe(true)
+    expect(footerLinkUrl('data:text/html,x')).not.toBe(true)
+    expect(footerLinkUrl('//evil.example')).not.toBe(true)
+    expect(footerLinkUrl('')).not.toBe(true)
   })
 })

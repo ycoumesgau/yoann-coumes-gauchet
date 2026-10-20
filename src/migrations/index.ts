@@ -5,7 +5,7 @@ import * as migration_20261020_130412_mcp_review from './20261020_130412_mcp_rev
 import * as migration_20261020_142120_third_party_notice from './20261020_142120_third_party_notice'
 import * as migration_20261020_143717_media_storage_fields from './20261020_143717_media_storage_fields'
 import * as migration_20261020_145310_direct_embeds from './20261020_145310_direct_embeds'
-import * as migration_20261020_211456_site_v2_blocks from './20261020_211456_site_v2_blocks'
+import * as migration_20261020_212418_site_v2_blocks from './20261020_212418_site_v2_blocks'
 
 export const migrations = [
   {
@@ -44,8 +44,8 @@ export const migrations = [
     name: '20261020_145310_direct_embeds',
   },
   {
-    up: migration_20261020_211456_site_v2_blocks.up,
-    down: migration_20261020_211456_site_v2_blocks.down,
-    name: '20261020_211456_site_v2_blocks',
+    up: migration_20261020_212418_site_v2_blocks.up,
+    down: migration_20261020_212418_site_v2_blocks.down,
+    name: '20261020_212418_site_v2_blocks',
   },
 ]

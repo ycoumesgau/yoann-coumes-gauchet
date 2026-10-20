@@ -51,3 +51,19 @@ describe('footer links', () => {
     expect(footerLinkRel('//example.com')).toBeUndefined()
   })
 })
+
+describe('skip link', () => {
+  it('jumps to the content with the words the site gives it, and is absent without them', () => {
+    const withLabel = renderToStaticMarkup(
+      SiteFrame({
+        site: { ...site([]), labels: { skipToContent: 'Skip to content' } } as Site,
+        locale: 'en',
+        languageLinks: { en: '/en', fr: '/fr' },
+        children: null,
+      }),
+    )
+    expect(withLabel).toContain('<a class="skip-link" href="#main">Skip to content</a>')
+    expect(withLabel).toContain('<main id="main">')
+    expect(render([])).not.toContain('skip-link')
+  })
+})

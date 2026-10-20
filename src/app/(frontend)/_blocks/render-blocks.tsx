@@ -4,6 +4,7 @@ import type React from 'react'
 
 import { isDemoKey } from '@/domain/demos'
 import { spotifyEmbedUrl, videoEmbedUrl, type VideoPlatform } from '@/domain/embeds'
+import { isOutboundUrl } from '@/domain/links'
 import { pagePath } from '@/domain/locale-routing'
 import type { Locale } from '@/domain/locales'
 import type { Media, Page, Project, Site } from '@/payload-types'
@@ -83,7 +84,7 @@ function MediaImage({
       width={media.width}
       height={media.height}
       sizes={sizes}
-      priority={priority ?? false}
+      preload={priority ?? false}
     />
   )
 }
@@ -101,7 +102,7 @@ type Link = {
 export const linkHref = (locale: Locale, link: Link | null | undefined): string | null => {
   if (!link) return null
   if (typeof link.page === 'object' && link.page?.slug) return pagePath(locale, link.page.slug)
-  if (link.url && /^(https?:\/\/|mailto:)/i.test(link.url)) return link.url
+  if (link.url && isOutboundUrl(link.url)) return link.url
   return null
 }
 
@@ -231,7 +232,7 @@ export function RenderBlocks({
 }
 
 type Rendered = {
-  Tag: 'section' | 'header' | 'nav' | 'figure'
+  Tag: 'section' | 'header' | 'div' | 'figure'
   className?: string
   inner: React.ReactNode
 }
@@ -392,7 +393,9 @@ function renderBlock(
           </>
         ),
       }
-    case 'workRows':
+    case 'workRows': {
+      // Under the block's own heading a row is an h3; without one, an h2.
+      const RowTitle = block.heading ? 'h3' : 'h2'
       return {
         Tag: 'section',
         inner: (
@@ -411,7 +414,7 @@ function renderBlock(
                           </span>
                         </div>
                       ) : null}
-                      <h3 className="h3">{row.title}</h3>
+                      <RowTitle className="h3">{row.title}</RowTitle>
                       {row.meta ? <p className="meta">{row.meta}</p> : null}
                       {row.body ? <p className="text">{row.body}</p> : null}
                       <ArrowLink locale={locale} link={row.link} />
@@ -424,6 +427,7 @@ function renderBlock(
           </>
         ),
       }
+    }
     case 'factList': {
       const cards = block.columns === '4'
       return {
@@ -616,7 +620,7 @@ function renderBlock(
             <Heading text={block.heading} />
             <ul className="links">
               {block.items.map((item, i) => {
-                const href = item.url && /^(https?:\/\/|mailto:)/i.test(item.url) ? item.url : null
+                const href = item.url && isOutboundUrl(item.url) ? item.url : null
                 const web = href ? isWeb(href) : false
                 const contact = !item.period && !item.body
                 const inner = contact ? (
@@ -680,7 +684,7 @@ function renderBlock(
       })
       if (links.length === 0 && !block.note) return null
       return {
-        Tag: 'nav',
+        Tag: 'div',
         className: 'tight',
         inner: (
           <>

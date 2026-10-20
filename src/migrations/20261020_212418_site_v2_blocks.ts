@@ -531,6 +531,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   );
   
   CREATE TABLE "site_locales" (
+  	"labels_skip_to_content" varchar,
   	"labels_menu" varchar,
   	"labels_close_menu" varchar,
   	"labels_dark" varchar,
@@ -565,6 +566,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   );
   
   CREATE TABLE "_site_v_locales" (
+  	"version_labels_skip_to_content" varchar,
   	"version_labels_menu" varchar,
   	"version_labels_close_menu" varchar,
   	"version_labels_dark" varchar,

@@ -23,6 +23,17 @@ export const playerState = (data: unknown): number | null => {
   return null
 }
 
+/** Only YouTube's own players may tell the carousel a video ended. */
+export const isPlayerOrigin = (origin: string): boolean =>
+  /^https:\/\/www\.youtube(-nocookie)?\.com$/.test(origin)
+
+/**
+ * YouTube reports one ending twice (`onStateChange` and `infoDelivery`), often
+ * before the next player replaces this one: the carousel moves on once per
+ * video, the first time that video ends.
+ */
+export const advancesOn = (ended: string | null, playing: string): boolean => ended !== playing
+
 /**
  * The series of shorts: one player, loaded with the page (ADR-4), and a strip
  * to pick another. A video starts on its own only after the visitor picked it
@@ -42,33 +53,47 @@ export function Shorts({
   const [follow, setFollow] = useState(false)
   const frame = useRef<HTMLIFrameElement | null>(null)
   const strip = useRef<HTMLDivElement | null>(null)
+  const ended = useRef<string | null>(null)
+  const moved = useRef(false)
   const video = videos[index] ?? videos[0]
   const count = videos.length
+  const playing = video?.videoId ?? ''
 
   const pick = (next: number) => {
     setIndex((next + count) % count)
     setStarted(true)
   }
 
+  // Bring the chosen thumbnail into the strip, never on load and never by
+  // scrolling the page itself.
   useEffect(() => {
-    strip.current
-      ?.querySelector<HTMLElement>(`[data-index="${index}"]`)
-      ?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' })
+    if (!moved.current) {
+      moved.current = true
+      return
+    }
+    const box = strip.current
+    const item = box?.querySelector<HTMLElement>(`[data-index="${index}"]`)
+    if (!box || !item) return
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    box.scrollTo({
+      left: item.offsetLeft - (box.clientWidth - item.offsetWidth) / 2,
+      behavior: still ? 'auto' : 'smooth',
+    })
   }, [index])
 
   useEffect(() => {
     if (!follow) return
     const onMessage = (event: MessageEvent) => {
-      if (!/^https:\/\/www\.youtube(-nocookie)?\.com$/.test(event.origin)) return
+      if (!isPlayerOrigin(event.origin)) return
       if (event.source !== frame.current?.contentWindow) return
-      if (playerState(event.data) === 0) {
-        setIndex((current) => (current + 1) % count)
-        setStarted(true)
-      }
+      if (playerState(event.data) !== 0 || !advancesOn(ended.current, playing)) return
+      ended.current = playing
+      setIndex((current) => (current + 1) % count)
+      setStarted(true)
     }
     window.addEventListener('message', onMessage)
     return () => window.removeEventListener('message', onMessage)
-  }, [follow, count])
+  }, [follow, count, playing])
 
   if (!video) return null
   const src = video.platform === 'youtube' ? youtubeSrc(video.src, started) : video.src

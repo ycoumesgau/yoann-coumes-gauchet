@@ -29,6 +29,9 @@ export function Screens({
   const [open, setOpen] = useState<number | null>(null)
   const openers = useRef<(HTMLButtonElement | null)[]>([])
   const closeButton = useRef<HTMLButtonElement | null>(null)
+  const dialog = useRef<HTMLDivElement | null>(null)
+  // Without the words to close it, the viewer is not offered at all.
+  const viewer = Boolean(labels.close)
   const count = screens.length
 
   const close = useCallback(() => {
@@ -50,6 +53,20 @@ export function Screens({
       if (event.key === 'Escape') close()
       if (event.key === 'ArrowRight') move(1)
       if (event.key === 'ArrowLeft') move(-1)
+      if (event.key === 'Tab') {
+        // Keep focus inside the viewer while it is open.
+        const buttons = [...(dialog.current?.querySelectorAll('button') ?? [])]
+        const first = buttons[0]
+        const last = buttons[buttons.length - 1]
+        const inside = buttons.includes(document.activeElement as HTMLButtonElement)
+        if (event.shiftKey && (document.activeElement === first || !inside)) {
+          event.preventDefault()
+          last?.focus()
+        } else if (!event.shiftKey && (document.activeElement === last || !inside)) {
+          event.preventDefault()
+          first?.focus()
+        }
+      }
     }
     document.addEventListener('keydown', onKey)
     const overflow = document.body.style.overflow
@@ -63,25 +80,39 @@ export function Screens({
   const shown = open === null ? null : screens[open]
   const items = screens.map((screen, i) => (
     <figure key={screen.src + i} style={{ margin: 0 }}>
-      <button
-        type="button"
-        className="shot"
-        ref={(node) => {
-          openers.current[i] = node
-        }}
-        onClick={() => setOpen(i)}
-        title={labels.viewLarger ?? undefined}
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element -- served by Payload, opened full size */}
-        <img
-          src={screen.src}
-          alt={screen.alt}
-          width={screen.width}
-          height={screen.height}
-          loading="lazy"
-        />
-        {screen.tag ? <span className="tag">{screen.tag}</span> : null}
-      </button>
+      {viewer ? (
+        <button
+          type="button"
+          className="shot"
+          ref={(node) => {
+            openers.current[i] = node
+          }}
+          onClick={() => setOpen(i)}
+          title={labels.viewLarger ?? undefined}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element -- served by Payload, opened full size */}
+          <img
+            src={screen.src}
+            alt={screen.alt}
+            width={screen.width}
+            height={screen.height}
+            loading="lazy"
+          />
+          {screen.tag ? <span className="tag">{screen.tag}</span> : null}
+        </button>
+      ) : (
+        <span className="shot">
+          {/* eslint-disable-next-line @next/next/no-img-element -- served by Payload */}
+          <img
+            src={screen.src}
+            alt={screen.alt}
+            width={screen.width}
+            height={screen.height}
+            loading="lazy"
+          />
+          {screen.tag ? <span className="tag">{screen.tag}</span> : null}
+        </span>
+      )}
       {screen.caption ? <figcaption className="caption">{screen.caption}</figcaption> : null}
     </figure>
   ))
@@ -91,6 +122,7 @@ export function Screens({
       {grid ? <div className="gallery">{items}</div> : items}
       {shown ? (
         <div
+          ref={dialog}
           className="lightbox"
           role="dialog"
           aria-modal="true"

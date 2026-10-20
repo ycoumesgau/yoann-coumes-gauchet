@@ -67,13 +67,18 @@ export function SiteFrame({
   )
   return (
     <>
+      {labels.skipToContent ? (
+        <a className="skip-link" href="#main">
+          {labels.skipToContent}
+        </a>
+      ) : null}
       <header className="site-header">
         <div className="wrap">
           <a className="brand" href={pagePath(locale, 'home')}>
             <span className="brand-mark" aria-hidden="true" />
             <span className="brand-name">{site.name}</span>
           </a>
-          <nav className="site-nav desktop">
+          <nav className="site-nav desktop" aria-label={labels.menu ?? undefined}>
             {navLinks}
             {tools}
           </nav>
@@ -82,7 +87,7 @@ export function SiteFrame({
               <span className="when-closed">{labels.menu}</span>
               <span className="when-open">{labels.closeMenu}</span>
             </summary>
-            <nav className="menu-panel">
+            <nav className="menu-panel" aria-label={labels.menu ?? undefined}>
               {navLinks}
               <div className="menu-tools">{tools}</div>
             </nav>
