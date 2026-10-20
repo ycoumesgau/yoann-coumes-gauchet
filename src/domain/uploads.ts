@@ -21,7 +21,7 @@ export const isAllowedOctetStream = (mimeType: unknown, filename: unknown): bool
 /**
  * The only addresses media may be fetched from server-side: this site's own
  * `public/import/`, where files wait until they are imported (the agent's
- * sandbox cannot upload to production directly).
+ * sandbox cannot upload to production directly). Removed with that folder.
  */
 export const PASTE_URL_ALLOW_LIST = [
   {

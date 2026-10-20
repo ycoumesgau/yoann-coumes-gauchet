@@ -45,7 +45,7 @@ describe('the rive block picker', () => {
 })
 
 describe('server-side fetch of media', () => {
-  it("fetches only from this site's own import folder", () => {
+  it("the allow-list matches this site's own import folder only (Payload's isURLAllowed)", () => {
     const allow = (url: string) => isURLAllowed(url, PASTE_URL_ALLOW_LIST)
     expect(allow('https://yoann-coumes-gauchet.vercel.app/import/luma.riv')).toBe(true)
     expect(allow('http://yoann-coumes-gauchet.vercel.app/import/luma.riv')).toBe(false)
