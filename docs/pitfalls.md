@@ -12,6 +12,13 @@ has its own required fields. Observed on 4.0.0-beta.3: `findByID` in `fr` return
 `_status: 'published'` while a `find` filtered on `_status` in `fr` returned nothing; trust the
 filtered query. Covered by `tests/db/pages-access.test.ts`.
 
+## 2026-10-20 — plugin-mcp exposes every collection by default
+
+`@payloadcms/plugin-mcp` 4.0.0-beta.3 builds tools for every collection in the config, Payload's
+own included, unless each tool is set to `false`. The site filters items by a closed list in
+`overrideGetAuthorizedMCP` (`src/mcp/plugin.ts`, `isExposedItem`) instead. And a Payload custom
+admin view is not behind the login: the consent view enforces the session itself.
+
 ## 2026-10-20 — Node 24 is required
 
 Payload 4 refuses Node < 24.15.0. The cloud session ships Node 22: install Node 24 before

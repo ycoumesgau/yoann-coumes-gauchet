@@ -5,12 +5,17 @@ import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 
+import { DeletionRequests } from './collections/DeletionRequests'
+import { McpAuthorizationCodes } from './collections/McpAuthorizationCodes'
+import { McpAuthorizations } from './collections/McpAuthorizations'
+import { McpEvents } from './collections/McpEvents'
 import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
 import { Projects } from './collections/Projects'
 import { Users } from './collections/Users'
 import { defaultLocale, locales } from './domain/locales'
 import { Site } from './globals/Site'
+import { sitePlugins } from './mcp/plugin'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -21,8 +26,26 @@ export default buildConfig({
   admin: {
     user: Users.slug,
     importMap: { baseDir: path.resolve(dirname) },
+    components: {
+      views: {
+        // The MCP consent screen (ADR-2). It enforces the session itself.
+        mcpConsent: {
+          Component: '/admin/mcp-consent/consent-view#McpConsentView',
+          path: '/oauth/consent',
+        },
+      },
+    },
   },
-  collections: [Pages, Projects, Media, Users],
+  collections: [
+    Pages,
+    Projects,
+    Media,
+    Users,
+    DeletionRequests,
+    McpAuthorizations,
+    McpAuthorizationCodes,
+    McpEvents,
+  ],
   globals: [Site],
   editor: lexicalEditor(),
   // The site reads through the Local API; GraphQL would only widen the public surface.
@@ -41,4 +64,5 @@ export default buildConfig({
     fallback: true,
   },
   upload: { transformers: [sharpTransformer()] },
+  plugins: sitePlugins(),
 })

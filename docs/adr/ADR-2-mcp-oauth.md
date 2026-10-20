@@ -33,8 +33,8 @@ first session, kept unless Yoann says otherwise.
 2. **Auth**: an OAuth 2.1 server in this app, ported from Nexcan and reduced (one administrator,
    no tenants), wired into the plugin through `overrideGetAuthorizedMCP`. Every call re-checks
    that the grant still exists.
-3. **Writes** (proposed) land as drafts; publishing is an explicit tool call, so a page never
-   goes public as a side effect of an edit.
+3. **Writes** (proposed) land as drafts unless the call publishes (`_status: published`, or
+   `publishAllLocales`), so a page never goes public as a side effect of an edit.
 4. **Deletion**: a document goes to the trash first (reversible). Permanent deletion requires
    Yoann's confirmation outside the model's control. Mechanism settled in L2: a one-time
    confirmation link opening `/admin` (works on every Claude surface), unless MCP elicitation is
@@ -46,3 +46,18 @@ first session, kept unless Yoann says otherwise.
 
 - More code than the plugin alone, in exchange for Claude everywhere.
 - The OAuth code is security-sensitive: it gets its own tests and a hostile review.
+
+## Implementation (L2, 2026-10-20)
+
+- OAuth: `src/domain/mcp-oauth/` (pure) and `src/mcp/` (store, flows, resource auth, plugin).
+  Two clients registered in code, no dynamic registration: `site-claude-ai` (callback
+  `https://claude.ai/api/mcp/auth_callback`) and `site-claude-code` (loopback, any port).
+  Endpoints: `/oauth/authorize`, `/oauth/token`, `/.well-known/oauth-authorization-server`,
+  `/.well-known/oauth-protected-resource/api/mcp`; consent at `/admin/oauth/consent`.
+- `/api/mcp` is a route ahead of Payload's REST catch-all: 503 when closed, 401 with the RFC 9728
+  challenge without a valid token, then the plugin, whose `overrideGetAuthorizedMCP` checks the
+  token again and filters tools by a closed list (`isExposedItem`).
+- Connections are listed in `/admin` (Claude connections); deleting one cuts its tokens at once.
+- Deletion: trash through `updateDocument` with `deletedAt`; `requestPermanentDeletion` creates a
+  `deletion-requests` row that only `/admin` can confirm (`adminOutsideMcp`), within 24 hours.
+- Journal: `mcp-events`, one row per consent, token event and tool call (input cut to 2 KB).

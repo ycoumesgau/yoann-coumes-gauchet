@@ -15,15 +15,15 @@ The detailed brief (content, demos, Claude Design) lives in Yoann's project file
 
 ## 1. Batches
 
-| Batch | Content                                                                     | Status               |
-| ----- | --------------------------------------------------------------------------- | -------------------- |
-| L0    | Method: CLAUDE.md, ADRs, hostile reviewer, hooks, pre-push, CI, PR template | In progress          |
-| L1    | Next 16.4 + Payload 4 beta, content model, FR/EN, first migration, tests    | In progress          |
-| L2a   | MCP plugin, audit log, kill switch; close `llmInstructions` access (public) | To do                |
-| L2b   | OAuth server (ADR-2), connector added in claude.ai, deletion confirmation   | To do                |
-| L3    | Front end from the mockup; content entered through the MCP server           | Waits for the mockup |
-| L4    | Demos, in batches                                                           | To do                |
-| L5    | Lighthouse, repository public, DNS switched to Vercel                       | Yoann's go           |
+| Batch | Content                                                                     | Status                 |
+| ----- | --------------------------------------------------------------------------- | ---------------------- |
+| L0    | Method: CLAUDE.md, ADRs, hostile reviewer, hooks, pre-push, CI, PR template | In progress            |
+| L1    | Next 16.4 + Payload 4 beta, content model, FR/EN, first migration, tests    | In progress            |
+| L2a   | MCP plugin, audit log, kill switch                                          | Done, in review        |
+| L2b   | OAuth server (ADR-2), deletion confirmation; connector added in claude.ai   | Done; connector: Yoann |
+| L3    | Front end from the mockup; content entered through the MCP server           | Waits for the mockup   |
+| L4    | Demos, in batches                                                           | To do                  |
+| L5    | Lighthouse, repository public, DNS switched to Vercel                       | Yoann's go             |
 
 ## 2. Owed by Yoann
 
@@ -37,7 +37,12 @@ The detailed brief (content, demos, Claude Design) lives in Yoann's project file
 
 - Default locale: `en` (assumed: a recruiter at Mistral reads English first), or `fr`?
 
-## 4. Demos
+## 4. Content inputs given by Yoann
+
+- Spotify (2026-10-20): artist `artist:3r1CwJAxYcji4TTINozzWi`, playlist
+  `playlist:32nEjBqPrGjsohHLfqVhI9` (refs for the Spotify block; both pass `validateSpotifyRef`).
+
+## 5. Demos
 
 Source: Yoann's project file `synthese/03-site-refonte-concept.md` §3 (2026-10-20). The ids are
 `src/domain/demos.ts`; what each one may show is decided there, not here.
@@ -58,7 +63,7 @@ Source: Yoann's project file `synthese/03-site-refonte-concept.md` §3 (2026-10-
 | D12 | `ask-this-site`           | "Ask this site", closed corpus                   |
 | D13 | `accounting-agent`        | The accounting agent, diagram                    |
 
-## 5. Journal
+## 6. Journal
 
 - 2026-10-20: L0 and L1 started. Content model: `pages` (blocks hero, section, project cards,
   demo, timeline), `projects`, `media`, `users`, global `site`. Mutation run: `publishedOrAdmin`
@@ -67,3 +72,10 @@ Source: Yoann's project file `synthese/03-site-refonte-concept.md` §3 (2026-10-
   (seen red in `tests/db/public-surface.test.ts` before the fix), `isAdmin` now requires a
   `users` account, `.riv` is the only binary upload, the no-verify and memory guards have tests,
   hooks use `$CLAUDE_PROJECT_DIR`, CI runs Postgres 17. Rejected findings are listed on PR #1.
+- 2026-10-20: L2 written. Run end to end on `next dev`: discovery, 401 challenge, consent with
+  the `/admin` session (no session: redirect to login, no ticket), cross-origin POST 403, token
+  exchange, MCP `initialize`, 17 tools listed, `deleteDocuments` absent, `users` and OAuth
+  collections refused, trash then deletion request, self-confirmation refused, journal rows
+  written. Five mutations seen red in `tests/db/mcp-oauth.test.ts`. Accepted: Payload's
+  `payload-llm-instructions` follows the read access of its targets, so instructions on public
+  collections are public; the repository is public too.

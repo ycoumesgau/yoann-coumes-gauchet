@@ -62,30 +62,34 @@ export type SupportedTimezones =
   | 'Pacific/Fiji';
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "LexicalNodes_70ECF57D".
+ * via the `definition` "LexicalNodes_ECB87CC6".
  */
-export type LexicalNodes_70ECF57D =
+export type LexicalNodes_ECB87CC6 =
   | SerializedTextNode
   | SerializedTabNode
   | SerializedLineBreakNode
-  | SerializedParagraphNode<LexicalNodes_70ECF57D>
+  | SerializedParagraphNode<LexicalNodes_ECB87CC6>
   | SerializedHorizontalRuleNode
   | SerializedUploadNode<'media'>
-  | SerializedQuoteNode<LexicalNodes_70ECF57D>
+  | SerializedQuoteNode<LexicalNodes_ECB87CC6>
   | SerializedRelationshipNode<
       | 'pages'
       | 'projects'
       | 'users'
+      | 'deletion-requests'
+      | 'mcp-authorizations'
+      | 'mcp-authorization-codes'
+      | 'mcp-events'
       | 'payload-kv'
       | 'payload-locked-documents'
       | 'payload-preferences'
       | 'payload-migrations'
     >
-  | SerializedAutoLinkNode<LexicalNodes_70ECF57D, LexicalLinkFields>
-  | SerializedLinkNode<LexicalNodes_70ECF57D, LexicalLinkFields>
-  | SerializedListNode<LexicalNodes_70ECF57D>
-  | SerializedListItemNode<LexicalNodes_70ECF57D>
-  | SerializedHeadingNode<LexicalNodes_70ECF57D>;
+  | SerializedAutoLinkNode<LexicalNodes_ECB87CC6, LexicalLinkFields>
+  | SerializedLinkNode<LexicalNodes_ECB87CC6, LexicalLinkFields>
+  | SerializedListNode<LexicalNodes_ECB87CC6>
+  | SerializedListItemNode<LexicalNodes_ECB87CC6>
+  | SerializedHeadingNode<LexicalNodes_ECB87CC6>;
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "LexicalNodes_3DE324E4".
@@ -109,6 +113,10 @@ export interface Config {
     projects: Project;
     media: Media;
     users: User;
+    'deletion-requests': DeletionRequest;
+    'mcp-authorizations': McpAuthorization;
+    'mcp-authorization-codes': McpAuthorizationCode;
+    'mcp-events': McpEvent;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -121,6 +129,10 @@ export interface Config {
     projects: ProjectsSelect<false> | ProjectsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
+    'deletion-requests': DeletionRequestsSelect<false> | DeletionRequestsSelect<true>;
+    'mcp-authorizations': McpAuthorizationsSelect<false> | McpAuthorizationsSelect<true>;
+    'mcp-authorization-codes': McpAuthorizationCodesSelect<false> | McpAuthorizationCodesSelect<true>;
+    'mcp-events': McpEventsSelect<false> | McpEventsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -246,7 +258,7 @@ export interface HeroBlock {
  */
 export interface SectionBlock {
   heading?: string | null;
-  body: LexicalRichText<LexicalNodes_70ECF57D>;
+  body: LexicalRichText<LexicalNodes_ECB87CC6>;
   id?: string | null;
   blockName?: string | null;
   blockType: 'section';
@@ -464,6 +476,130 @@ export interface RiveBlock {
   blockType: 'rive';
 }
 /**
+ * Asked by Claude. Set the status to "confirmed" to delete the document for good, or "cancelled".
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "deletion-requests".
+ */
+export interface DeletionRequest {
+  id: number;
+  targetCollection: 'pages' | 'projects' | 'media';
+  targetId: string;
+  targetTitle: string;
+  reason?: string | null;
+  status: 'pending' | 'confirmed' | 'cancelled';
+  decidedAt?: string | null;
+  createdBy?: {
+    relationTo: 'users';
+    value: number | User;
+  } | null;
+  updatedBy?: {
+    relationTo: 'users';
+    value: number | User;
+  } | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Claude clients allowed to act on the site. Delete a row to disconnect it.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "mcp-authorizations".
+ */
+export interface McpAuthorization {
+  id: number;
+  user: number | User;
+  clientId: string;
+  codeHash: string;
+  refreshTokenHash?: string | null;
+  rotatedRefreshHashes?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  lastUsedAt: string;
+  revokedAt?: string | null;
+  revokedReason?: ('refresh_reuse' | 'code_reuse') | null;
+  createdBy?: {
+    relationTo: 'users';
+    value: number | User;
+  } | null;
+  updatedBy?: {
+    relationTo: 'users';
+    value: number | User;
+  } | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "mcp-authorization-codes".
+ */
+export interface McpAuthorizationCode {
+  id: number;
+  codeHash: string;
+  user: number | User;
+  clientId: string;
+  redirectUri: string;
+  codeChallenge: string;
+  resource?: string | null;
+  expiresAt: string;
+  createdBy?: {
+    relationTo: 'users';
+    value: number | User;
+  } | null;
+  updatedBy?: {
+    relationTo: 'users';
+    value: number | User;
+  } | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "mcp-events".
+ */
+export interface McpEvent {
+  id: number;
+  type:
+    | 'consent_granted'
+    | 'consent_denied'
+    | 'token_issued'
+    | 'token_refreshed'
+    | 'token_refused'
+    | 'lineage_revoked'
+    | 'tool_call';
+  user?: (number | null) | User;
+  authorization?: string | null;
+  clientId?: string | null;
+  tool?: string | null;
+  target?: string | null;
+  isError?: boolean | null;
+  details?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  createdBy?: {
+    relationTo: 'users';
+    value: number | User;
+  } | null;
+  updatedBy?: {
+    relationTo: 'users';
+    value: number | User;
+  } | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -502,6 +638,22 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'users';
         value: number | User;
+      } | null)
+    | ({
+        relationTo: 'deletion-requests';
+        value: number | DeletionRequest;
+      } | null)
+    | ({
+        relationTo: 'mcp-authorizations';
+        value: number | McpAuthorization;
+      } | null)
+    | ({
+        relationTo: 'mcp-authorization-codes';
+        value: number | McpAuthorizationCode;
+      } | null)
+    | ({
+        relationTo: 'mcp-events';
+        value: number | McpEvent;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -780,6 +932,75 @@ export interface UsersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "deletion-requests_select".
+ */
+export interface DeletionRequestsSelect<T extends boolean = true> {
+  targetCollection?: T;
+  targetId?: T;
+  targetTitle?: T;
+  reason?: T;
+  status?: T;
+  decidedAt?: T;
+  createdBy?: T;
+  updatedBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "mcp-authorizations_select".
+ */
+export interface McpAuthorizationsSelect<T extends boolean = true> {
+  user?: T;
+  clientId?: T;
+  codeHash?: T;
+  refreshTokenHash?: T;
+  rotatedRefreshHashes?: T;
+  lastUsedAt?: T;
+  revokedAt?: T;
+  revokedReason?: T;
+  createdBy?: T;
+  updatedBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "mcp-authorization-codes_select".
+ */
+export interface McpAuthorizationCodesSelect<T extends boolean = true> {
+  codeHash?: T;
+  user?: T;
+  clientId?: T;
+  redirectUri?: T;
+  codeChallenge?: T;
+  resource?: T;
+  expiresAt?: T;
+  createdBy?: T;
+  updatedBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "mcp-events_select".
+ */
+export interface McpEventsSelect<T extends boolean = true> {
+  type?: T;
+  user?: T;
+  authorization?: T;
+  clientId?: T;
+  tool?: T;
+  target?: T;
+  isError?: T;
+  details?: T;
+  createdBy?: T;
+  updatedBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
@@ -922,7 +1143,8 @@ export interface CollectionsWidget {
 export interface CollectionQueryWidget {
   data?: {
     title?: string | null;
-    relatedCollection: 'pages' | 'projects' | 'media' | 'users';
+    relatedCollection:
+      'pages' | 'projects' | 'media' | 'users' | 'deletion-requests' | 'mcp-authorizations' | 'mcp-events';
     where?:
       | {
           [k: string]: unknown;
@@ -944,7 +1166,8 @@ export interface CollectionQueryWidget {
  */
 export interface ActivityWidget {
   data?: {
-    excludedCollections?: ('pages' | 'projects' | 'media' | 'users')[] | null;
+    excludedCollections?:
+      ('pages' | 'projects' | 'media' | 'users' | 'deletion-requests' | 'mcp-authorizations' | 'mcp-events')[] | null;
   };
   width: 'small' | 'medium' | 'large' | 'x-large' | 'full';
 }

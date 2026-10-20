@@ -1,4 +1,4 @@
-import type { Access, PayloadRequest, Where } from 'payload'
+import type { Access, FieldAccess, PayloadRequest, Where } from 'payload'
 
 // Every factory starts from a refusal: an absent user never opens anything,
 // except the public reads below.
@@ -30,3 +30,18 @@ export const untrashedOrAdmin: Access = ({ req }) => {
 
 /** Public read of a global: it holds the navigation and footer, nothing else. */
 export const publicRead: Access = () => true
+
+/**
+ * Closed to every API caller, the administrator included: the OAuth records
+ * are written by `src/mcp/oauth-store.ts` alone, which states why it skips access.
+ */
+export const closed: Access = () => false
+
+/**
+ * An administrator acting from `/admin`, never through the MCP server: what
+ * the model must not be able to do on its own (confirming a permanent deletion).
+ */
+export const adminOutsideMcp: Access = ({ req }) => isAdmin({ req }) && req.payloadAPI !== 'MCP'
+
+/** The field-level twin of `closed`: a hash or secret is never read through the API. */
+export const closedField: FieldAccess = () => false

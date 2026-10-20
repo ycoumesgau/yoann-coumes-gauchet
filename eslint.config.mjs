@@ -17,7 +17,8 @@ const eslintConfig = [
     // Payload 4 enforces access on the Local API by default. Skipping it is a
     // decision, never a convenience: only tests and migrations may do it.
     files: ['src/**/*.{ts,tsx}'],
-    ignores: ['src/migrations/**'],
+    // The OAuth store is the only exemption: its callers have no session yet (it says why).
+    ignores: ['src/migrations/**', 'src/mcp/oauth-store.ts'],
     rules: {
       'no-restricted-syntax': [
         'error',
