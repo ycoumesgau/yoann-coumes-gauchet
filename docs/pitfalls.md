@@ -72,8 +72,11 @@ The configuration keeps `fallback: true` for `/admin`. The public reads pass `fa
 false`: with the fallback, a French page with an empty field shows the English text
 (`tests/db/public-locales.test.ts`, seen red when the option is removed).
 
-## 2026-10-20 — Payload 4: a storage adapter goes in `storage`, not `plugins`
+## 2026-10-20 — Payload 4: a storage adapter goes in `storage`, and is always registered
 
-`s3Storage()` returns a `StorageAdapter` in Payload 4; in `plugins` it fails the type check
-(`StorageAdapter` is not assignable to `Plugin`). The config key is `storage: StorageAdapter[]`,
-initialised before the plugins (`node_modules/payload/dist/config/types.d.ts`).
+`s3Storage()` returns a `StorageAdapter` in Payload 4; in `plugins` it fails the type check. The
+config key is `storage: StorageAdapter[]`, initialised after the plugins and transformers
+(`node_modules/payload/dist/config/build.js`). The adapter adds `prefix` and `_objectKey` to the
+collection even when disabled: registering it only when its variables exist made the schema
+differ with and without them, and a migration generated without them missed two columns that
+storage, once on, reads (`tests/db/media-schema.test.ts`). Register it always, with `enabled`.

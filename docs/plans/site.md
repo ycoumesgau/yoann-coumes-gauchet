@@ -104,6 +104,7 @@ Source: Yoann's project file `synthese/03-site-refonte-concept.md` §3 (2026-10-
 - 2026-10-20: L3b. Every block renders as plain HTML (`_blocks/render-blocks.tsx`), one `<h1>`
   per page; a third-party player loads only after a click, under a notice kept in the `site`
   global (ADR-4, proposed by the session). Media go to Supabase Storage through S3 once the five
-  `S3_*` variables exist; in Payload 4 a storage adapter goes in `storage`, not `plugins`.
+  `S3_*` variables exist; the adapter is registered even when off, since it adds two columns to
+  `media` (the hostile review caught the missing migration).
   Page structure (Yoann via the coordinator): Videos & music joins the Licorn page, without the
   Runway videos; that is content, nothing in the code changes.

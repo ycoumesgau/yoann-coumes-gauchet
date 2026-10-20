@@ -28,6 +28,9 @@
   style. Files are served through Payload (`/api/media/file/…`), which applies the media access
   rules. Active only when the five `S3_*` variables are set and the endpoint is https
   (`src/domain/media-storage.ts`); the access keys are created and set in Vercel by Yoann.
+- Images go through Next's optimizer, which keeps a resized copy: `minimumCacheTTL` is 5 minutes
+  (Next's default is 4 hours), so a trashed image stays reachable through `/_next/image` for at
+  most that long. The original under `/api/media/file/…` stops at once.
 - Uploads pass through the function, so Vercel's request body limit (4.5 MB) caps a file;
   direct uploads to the bucket (`clientUploads`) are left out until a file needs them.
 

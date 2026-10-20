@@ -1,8 +1,8 @@
 /**
  * Where uploaded media live (ADR-3): Supabase Storage through its S3 API in
  * production, the local disk in development and CI. All five variables or
- * none: a partial set leaves storage off rather than guessing. Without it on
- * Vercel an upload fails (read-only disk) instead of vanishing later.
+ * none: a partial set leaves storage off rather than guessing, and the
+ * configuration names the unusable variables in the production logs.
  */
 
 export const mediaStorageVariables = [
@@ -22,22 +22,22 @@ export type MediaStorageConfig =
       readonly accessKeyId: string
       readonly secretAccessKey: string
     }
-  | { readonly enabled: false; readonly missing: readonly string[] }
+  | { readonly enabled: false; readonly unusable: readonly string[] }
 
 export const mediaStorageConfig = (
   env: Readonly<Record<string, string | undefined>>,
 ): MediaStorageConfig => {
   const value = (name: (typeof mediaStorageVariables)[number]) => env[name]?.trim() ?? ''
   const missing = mediaStorageVariables.filter((name) => value(name) === '')
-  if (missing.length > 0) return { enabled: false, missing }
+  if (missing.length > 0) return { enabled: false, unusable: missing }
   let endpoint: URL
   try {
     endpoint = new URL(value('S3_ENDPOINT'))
   } catch {
-    return { enabled: false, missing: ['S3_ENDPOINT'] }
+    return { enabled: false, unusable: ['S3_ENDPOINT'] }
   }
   // Credentials never travel in clear.
-  if (endpoint.protocol !== 'https:') return { enabled: false, missing: ['S3_ENDPOINT'] }
+  if (endpoint.protocol !== 'https:') return { enabled: false, unusable: ['S3_ENDPOINT'] }
   return {
     enabled: true,
     bucket: value('S3_BUCKET'),

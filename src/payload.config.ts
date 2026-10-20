@@ -20,6 +20,10 @@ import { Site } from './globals/Site'
 import { sitePlugins } from './mcp/plugin'
 
 const storage = mediaStorageConfig(process.env)
+if (!storage.enabled && process.env.VERCEL_ENV === 'production') {
+  // Names only, never values.
+  console.warn(`Media storage is off: unusable ${storage.unusable.join(', ')}`)
+}
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -69,15 +73,18 @@ export default buildConfig({
     fallback: true,
   },
   upload: { transformers: [sharpTransformer()] },
-  // Adapters run before `plugins` in Payload 4. Without the five variables, uploads stay
-  // on the local disk: fine in development, and production shows no upload until they exist.
-  // Private bucket: files are read through Payload, which applies the media access rules.
-  storage: storage.enabled
-    ? [
-        s3Storage({
-          collections: { media: true },
-          bucket: storage.bucket,
-          config: {
+  // Registered even when off: the adapter adds `prefix` and `_objectKey` to `media` either
+  // way, so the schema (and its migrations) is the same with or without the S3 variables.
+  // Without them, uploads stay on the local disk: fine in development; in production the
+  // upload fails until they exist. Private bucket: files are read through Payload, which
+  // applies the media access rules. Payload 4 initialises it after `plugins`.
+  storage: [
+    s3Storage({
+      enabled: storage.enabled,
+      collections: { media: true },
+      bucket: storage.enabled ? storage.bucket : '',
+      config: storage.enabled
+        ? {
             endpoint: storage.endpoint,
             region: storage.region,
             forcePathStyle: true,
@@ -85,9 +92,9 @@ export default buildConfig({
               accessKeyId: storage.accessKeyId,
               secretAccessKey: storage.secretAccessKey,
             },
-          },
-        }),
-      ]
-    : [],
+          }
+        : {},
+    }),
+  ],
   plugins: sitePlugins(),
 })

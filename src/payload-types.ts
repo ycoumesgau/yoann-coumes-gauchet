@@ -296,6 +296,8 @@ export interface Project {
 export interface Media {
   id: number;
   alt: string;
+  prefix?: string | null;
+  _objectKey?: string | null;
   createdBy?: {
     relationTo: 'users';
     value: number | User;
@@ -842,6 +844,8 @@ export interface ProjectsSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  prefix?: T;
+  _objectKey?: T;
   createdBy?: T;
   updatedBy?: T;
   updatedAt?: T;

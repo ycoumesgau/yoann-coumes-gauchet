@@ -19,10 +19,10 @@ describe('mediaStorageConfig', () => {
     })
   })
 
-  it('stays off, and says what is missing, on a partial set', () => {
+  it('stays off, and says which variable, on a partial set', () => {
     expect(mediaStorageConfig({ ...full, S3_SECRET_ACCESS_KEY: ' ' })).toEqual({
       enabled: false,
-      missing: ['S3_SECRET_ACCESS_KEY'],
+      unusable: ['S3_SECRET_ACCESS_KEY'],
     })
     expect(mediaStorageConfig({})).toMatchObject({ enabled: false })
   })

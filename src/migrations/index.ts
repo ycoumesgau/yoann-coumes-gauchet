@@ -3,6 +3,7 @@ import * as migration_20261020_122649_media_embeds from './20261020_122649_media
 import * as migration_20261020_124336_mcp_oauth from './20261020_124336_mcp_oauth'
 import * as migration_20261020_130412_mcp_review from './20261020_130412_mcp_review'
 import * as migration_20261020_142120_third_party_notice from './20261020_142120_third_party_notice'
+import * as migration_20261020_143717_media_storage_fields from './20261020_143717_media_storage_fields'
 
 export const migrations = [
   {
@@ -29,5 +30,10 @@ export const migrations = [
     up: migration_20261020_142120_third_party_notice.up,
     down: migration_20261020_142120_third_party_notice.down,
     name: '20261020_142120_third_party_notice',
+  },
+  {
+    up: migration_20261020_143717_media_storage_fields.up,
+    down: migration_20261020_143717_media_storage_fields.down,
+    name: '20261020_143717_media_storage_fields',
   },
 ]

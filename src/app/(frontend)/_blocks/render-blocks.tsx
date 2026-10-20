@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { spotifyEmbedUrl, videoEmbedUrl, type VideoPlatform } from '@/domain/embeds'
 import { pagePath } from '@/domain/locale-routing'
 import type { Locale } from '@/domain/locales'
-import type { Media, Page } from '@/payload-types'
+import type { Media, Page, Project } from '@/payload-types'
 
 import { EmbedFacade } from './embed-facade'
 
@@ -23,17 +23,32 @@ const providerNames: Record<VideoPlatform, string> = {
   instagram: 'Instagram',
 }
 
-const readableMedia = (value: number | Media | null | undefined): Media | null =>
-  typeof value === 'object' && value?.url ? value : null
+type ReadableImage = Media & { url: string; alt: string; width: number; height: number }
+
+/**
+ * An image the visitor may see, with its text alternative in this language
+ * (`alt` is localized and the site reads without fallback). Anything else, an
+ * unreadable relation, a video, a PDF, is left out.
+ */
+export const readableImage = (value: number | Media | null | undefined): ReadableImage | null =>
+  typeof value === 'object' &&
+  value !== null &&
+  value.url &&
+  value.alt &&
+  value.width &&
+  value.height &&
+  value.mimeType?.startsWith('image/')
+    ? (value as ReadableImage)
+    : null
 
 /** An image from the media library, served by Payload (`/api/media/file/…`) and resized by Next. */
-function MediaImage({ media, sizes }: { media: Media; sizes: string }) {
+function MediaImage({ media, sizes }: { media: ReadableImage; sizes: string }) {
   return (
     <Image
-      src={media.url!}
+      src={media.url}
       alt={media.alt}
-      width={media.width ?? 1200}
-      height={media.height ?? 1200}
+      width={media.width}
+      height={media.height}
       sizes={sizes}
     />
   )
@@ -41,6 +56,10 @@ function MediaImage({ media, sizes }: { media: Media; sizes: string }) {
 
 /** The page's `<h1>`: the hero's headline when the page opens on a hero, else its title. */
 export const opensOnHero = (layout: Page['layout']): boolean => layout?.[0]?.blockType === 'hero'
+
+export function PageTitle({ page }: { page: Pick<Page, 'title' | 'layout'> }) {
+  return opensOnHero(page.layout) ? null : <h1>{page.title}</h1>
+}
 
 export function RenderBlocks({
   blocks,
@@ -69,14 +88,19 @@ export function RenderBlocks({
             <RichText data={block.body} />
           </section>
         )
-      case 'projectCards':
+      case 'projectCards': {
+        // Unpublished or trashed projects arrive as an id (or null for a reader of the trash).
+        const projects = block.projects.filter(
+          (project): project is Project => typeof project === 'object' && project !== null,
+        )
+        if (projects.length === 0) return null
+        const CardTitle = block.heading ? 'h3' : 'h2'
         return (
           <section key={key} className="block-projects">
             {block.heading ? <h2>{block.heading}</h2> : null}
             <ul>
-              {block.projects.map((project) => {
-                if (typeof project !== 'object') return null
-                const image = readableMedia(project.image)
+              {projects.map((project) => {
+                const image = readableImage(project.image)
                 const page = typeof project.page === 'object' ? project.page : null
                 return (
                   <li key={project.id}>
@@ -84,13 +108,13 @@ export function RenderBlocks({
                       {image ? (
                         <MediaImage media={image} sizes="(max-width: 600px) 100vw, 33vw" />
                       ) : null}
-                      <h3>
+                      <CardTitle>
                         {page ? (
                           <a href={pagePath(locale, page.slug)}>{project.name}</a>
                         ) : (
                           project.name
                         )}
-                      </h3>
+                      </CardTitle>
                       <p>{project.tagline}</p>
                       <p>{project.period}</p>
                       <p>{project.summary}</p>
@@ -101,7 +125,9 @@ export function RenderBlocks({
             </ul>
           </section>
         )
-      case 'timeline':
+      }
+      case 'timeline': {
+        const EntryTitle = block.heading ? 'h3' : 'h2'
         return (
           <section key={key} className="block-timeline">
             {block.heading ? <h2>{block.heading}</h2> : null}
@@ -109,13 +135,14 @@ export function RenderBlocks({
               {block.entries.map((entry, i) => (
                 <li key={entry.id ?? i}>
                   <p>{entry.period}</p>
-                  <h3>{entry.title}</h3>
+                  <EntryTitle>{entry.title}</EntryTitle>
                   {entry.body ? <p>{entry.body}</p> : null}
                 </li>
               ))}
             </ol>
           </section>
         )
+      }
       case 'videoCarousel':
         return (
           <section key={key} className="block-videos">
@@ -123,14 +150,14 @@ export function RenderBlocks({
             {block.intro ? <p>{block.intro}</p> : null}
             <ul>
               {block.videos.map((video, i) => {
-                const poster = readableMedia(video.poster)
+                const poster = readableImage(video.poster)
                 return (
                   <li key={video.id ?? i}>
                     <EmbedFacade
                       src={videoEmbedUrl(video.platform, video.videoId)}
                       title={video.title}
                       provider={providerNames[video.platform]}
-                      notice={notice}
+                      notice={null}
                       aspect="vertical"
                       poster={
                         poster ? (
@@ -142,6 +169,7 @@ export function RenderBlocks({
                 )
               })}
             </ul>
+            {notice ? <p className="embed-notice">{notice}</p> : null}
           </section>
         )
       case 'spotify': {
@@ -152,7 +180,7 @@ export function RenderBlocks({
             {block.intro ? <p>{block.intro}</p> : null}
             <EmbedFacade
               src={src}
-              title={block.heading ?? 'Spotify'}
+              title={block.heading ?? null}
               provider="Spotify"
               notice={notice}
               aspect="player"
@@ -162,7 +190,7 @@ export function RenderBlocks({
       }
       case 'rive': {
         // The Rive player comes with the demos (L4); until then, the still image.
-        const fallback = readableMedia(block.fallback)
+        const fallback = readableImage(block.fallback)
         return fallback ? (
           <figure key={key} className="block-rive">
             <MediaImage media={fallback} sizes="(max-width: 600px) 100vw, 50vw" />

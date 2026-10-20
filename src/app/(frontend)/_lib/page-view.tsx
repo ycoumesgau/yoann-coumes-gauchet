@@ -4,7 +4,7 @@ import { notFound, permanentRedirect, redirect } from 'next/navigation'
 import { alternateLanguages, decidePage, languageLinks, pagePath } from '@/domain/locale-routing'
 import { isLocale } from '@/domain/locales'
 
-import { opensOnHero, RenderBlocks } from '../_blocks/render-blocks'
+import { PageTitle, RenderBlocks } from '../_blocks/render-blocks'
 import {
   findPublishedPage,
   findSite,
@@ -25,13 +25,13 @@ export async function renderPage(locale: string, slug: string, viaSlugRoute: boo
     redirect(decision.to)
   }
 
-  const page = await findPublishedPage(payload, slug, decision.locale)
+  const page = await findPublishedPage(payload, slug, decision.locale, 2)
   if (!page) notFound()
   const site = await findSite(payload, decision.locale)
   return (
     <SiteFrame site={site} locale={decision.locale} languageLinks={languageLinks(slug, published)}>
       <article>
-        {opensOnHero(page.layout) ? null : <h1>{page.title}</h1>}
+        <PageTitle page={page} />
         <RenderBlocks
           blocks={page.layout ?? []}
           locale={decision.locale}

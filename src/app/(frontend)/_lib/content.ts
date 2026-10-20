@@ -23,14 +23,15 @@ export const findPublishedPage = async (
   payload: Payload,
   slug: string,
   locale: Locale,
+  // 0 to know whether it exists; 2 to render it (blocks → projects → their page and image).
+  depth: 0 | 2 = 0,
 ): Promise<Page | null> => {
   const { docs } = await payload.find({
     collection: 'pages',
     where: { slug: { equals: slug } },
     locale,
     limit: 1,
-    // Blocks → projects → their page and image.
-    depth: 2,
+    depth,
     ...anonymous,
   })
   // The anonymous read filters on the requested language's `_status`.

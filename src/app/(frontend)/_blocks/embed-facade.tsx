@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 
 /**
  * A third-party player that loads only when the visitor asks for it (ADR-4):
@@ -16,19 +16,25 @@ export function EmbedFacade({
   poster,
 }: {
   src: string
-  title: string
+  title: string | null
   provider: string
   notice: string | null
   aspect: 'vertical' | 'player'
   poster?: ReactNode
 }) {
   const [loaded, setLoaded] = useState(false)
+  const frame = useRef<HTMLIFrameElement>(null)
+  // The button the visitor pressed is gone: keyboard focus moves to the player.
+  useEffect(() => {
+    if (loaded) frame.current?.focus()
+  }, [loaded])
   if (loaded) {
     return (
       <iframe
+        ref={frame}
         className={`embed embed-${aspect}`}
         src={src}
-        title={title}
+        title={title ?? provider}
         loading="lazy"
         allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
         referrerPolicy="strict-origin-when-cross-origin"
@@ -40,8 +46,14 @@ export function EmbedFacade({
       {poster}
       <button type="button" onClick={() => setLoaded(true)}>
         <span aria-hidden="true">▶ </span>
-        {title}
-        <span className="embed-provider"> · {provider}</span>
+        {title ? (
+          <>
+            {title}
+            <span className="embed-provider"> · {provider}</span>
+          </>
+        ) : (
+          provider
+        )}
       </button>
       {notice ? <p className="embed-notice">{notice}</p> : null}
     </div>
