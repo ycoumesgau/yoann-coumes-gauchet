@@ -29,7 +29,8 @@ export const findPublishedPage = async (
     where: { slug: { equals: slug } },
     locale,
     limit: 1,
-    depth: 1,
+    // Blocks → projects → their page and image.
+    depth: 2,
     ...anonymous,
   })
   // The anonymous read filters on the requested language's `_status`.

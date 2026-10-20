@@ -71,3 +71,9 @@ runs (before `pnpm build`). Routes type their `params` explicitly instead.
 The configuration keeps `fallback: true` for `/admin`. The public reads pass `fallbackLocale:
 false`: with the fallback, a French page with an empty field shows the English text
 (`tests/db/public-locales.test.ts`, seen red when the option is removed).
+
+## 2026-10-20 — Payload 4: a storage adapter goes in `storage`, not `plugins`
+
+`s3Storage()` returns a `StorageAdapter` in Payload 4; in `plugins` it fails the type check
+(`StorageAdapter` is not assignable to `Plugin`). The config key is `storage: StorageAdapter[]`,
+initialised before the plugins (`node_modules/payload/dist/config/types.d.ts`).

@@ -1020,6 +1020,10 @@ export interface Site {
       }[]
     | null;
   /**
+   * Shown under a video or a playlist before it loads: nothing is requested from YouTube, TikTok, Instagram or Spotify until the visitor clicks (ADR-4).
+   */
+  thirdPartyNotice?: string | null;
+  /**
    * Profiles and contact links shown in the footer.
    */
   links?:
@@ -1053,6 +1057,7 @@ export interface SiteSelect<T extends boolean = true> {
         page?: T;
         id?: T;
       };
+  thirdPartyNotice?: T;
   links?:
     | T
     | {

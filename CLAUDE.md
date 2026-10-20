@@ -12,10 +12,12 @@ for one app and one developer working through agents.
 Replaced, never extended (25 lines max).
 
 - L0–L2 merged; production on `yoann-coumes-gauchet.vercel.app` (cdg1), connector live.
-- L3a: `/en` `/fr` routing and language switch. Visual and texts wait for a new Claude Design
-  pass (the "1A" mockup is not kept); then L4 demos, L5 launch.
+- L3a merged: `/en` `/fr` routing and language switch. L3b: blocks as plain HTML, players on
+  click (ADR-4), S3 media storage. Visual and texts wait for a new Claude Design pass (the "1A"
+  mockup is not kept); then L4 demos, L5 launch.
 - Not live: `yoann.coumes-gauchet.fr` still points at the old Figma Sites page (DNS in Figma).
-- Owed by Yoann: S3 keys for media storage (not wired yet: no upload in production), DNS (L5).
+- Owed by Yoann: S3 keys for media storage (wired, inactive until the five `S3_*` variables
+  exist: no upload in production before), DNS (L5).
 - MCP code: `src/domain/mcp-oauth/` (pure), `src/mcp/` (server side). Only `oauth-store.ts` may
   skip access, and the lint exemption names it.
 

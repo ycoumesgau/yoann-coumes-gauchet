@@ -25,7 +25,8 @@ The detailed brief (content, demos, Claude Design) lives in Yoann's project file
 | L1    | Next 16.4 + Payload 4 beta, content model, FR/EN, first migration, tests    | Merged                 |
 | L2a   | MCP plugin, audit log, kill switch                                          | Merged                 |
 | L2b   | OAuth server (ADR-2), deletion confirmation; connector added in claude.ai   | Merged, connector live |
-| L3a   | `/en` and `/fr` URLs, language from the browser, visible switch, `hreflang` | In review              |
+| L3a   | `/en` and `/fr` URLs, language from the browser, visible switch, `hreflang` | Merged                 |
+| L3b   | Page blocks as plain HTML, players on click (ADR-4), media on Supabase S3   | In review              |
 | L3    | Front end from the mockup; content entered through the MCP server           | Waits for the mockup   |
 | L4    | Demos, in batches                                                           | To do                  |
 | L5    | Lighthouse, repository public, DNS switched to Vercel                       | Yoann's go             |
@@ -34,7 +35,8 @@ The detailed brief (content, demos, Claude Design) lives in Yoann's project file
 
 - Done on 2026-10-20: secrets in Vercel, Data API off, administrator account, connector in
   claude.ai (Yoann's messages in the project thread).
-- S3 keys for Supabase Storage, before any media upload in production (not wired yet).
+- S3 keys for Supabase Storage, before any media upload in production: wired in L3b, inactive
+  until the five `S3_*` variables exist in Vercel (`.env.example`).
 - `SITE_URL` is the `vercel.app` URL until the DNS switch (L5), then `https://yoann.coumes-gauchet.fr`.
 - Switch the DNS of `yoann.coumes-gauchet.fr` from Figma to Vercel (L5).
 
@@ -99,3 +101,9 @@ Source: Yoann's project file `synthese/03-site-refonte-concept.md` §3 (2026-10-
   by the switch, then `Accept-Language`, else English); pages live under `[locale]`, read with
   `fallbackLocale: false`; `decidePage`, `languageLinks` and `alternateLanguages` (pure) decide
   redirects, the switch's targets and `hreflang`. Mutations seen red: listed on the PR.
+- 2026-10-20: L3b. Every block renders as plain HTML (`_blocks/render-blocks.tsx`), one `<h1>`
+  per page; a third-party player loads only after a click, under a notice kept in the `site`
+  global (ADR-4, proposed by the session). Media go to Supabase Storage through S3 once the five
+  `S3_*` variables exist; in Payload 4 a storage adapter goes in `storage`, not `plugins`.
+  Page structure (Yoann via the coordinator): Videos & music joins the Licorn page, without the
+  Runway videos; that is content, nothing in the code changes.

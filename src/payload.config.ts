@@ -1,5 +1,6 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { s3Storage } from '@payloadcms/storage-s3'
 import { sharpTransformer } from '@payloadcms/transformer-sharp'
 import path from 'path'
 import { buildConfig } from 'payload'
@@ -14,8 +15,11 @@ import { Pages } from './collections/Pages'
 import { Projects } from './collections/Projects'
 import { Users } from './collections/Users'
 import { defaultLocale, localeLabels, locales } from './domain/locales'
+import { mediaStorageConfig } from './domain/media-storage'
 import { Site } from './globals/Site'
 import { sitePlugins } from './mcp/plugin'
+
+const storage = mediaStorageConfig(process.env)
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -65,5 +69,25 @@ export default buildConfig({
     fallback: true,
   },
   upload: { transformers: [sharpTransformer()] },
+  // Adapters run before `plugins` in Payload 4. Without the five variables, uploads stay
+  // on the local disk: fine in development, and production shows no upload until they exist.
+  // Private bucket: files are read through Payload, which applies the media access rules.
+  storage: storage.enabled
+    ? [
+        s3Storage({
+          collections: { media: true },
+          bucket: storage.bucket,
+          config: {
+            endpoint: storage.endpoint,
+            region: storage.region,
+            forcePathStyle: true,
+            credentials: {
+              accessKeyId: storage.accessKeyId,
+              secretAccessKey: storage.secretAccessKey,
+            },
+          },
+        }),
+      ]
+    : [],
   plugins: sitePlugins(),
 })
