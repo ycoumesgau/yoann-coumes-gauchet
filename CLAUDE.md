@@ -19,9 +19,10 @@ Replaced, never extended (25 lines max).
   the site from Claude Design prototype v2 (Tangerine), every block its pages need; films in
   `src/app/(frontend)/_films/`, their files in `public/films/`; Luma plays from her `.riv`
   (`_blocks/luma.tsx`, runtime wasm served from `public/rive/`). L3e: all content entered in
-  production through the MCP server, both locales published; media no longer fetch URLs.
+  production through the MCP server, both locales published; no server-side URL fetch into media.
 - Not live: `yoann.coumes-gauchet.fr` still points at the old Figma Sites page (DNS in Figma).
-- Owed by Yoann: DNS (L5), the go to drop `noindex`.
+- Owed by Yoann: DNS (L5), the go to drop `noindex`, a read of the French lines the session
+  translated itself (listed in the L3e morning report).
 - MCP code: `src/domain/mcp-oauth/` (pure), `src/mcp/` (server side). Only `oauth-store.ts` may
   skip access, and the lint exemption names it.
 

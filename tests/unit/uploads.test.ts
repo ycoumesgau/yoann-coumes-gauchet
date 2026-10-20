@@ -39,7 +39,7 @@ describe('the rive block picker', () => {
 })
 
 describe('server-side fetch of media', () => {
-  it('is closed: no URL may be fetched into media', () => {
+  it('is closed server-side: no allow-list, so Payload fetches no URL into media', () => {
     const upload = Media.upload
     expect(typeof upload === 'object' && upload.pasteURL).toBeFalsy()
   })
