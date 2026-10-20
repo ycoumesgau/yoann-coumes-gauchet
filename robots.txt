@@ -1,3 +1,0 @@
-User-agent: *
-Allow: /
-Sitemap: https://yoann.coumes-gauchet.fr/sitemap.xml

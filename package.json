@@ -1,0 +1,64 @@
+{
+  "name": "yoann-coumes-gauchet",
+  "version": "1.0.0",
+  "description": "Yoann Coumes-Gauchet's site: Next.js, Payload 4 and an MCP server",
+  "type": "module",
+  "scripts": {
+    "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" payload build",
+    "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
+    "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
+    "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
+    "lint": "cross-env NODE_OPTIONS=--no-deprecation eslint . --max-warnings 0",
+    "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
+    "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
+    "format": "oxfmt .",
+    "format:check": "oxfmt --check .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:db": "vitest run --config vitest.db.config.mts",
+    "db:migrate": "cross-env NODE_OPTIONS=--no-deprecation payload migrate",
+    "db:migrate:create": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:create",
+    "memory:check": "node scripts/agent-memory-check.mjs",
+    "prepare": "node scripts/install-git-hooks.mjs"
+  },
+  "dependencies": {
+    "@payloadcms/next": "4.0.0-beta.3",
+    "@payloadcms/plugin-mcp": "4.0.0-beta.3",
+    "@payloadcms/richtext-lexical": "4.0.0-beta.3",
+    "@payloadcms/transformer-sharp": "4.0.0-beta.3",
+    "@payloadcms/ui": "4.0.0-beta.3",
+    "cross-env": "10.1.0",
+    "dotenv": "16.4.7",
+    "graphql": "16.14.2",
+    "next": "16.4.2",
+    "payload": "4.0.0-beta.3",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "@payloadcms/db-postgres": "4.0.0-beta.3"
+  },
+  "devDependencies": {
+    "@types/node": "24.12.3",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.4.2",
+    "oxfmt": "0.73.0",
+    "tsx": "4.23.15",
+    "typescript": "6.0.3",
+    "vite-tsconfig-paths": "6.0.5",
+    "vitest": "5.0.1"
+  },
+  "engines": {
+    "node": ">=24.15.0",
+    "pnpm": ">=10"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "sharp",
+      "esbuild",
+      "unrs-resolver"
+    ]
+  },
+  "private": true,
+  "packageManager": "pnpm@10.28.0"
+}
