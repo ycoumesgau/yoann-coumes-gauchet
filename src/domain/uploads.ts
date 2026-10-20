@@ -17,3 +17,16 @@ export const riveFileFilter = {
 export const isAllowedOctetStream = (mimeType: unknown, filename: unknown): boolean =>
   !(RIVE_TYPES as readonly unknown[]).includes(mimeType) ||
   (typeof filename === 'string' && /^[^/\\]+\.riv$/i.test(filename))
+
+/**
+ * The only addresses media may be fetched from server-side: this site's own
+ * `public/import/`, where files wait until they are imported (the agent's
+ * sandbox cannot upload to production directly). Removed with that folder.
+ */
+export const PASTE_URL_ALLOW_LIST = [
+  {
+    protocol: 'https' as const,
+    hostname: 'yoann-coumes-gauchet.vercel.app',
+    pathname: '/import/*',
+  },
+]

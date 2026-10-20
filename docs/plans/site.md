@@ -122,3 +122,6 @@ Source: Yoann's project file `synthese/03-site-refonte-concept.md` §3 (2026-10-
   review at his request (merge on green CI). Tangerine kept (Yoann). Fonts self-hosted
   (`@fontsource`), no request to Google. Images reach media by `externalURL` from
   `public/import/` (the sandbox cannot reach the production upload URL), then that folder goes.
+  Payload 4 fetches by URL only with `upload.pasteURL.allowList`; the list names
+  `https://yoann-coumes-gauchet.vercel.app/import/*` only, and it goes with the folder, in the
+  same PR (a temporary exception, not a feature).
