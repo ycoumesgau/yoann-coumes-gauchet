@@ -1,7 +1,7 @@
 import { APIError, type CollectionConfig } from 'payload'
 
 import { adminOnly, untrashedOrAdmin } from '@/domain/access'
-import { isAllowedOctetStream, PASTE_URL_ALLOW_LIST, RIVE_TYPES } from '@/domain/uploads'
+import { isAllowedOctetStream, RIVE_TYPES } from '@/domain/uploads'
 
 export const Media: CollectionConfig = {
   slug: 'media',
@@ -27,6 +27,5 @@ export const Media: CollectionConfig = {
   upload: {
     // Images, short videos, the CV, and Rive animations (`.riv` only, see `domain/uploads.ts`).
     mimeTypes: ['image/*', 'video/mp4', 'video/webm', 'application/pdf', ...RIVE_TYPES],
-    pasteURL: { allowList: PASTE_URL_ALLOW_LIST },
   },
 }

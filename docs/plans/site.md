@@ -125,3 +125,9 @@ Source: Yoann's project file `synthese/03-site-refonte-concept.md` §3 (2026-10-
   Payload 4 fetches by URL only with `upload.pasteURL.allowList`; the list names
   `https://yoann-coumes-gauchet.vercel.app/import/*` only, and it goes with the folder, in the
   same PR (a temporary exception, not a feature).
+- 2026-10-20 (night): L3e. Seventeen media, seven pages and the `site` global entered in
+  production through the MCP server, EN then FR (the global's arrays are shared across locales,
+  so the FR write reuses the EN row ids). Then `public/import/` and the `pasteURL` allow-list
+  went, as planned; `luma.riv` stays as a test fixture (`tests/fixtures/`), read by the Luma
+  test. French lines with no validated source were translated by the session and listed in the
+  morning report for Yoann.
