@@ -13,14 +13,12 @@ import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
 import { Projects } from './collections/Projects'
 import { Users } from './collections/Users'
-import { defaultLocale, locales } from './domain/locales'
+import { defaultLocale, localeLabels, locales } from './domain/locales'
 import { Site } from './globals/Site'
 import { sitePlugins } from './mcp/plugin'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
-
-const localeLabels = { en: 'English', fr: 'Français' } as const
 
 export default buildConfig({
   admin: {

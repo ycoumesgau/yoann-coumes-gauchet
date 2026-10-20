@@ -11,12 +11,11 @@ for one app and one developer working through agents.
 
 Replaced, never extended (25 lines max).
 
-- L0 (method), L1 (Payload 4, content, FR/EN) and L2 (MCP with OAuth, ADR-2) on the first PR.
-- Next: L3 front end from the Claude Design mockup, L4 demos, L5 launch.
+- L0–L2 merged; production on `yoann-coumes-gauchet.vercel.app` (cdg1), connector live.
+- L3a: `/en` `/fr` routing and language switch. Visual and texts wait for a new Claude Design
+  pass (the "1A" mockup is not kept); then L4 demos, L5 launch.
 - Not live: `yoann.coumes-gauchet.fr` still points at the old Figma Sites page (DNS in Figma).
-- Supabase project created (ADR-3). Owed by Yoann: the secrets in Vercel (`docs/plans/site.md`
-  §2), the Data API off, the admin account right after the first production deployment, the
-  connector in claude.ai (client id `site-claude-ai`), DNS (L5).
+- Owed by Yoann: S3 keys for media storage (not wired yet: no upload in production), DNS (L5).
 - MCP code: `src/domain/mcp-oauth/` (pure), `src/mcp/` (server side). Only `oauth-store.ts` may
   skip access, and the lint exemption names it.
 
@@ -57,7 +56,8 @@ never from memory: a claim it does not back is not published.
 1. **Schema in English, content in two locales** (`en` default, `fr`). User-facing text lives in
    Payload, never hard-coded in a component.
 2. **Payload 4 stores `_status` per locale**: publishing English does not publish French, and a
-   locale publishes only with its own required fields (`tests/db/pages-access.test.ts`).
+   locale publishes only with its own required fields (`tests/db/pages-access.test.ts`). The
+   public site reads with `fallbackLocale: false`: no English text under a French URL.
 3. **Access**: every function starts from a refusal. The only anonymous reads are published,
    untrashed documents (`publishedOrAdmin`), untrashed media, and the `site` global. Versions
    are never public (`readVersions: adminOnly`, or Payload copies `read` onto them). Only a
