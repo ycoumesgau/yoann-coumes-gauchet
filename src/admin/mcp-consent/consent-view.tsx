@@ -87,11 +87,12 @@ export async function McpConsentView(props: AdminViewServerProps) {
       <ul style={{ margin: 0 }}>
         <li>
           It can read, create, edit, publish and unpublish pages, projects, media and the site
-          settings.
+          settings. Its edits to pages and projects stay drafts until it publishes them.
         </li>
         <li>It can move documents to the trash and restore them.</li>
         <li>
-          It cannot delete anything for good: it asks, and you confirm in the deletion requests.
+          It cannot delete a document for good: it asks, and you confirm in the deletion requests.
+          Replacing the file of a media item does discard the previous file.
         </li>
         <li>It cannot see or change accounts or connections.</li>
       </ul>

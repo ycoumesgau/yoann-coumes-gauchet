@@ -85,6 +85,10 @@ describe('authorization request', () => {
     expect(code('http://localhost.evil.com/callback')).toBe(false)
     expect(code('https://localhost:53682/callback')).toBe(false)
     expect(code('http://localhost:53682/callback/../steal')).toBe(false)
+    // A port outside 1-65535 would make the redirect throw after consent.
+    expect(code('http://localhost:65535/callback')).toBe(true)
+    expect(code('http://localhost:65536/callback')).toBe(false)
+    expect(code('http://localhost:0/callback')).toBe(false)
   })
 
   it.each([
@@ -129,6 +133,21 @@ describe('tokens', () => {
     if (!validated.ok) throw new Error('invalid')
     const ticket = await signConsentTicket({ userId: '1', request: validated.request }, config, now)
     expect(await verifyAccessToken(ticket, config, now)).toBeNull()
+  })
+
+  it('refuses a token issued for another resource or by another issuer', async () => {
+    const elsewhere = await signAccessToken(
+      claims,
+      { ...config, resource: 'https://other.example/api/mcp' },
+      now,
+    )
+    expect(await verifyAccessToken(elsewhere, config, now)).toBeNull()
+    const foreign = await signAccessToken(
+      claims,
+      { ...config, issuer: 'https://other.example' },
+      now,
+    )
+    expect(await verifyAccessToken(foreign, config, now)).toBeNull()
   })
 
   it('refuses a token signed with HS256 under any secret', async () => {

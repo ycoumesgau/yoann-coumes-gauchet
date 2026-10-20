@@ -1,12 +1,13 @@
-import { Forbidden, getPayload, type Payload, type PayloadRequest } from 'payload'
+import { Forbidden, getPayload, NotFound, type Payload, type PayloadRequest } from 'payload'
 import { beforeAll, describe, expect, it } from 'vitest'
 
 import { validateAuthorizeRequest } from '@/domain/mcp-oauth/authorize-request'
 import { CLAUDE_CODE_CLIENT } from '@/domain/mcp-oauth/client'
 import type { McpOAuthConfig } from '@/domain/mcp-oauth/config'
 import { s256 } from '@/domain/mcp-oauth/pkce'
-import { signConsentTicket } from '@/domain/mcp-oauth/tokens'
+import { signAccessToken, signConsentTicket } from '@/domain/mcp-oauth/tokens'
 import { decideConsent } from '@/mcp/authorize-flow'
+import { journaled, requestPermanentDeletion } from '@/mcp/plugin'
 import { authenticateMcpRequest } from '@/mcp/resource-auth'
 import { exchangeToken } from '@/mcp/token-flow'
 import config from '@/payload.config'
@@ -280,5 +281,220 @@ describe('permanent deletion', () => {
       where: { id: { equals: page.id } },
     })
     expect(gone.docs).toHaveLength(0)
+  })
+})
+
+/** A request as the plugin builds it: Yoann's account, through the MCP server. */
+const asMcp = async (): Promise<PayloadRequest> =>
+  ({ payload, user: { ...user }, payloadAPI: 'MCP', context: {} }) as unknown as PayloadRequest
+
+const trashedPage = async (title: string) => {
+  const page = await payload.create({
+    collection: 'pages',
+    overrideAccess: false,
+    user,
+    data: { title, slug: `${title.toLowerCase().replace(/\W+/g, '-')}-${Date.now()}` },
+  })
+  await payload.update({
+    collection: 'pages',
+    id: page.id,
+    overrideAccess: false,
+    user,
+    data: { deletedAt: new Date().toISOString() },
+  })
+  return page
+}
+
+describe('MCP review fixes', () => {
+  it('deletes nothing when the document left the trash after the request', async () => {
+    const page = await trashedPage('Restored later')
+    const request = await payload.create({
+      collection: 'deletion-requests',
+      overrideAccess: false,
+      user,
+      data: {
+        targetCollection: 'pages',
+        targetId: String(page.id),
+        targetTitle: 'Restored later',
+        status: 'pending',
+      },
+    })
+    await payload.update({
+      collection: 'pages',
+      id: page.id,
+      trash: true,
+      overrideAccess: false,
+      user,
+      data: { deletedAt: null, _status: 'published' },
+    })
+    await expect(
+      payload.update({
+        collection: 'deletion-requests',
+        id: request.id,
+        overrideAccess: false,
+        user,
+        data: { status: 'confirmed' },
+      }),
+    ).rejects.toThrow(/no longer in the trash/)
+    const live = await payload.find({
+      collection: 'pages',
+      overrideAccess: false,
+      user: null,
+      where: { id: { equals: page.id } },
+    })
+    expect(live.docs).toHaveLength(1)
+  })
+
+  it('records who confirmed, whatever the caller sends', async () => {
+    const page = await trashedPage('Confirmed by Yoann')
+    const request = await payload.create({
+      collection: 'deletion-requests',
+      overrideAccess: false,
+      user,
+      data: {
+        targetCollection: 'pages',
+        targetId: String(page.id),
+        targetTitle: 'Confirmed by Yoann',
+        status: 'confirmed',
+        decidedBy: 999999,
+      },
+    })
+    expect(request.decidedBy ?? null).toBeNull()
+    const confirmed = await payload.update({
+      collection: 'deletion-requests',
+      id: request.id,
+      overrideAccess: false,
+      user,
+      depth: 0,
+      data: { status: 'confirmed' },
+    })
+    expect(confirmed.decidedBy).toBe(user.id)
+  })
+
+  it('refuses a deletion request for a document outside the trash', async () => {
+    const page = await payload.create({
+      collection: 'pages',
+      overrideAccess: false,
+      user,
+      data: { title: 'Still live', slug: `still-live-${Date.now()}` },
+    })
+    const response = await requestPermanentDeletion.handler({
+      slug: 'pages',
+      input: { id: page.id },
+      req: await asMcp(),
+    } as never)
+    expect(response.isError).toBe(true)
+    const { totalDocs } = await payload.count({
+      collection: 'deletion-requests',
+      overrideAccess: false,
+      user,
+      where: { targetId: { equals: String(page.id) } },
+    })
+    expect(totalDocs).toBe(0)
+  })
+
+  it('keeps an MCP edit of a published page a draft until it publishes', async () => {
+    const slug = `mcp-draft-${Date.now()}`
+    const page = await payload.create({
+      collection: 'pages',
+      overrideAccess: false,
+      user,
+      data: { title: 'Public text', slug, _status: 'published' },
+    })
+    const publicTitle = async () =>
+      (
+        await payload.find({
+          collection: 'pages',
+          overrideAccess: false,
+          user: null,
+          where: { slug: { equals: slug } },
+        })
+      ).docs[0]?.title
+    await payload.update({
+      collection: 'pages',
+      id: page.id,
+      overrideAccess: false,
+      req: await asMcp(),
+      data: { title: 'Edited by Claude' },
+    })
+    expect(await publicTitle()).toBe('Public text')
+    await payload.update({
+      collection: 'pages',
+      id: page.id,
+      overrideAccess: false,
+      req: await asMcp(),
+      data: { title: 'Published by Claude', _status: 'published' },
+    })
+    expect(await publicTitle()).toBe('Published by Claude')
+  })
+
+  it('keeps accounts and connections out of the MCP server, even past the tool list', async () => {
+    const req = await asMcp()
+    await expect(
+      payload.update({
+        collection: 'users',
+        id: user.id,
+        overrideAccess: false,
+        req,
+        data: { email: `taken-${Date.now()}@example.test` },
+      }),
+    ).rejects.toThrow(Forbidden)
+    await expect(
+      payload.find({ collection: 'mcp-authorizations', overrideAccess: false, req }),
+    ).rejects.toThrow(Forbidden)
+  })
+
+  it('journals a tool call that throws', async () => {
+    const tool = journaled({
+      type: 'collectionTool',
+      mcpName: 'findDocuments',
+      collectionSlug: 'pages',
+      configKey: 'find',
+      tool: {
+        handler: () => {
+          throw new NotFound()
+        },
+      },
+    } as never) as unknown as {
+      tool: { handler: (args: unknown) => Promise<unknown> }
+    }
+    const req = await asMcp()
+    const id = Date.now()
+    await expect(tool.tool.handler({ slug: 'pages', input: { id }, req })).rejects.toThrow(NotFound)
+    const { docs } = await payload.find({
+      collection: 'mcp-events',
+      overrideAccess: false,
+      user,
+      where: { target: { equals: `pages/${id}` } },
+    })
+    expect(docs[0]).toMatchObject({ type: 'tool_call', tool: 'findDocuments', isError: true })
+  })
+
+  it('refuses a token whose account or client does not match its connection', async () => {
+    const issued = await exchange(await consent())
+    if (issued.status !== 200) throw new Error('not issued')
+    const auth = await authenticateMcpRequest(
+      payload,
+      mcp,
+      bearer(issued.body.access_token),
+      new Date(),
+    )
+    if (!auth.ok) throw new Error('not authenticated')
+    const forged = (claims: { sub: string; clientId: string }) =>
+      signAccessToken({ ...claims, authorizationId: auth.caller.authorizationId }, mcp, new Date())
+    // Another existing account: only the comparison with the grant refuses it.
+    const other = await payload.create({
+      collection: 'users',
+      overrideAccess: true,
+      data: { email: `other-${Date.now()}@example.test`, password: `pw-${Date.now()}-y` },
+    })
+    const otherSub = await forged({ sub: String(other.id), clientId: CLAUDE_CODE_CLIENT.clientId })
+    const otherClient = await forged({ sub: String(user.id), clientId: 'site-claude-ai' })
+    expect((await authenticateMcpRequest(payload, mcp, bearer(otherSub), new Date())).ok).toBe(
+      false,
+    )
+    expect((await authenticateMcpRequest(payload, mcp, bearer(otherClient), new Date())).ok).toBe(
+      false,
+    )
   })
 })

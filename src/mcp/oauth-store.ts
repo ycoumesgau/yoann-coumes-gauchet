@@ -231,7 +231,7 @@ export const recordMcpEvent = async (
     readonly authorizationId?: string | null
     readonly clientId?: string | null
     readonly tool?: string
-    readonly target?: string
+    readonly target?: string | null
     readonly isError?: boolean
     readonly details?: Record<string, unknown>
   },

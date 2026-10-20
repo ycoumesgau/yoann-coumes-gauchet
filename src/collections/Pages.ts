@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { pageBlocks } from '@/blocks'
 import { adminOnly, publishedOrAdmin } from '@/domain/access'
+import { mcpWritesAsDrafts } from '@/domain/mcp-writes'
 import { validateSlug } from '@/domain/slug'
 
 export const Pages: CollectionConfig = {
@@ -18,6 +19,7 @@ export const Pages: CollectionConfig = {
   },
   trash: true,
   versions: { drafts: true },
+  hooks: { beforeOperation: [mcpWritesAsDrafts] },
   fields: [
     { name: 'title', type: 'text', required: true, localized: true },
     {

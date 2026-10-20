@@ -60,4 +60,14 @@ first session, kept unless Yoann says otherwise.
 - Connections are listed in `/admin` (Claude connections); deleting one cuts its tokens at once.
 - Deletion: trash through `updateDocument` with `deletedAt`; `requestPermanentDeletion` creates a
   `deletion-requests` row that only `/admin` can confirm (`adminOutsideMcp`), within 24 hours.
-- Journal: `mcp-events`, one row per consent, token event and tool call (input cut to 2 KB).
+- Journal (§5 as built): `mcp-events`, one row per consent, token event and tool call that reaches
+  a tool, refused or thrown included, with its target (`pages/12`) and input (cut to 2 KB). The
+  "before" is Payload's version history (pages, projects, the `site` global), not a copy in the
+  journal. Not journaled: a call the plugin refuses before any tool (slug outside the closed list).
+- Writes (§3 as built): `mcpWritesAsDrafts` (`src/domain/mcp-writes.ts`) on pages and projects;
+  an explicit `_status`, `publishAllLocales`/`unpublishAllLocales` or a trash move is kept.
+- Second lock behind the closed list: `users` and `mcp-authorizations` refuse any MCP caller
+  (`adminOutsideMcp`), so an exposure mistake in the plugin does not open account takeover.
+- Confirmation deletes only a document still in the trash (a restore since the request wins);
+  the request records who decided.
+- No page can be framed (`frame-ancestors 'none'`), the consent screen first.

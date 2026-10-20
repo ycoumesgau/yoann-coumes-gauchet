@@ -24,9 +24,10 @@ export const CLAUDE_APPS_CLIENT: RegisteredClient = {
 
 /**
  * Claude Code: an RFC 8252 loopback redirect on an ephemeral port. The port is
- * ignored; scheme, host and path are not.
+ * free (1 to 65535); scheme, host and path are not.
  */
-const LOOPBACK = /^http:\/\/(?:localhost|127\.0\.0\.1)(?::\d{1,5})?\/callback$/
+const PORT = '(?:[1-9]\\d{0,3}|[1-5]\\d{4}|6[0-4]\\d{3}|65[0-4]\\d{2}|655[0-2]\\d|6553[0-5])'
+const LOOPBACK = new RegExp(`^http://(?:localhost|127\\.0\\.0\\.1)(?::${PORT})?/callback$`)
 export const CLAUDE_CODE_CLIENT: RegisteredClient = {
   clientId: 'site-claude-code',
   name: 'Claude Code (this computer)',

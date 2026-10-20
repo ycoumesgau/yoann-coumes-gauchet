@@ -50,6 +50,9 @@ export default buildConfig({
   editor: lexicalEditor(),
   // The site reads through the Local API; GraphQL would only widen the public surface.
   graphQL: { disable: true },
+  // Payload's shared LLM instructions would be readable wherever their target
+  // is (public pages included); nothing here uses them.
+  llmInstructions: false,
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: { outputFile: path.resolve(dirname, 'payload-types.ts') },
   db: postgresAdapter({

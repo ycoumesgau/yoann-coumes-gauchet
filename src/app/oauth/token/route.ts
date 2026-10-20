@@ -15,6 +15,10 @@ export async function POST(request: Request): Promise<Response> {
   if (!contentType.toLowerCase().startsWith('application/x-www-form-urlencoded')) {
     return Response.json({ error: 'invalid_request' }, { status: 400, headers: NO_STORE })
   }
+  // Refused before reading when the size is announced; checked again after.
+  if (Number(request.headers.get('Content-Length') ?? 0) > MAX_BODY_BYTES) {
+    return Response.json({ error: 'invalid_request' }, { status: 400, headers: NO_STORE })
+  }
   const raw = await request.text()
   if (raw.length > MAX_BODY_BYTES) {
     return Response.json({ error: 'invalid_request' }, { status: 400, headers: NO_STORE })

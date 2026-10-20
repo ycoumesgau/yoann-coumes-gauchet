@@ -32,3 +32,19 @@ anonymous caller could read every version ever published, including one correcte
 unpublished since. And the REST `find` honours `?trash=true`, which drops the "not trashed"
 filter: a trashed published page stayed public. Hence `readVersions: adminOnly` and a
 `deletedAt` condition in the anonymous read. Covered by `tests/db/public-surface.test.ts`.
+
+## 2026-10-20 — Payload 4: `delete` with `trash: true` ignores the trash
+
+`trash: true` lifts the "not trashed" filter (`collections/operations/deleteByID.js`); it does not
+restrict to trashed documents. A delete meant for the trash says so in its `where`
+(`deletedAt: { exists: true }`), as `DeletionRequests` does.
+
+## 2026-10-20 — MCP plugin: `draft` defaults to `false`, `afterToolCall` skips throws
+
+`updateDocument` writes the published row unless the call passes `draft: true`; `afterToolCall`
+runs only for a handler that returns. Hence `mcpWritesAsDrafts` and the `journaled` wrapper.
+
+## 2026-10-20 — Supabase: tables created by `postgres` are granted to `anon`
+
+`pg_default_acl` grants `anon` and `authenticated` everything on tables `postgres` creates in
+`public`. Payload connects as its own role (`site_payload`) so its tables escape those grants.

@@ -44,41 +44,64 @@ export const DeletionRequests: CollectionConfig = {
       options: [...deletionStatuses],
     },
     { name: 'decidedAt', type: 'date', admin: { readOnly: true } },
+    {
+      name: 'decidedBy',
+      type: 'relationship',
+      relationTo: 'users',
+      admin: { readOnly: true },
+    },
   ],
   hooks: {
     beforeChange: [
       async ({ data, operation, originalDoc, req }) => {
         if (operation === 'create') {
           // A request is born pending, whatever the caller sent.
-          return { ...data, status: 'pending', decidedAt: null }
+          return { ...data, status: 'pending', decidedAt: null, decidedBy: null }
         }
         const previous = originalDoc as {
           status: unknown
           createdAt: string
           targetCollection: unknown
           targetId: string
+          decidedAt?: string | null
+          decidedBy?: unknown
         }
         const decision = decideDeletionTransition(previous, data.status, new Date())
         if (!decision.ok) {
           throw new APIError(`This request cannot change status (${decision.reason}).`, 400)
         }
         if (!decision.deleteTarget) {
+          // Who decided and when are written here only, never taken from the caller.
           return data.status === previous.status
-            ? data
-            : { ...data, decidedAt: new Date().toISOString() }
+            ? {
+                ...data,
+                decidedAt: previous.decidedAt ?? null,
+                decidedBy: previous.decidedBy ?? null,
+              }
+            : { ...data, decidedAt: new Date().toISOString(), decidedBy: req.user?.id ?? null }
         }
         if (!isDeletableCollection(previous.targetCollection)) {
           throw new APIError('Unknown target collection.', 400)
         }
         // Same request, same user: access is enforced on the deletion itself.
-        await req.payload.delete({
+        // `trash: true` lifts Payload's "not trashed" filter, so the condition
+        // on `deletedAt` is what keeps a document restored since the request.
+        const { docs } = await req.payload.delete({
           collection: previous.targetCollection,
-          id: previous.targetId,
+          where: {
+            and: [{ id: { equals: previous.targetId } }, { deletedAt: { exists: true } }],
+          },
           trash: true,
           overrideAccess: false,
           req,
         })
-        return { ...data, decidedAt: new Date().toISOString() }
+        if (docs.length !== 1) {
+          throw new APIError(
+            'The document is no longer in the trash: nothing was deleted. Cancel this request.',
+            409,
+          )
+        }
+        return { ...data, decidedAt: new Date().toISOString(), decidedBy: req.user?.id ?? null }
       },
     ],
   },

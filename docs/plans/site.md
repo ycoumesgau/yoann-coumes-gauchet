@@ -27,7 +27,12 @@ The detailed brief (content, demos, Claude Design) lives in Yoann's project file
 
 ## 2. Owed by Yoann
 
-- Create the Supabase EU project; set `DATABASE_URL` and `PAYLOAD_SECRET` in Vercel.
+- Supabase project created (ADR-3) and `ENABLE_MCP`, `SITE_URL` set in Vercel (Production) by the
+  session. Secrets are Yoann's to set, never routed through a session: the `site_payload`
+  password (SQL editor, `alter role`), then `DATABASE_URL` (transaction pooler, user
+  `site_payload.pgmqmjpaltifcjzegksu`), `PAYLOAD_SECRET`, `MCP_OAUTH_SIGNING_KEY`
+  (`.env.example`). Turn the Data API off in the dashboard.
+- `SITE_URL` is the `vercel.app` URL until the DNS switch (L5), then `https://yoann.coumes-gauchet.fr`.
 - Create the administrator account **before** the deployment URL is shared or reachable: Payload
   lets the first visitor of an empty `users` table create it.
 - Add the MCP connector in claude.ai (L2b).
@@ -79,3 +84,9 @@ Source: Yoann's project file `synthese/03-site-refonte-concept.md` §3 (2026-10-
   written. Five mutations seen red in `tests/db/mcp-oauth.test.ts`. Accepted: Payload's
   `payload-llm-instructions` follows the read access of its targets, so instructions on public
   collections are public; the repository is public too.
+- 2026-10-20: hostile review of L2. Fixed: a confirmation could delete a document restored since
+  the request; MCP edits of a published page went live (now drafts, ADR-2 §3); thrown or refused
+  tool calls escaped the journal; `users` and connections relied on the tool filter alone (now a
+  second lock); no anti-framing header; `payload-llm-instructions` removed (`llmInstructions:
+  false`) rather than accepted public; loopback ports above 65535. Rejected or deferred findings
+  are listed on PR #1. Supabase project created in Yoann's free organisation.

@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { adminOnly, publishedOrAdmin } from '@/domain/access'
+import { mcpWritesAsDrafts } from '@/domain/mcp-writes'
 import { validateSlug } from '@/domain/slug'
 
 /** A project shown as a card. Its own story lives on the page it links to. */
@@ -16,6 +17,7 @@ export const Projects: CollectionConfig = {
   },
   trash: true,
   versions: { drafts: true },
+  hooks: { beforeOperation: [mcpWritesAsDrafts] },
   fields: [
     { name: 'name', type: 'text', required: true },
     { name: 'slug', type: 'text', required: true, unique: true, validate: validateSlug },

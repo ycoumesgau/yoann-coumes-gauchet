@@ -14,8 +14,9 @@ Replaced, never extended (25 lines max).
 - L0 (method), L1 (Payload 4, content, FR/EN) and L2 (MCP with OAuth, ADR-2) on the first PR.
 - Next: L3 front end from the Claude Design mockup, L4 demos, L5 launch.
 - Not live: `yoann.coumes-gauchet.fr` still points at the old Figma Sites page (DNS in Figma).
-- Owed by Yoann: create the Supabase EU project (ADR-3) and set its variables in Vercel (MCP ones
-  too, `.env.example`); add the connector in claude.ai (client id `site-claude-ai`); DNS (L5).
+- Supabase project created (ADR-3). Owed by Yoann: the secrets in Vercel (`docs/plans/site.md`
+  §2), the Data API off, the admin account right after the first production deployment, the
+  connector in claude.ai (client id `site-claude-ai`), DNS (L5).
 - MCP code: `src/domain/mcp-oauth/` (pure), `src/mcp/` (server side). Only `oauth-store.ts` may
   skip access, and the lint exemption names it.
 

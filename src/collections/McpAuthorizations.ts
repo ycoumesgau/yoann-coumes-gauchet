@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload'
 
-import { adminOnly, closed, closedField } from '@/domain/access'
+import { adminOutsideMcp, closed, closedField } from '@/domain/access'
 
 /**
  * One row per connected Claude client (ADR-2). Visible in `/admin`; deleting a
@@ -15,7 +15,8 @@ export const McpAuthorizations: CollectionConfig = {
     defaultColumns: ['clientId', 'lastUsedAt', 'revokedAt', 'createdAt'],
     description: 'Claude clients allowed to act on the site. Delete a row to disconnect it.',
   },
-  access: { read: adminOnly, create: closed, update: closed, delete: adminOnly },
+  // The MCP server never sees nor cuts the connections it runs on.
+  access: { read: adminOutsideMcp, create: closed, update: closed, delete: adminOutsideMcp },
   versions: false,
   fields: [
     { name: 'user', type: 'relationship', relationTo: 'users', required: true },

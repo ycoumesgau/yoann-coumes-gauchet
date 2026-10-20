@@ -90,18 +90,6 @@ export type LexicalNodes_ECB87CC6 =
   | SerializedListNode<LexicalNodes_ECB87CC6>
   | SerializedListItemNode<LexicalNodes_ECB87CC6>
   | SerializedHeadingNode<LexicalNodes_ECB87CC6>;
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "LexicalNodes_3DE324E4".
- */
-export type LexicalNodes_3DE324E4 =
-  | SerializedTextNode
-  | SerializedTabNode
-  | SerializedLineBreakNode
-  | SerializedParagraphNode<LexicalNodes_3DE324E4>
-  | SerializedListNode<LexicalNodes_3DE324E4>
-  | SerializedListItemNode<LexicalNodes_3DE324E4>
-  | SerializedHeadingNode<LexicalNodes_3DE324E4, 'h2' | 'h3' | 'h4'>;
 
 export interface Config {
   auth: {
@@ -121,7 +109,6 @@ export interface Config {
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
-    'payload-llm-instructions': PayloadLlmInstruction;
   };
   collectionsJoins: {};
   collectionsSelect: {
@@ -137,7 +124,6 @@ export interface Config {
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
-    'payload-llm-instructions': PayloadLlmInstructionsSelect<false> | PayloadLlmInstructionsSelect<true>;
   };
   db: {
     defaultIDType: number;
@@ -489,6 +475,7 @@ export interface DeletionRequest {
   reason?: string | null;
   status: 'pending' | 'confirmed' | 'cancelled';
   decidedAt?: string | null;
+  decidedBy?: (number | null) | User;
   createdBy?: {
     relationTo: 'users';
     value: number | User;
@@ -694,28 +681,6 @@ export interface PayloadMigration {
   id: number;
   name?: string | null;
   batch?: number | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "payload-llm-instructions".
- */
-export interface PayloadLlmInstruction {
-  id: string;
-  entitySlug: string;
-  title?: string | null;
-  entityType: 'collection' | 'global';
-  additionalInstructions?: LexicalRichText<LexicalNodes_3DE324E4> | null;
-  systemInstructions?: LexicalRichText<LexicalNodes_3DE324E4> | null;
-  createdBy?: {
-    relationTo: 'users';
-    value: number | User;
-  } | null;
-  updatedBy?: {
-    relationTo: 'users';
-    value: number | User;
-  } | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -941,6 +906,7 @@ export interface DeletionRequestsSelect<T extends boolean = true> {
   reason?: T;
   status?: T;
   decidedAt?: T;
+  decidedBy?: T;
   createdBy?: T;
   updatedBy?: T;
   updatedAt?: T;
@@ -1036,22 +1002,6 @@ export interface PayloadPreferencesSelect<T extends boolean = true> {
 export interface PayloadMigrationsSelect<T extends boolean = true> {
   name?: T;
   batch?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "payload-llm-instructions_select".
- */
-export interface PayloadLlmInstructionsSelect<T extends boolean = true> {
-  id?: T;
-  entitySlug?: T;
-  title?: T;
-  entityType?: T;
-  additionalInstructions?: T;
-  systemInstructions?: T;
-  createdBy?: T;
-  updatedBy?: T;
   updatedAt?: T;
   createdAt?: T;
 }
