@@ -21,6 +21,9 @@
   not apply to tables owned by `site_payload`, so the anonymous key reaches none of them.
 - The Data API is turned off in the dashboard as well: two locks, the second not in the code.
 - Production deployments run `payload migrate` before building (`scripts/vercel-build.mjs`).
+- Functions run in Paris (`cdg1`, `vercel.json`), next to the database: Vercel's default is
+  Washington (`iad1`), which would put a transatlantic round trip on every query and process
+  the data outside the EU.
 
 ## Consequences
 

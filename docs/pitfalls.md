@@ -48,3 +48,9 @@ runs only for a handler that returns. Hence `mcpWritesAsDrafts` and the `journal
 
 `pg_default_acl` grants `anon` and `authenticated` everything on tables `postgres` creates in
 `public`. Payload connects as its own role (`site_payload`) so its tables escape those grants.
+
+## 2026-10-20 — Supabase pooler: the user carries the role
+
+The "Connect" string of Supabase names `postgres.<ref>`. Payload connects as `site_payload`, so
+`DATABASE_URL` uses `site_payload.<ref>`. The first production build failed on exactly this
+("password authentication failed for user postgres").
