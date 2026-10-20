@@ -1,18 +1,19 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 
-import { footerLinkRel, SiteFrame } from '@/app/(frontend)/_lib/site-frame'
+import { footerLinkHref, footerLinkRel, SiteFrame } from '@/app/(frontend)/_lib/site-frame'
+import type { Locale } from '@/domain/locales'
 import type { Site } from '@/payload-types'
 
 const site = (links: Site['links']): Site =>
   ({ id: 1, name: 'Name', navigation: [], links }) as Site
 
-const render = (links: Site['links']) =>
+const render = (links: Site['links'], locale: Locale = 'en') =>
   renderToStaticMarkup(
     // A server component without hooks: calling it is rendering it.
     SiteFrame({
       site: site(links),
-      locale: 'en',
+      locale,
       languageLinks: { en: '/en', fr: '/fr' },
       children: null,
     }),
@@ -25,13 +26,25 @@ describe('footer links', () => {
       { id: 'b', label: 'Privacy', url: '/privacy' },
     ])
     expect(html).toContain('<a href="https://www.linkedin.com/in/someone" rel="me">LinkedIn</a>')
-    expect(html).toContain('<a href="/privacy">Privacy</a>')
+    expect(html).toContain('<a href="/en/privacy">Privacy</a>')
   })
 
-  it('reads the scheme, whatever its case', () => {
+  it("keeps a page of the site in the reader's language", () => {
+    expect(render([{ id: 'b', label: 'Confidentialité', url: '/privacy' }], 'fr')).toContain(
+      '<a href="/fr/privacy">Confidentialité</a>',
+    )
+    expect(footerLinkHref('fr', '/')).toBe('/fr')
+    expect(footerLinkHref('fr', '/en/privacy')).toBe('/en/privacy')
+    expect(footerLinkHref('fr', '//example.com')).toBe('//example.com')
+    expect(footerLinkHref('fr', 'https://example.com/a')).toBe('https://example.com/a')
+  })
+
+  it('reads the scheme at the start, whatever its case', () => {
     expect(footerLinkRel('HTTPS://example.com')).toBe('me')
     expect(footerLinkRel('http://example.com')).toBe('me')
     expect(footerLinkRel('/fr/privacy')).toBeUndefined()
+    expect(footerLinkRel('/go?to=https://example.com')).toBeUndefined()
+    expect(footerLinkRel('https:example.com')).toBeUndefined()
     expect(footerLinkRel('mailto:someone@example.com')).toBeUndefined()
     expect(footerLinkRel('//example.com')).toBeUndefined()
   })

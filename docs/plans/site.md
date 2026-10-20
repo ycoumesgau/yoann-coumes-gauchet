@@ -115,4 +115,5 @@ Source: Yoann's project file `synthese/03-site-refonte-concept.md` §3 (2026-10-
   `direct_embeds`; both were empty in production).
 - 2026-10-20: privacy page published through the MCP server (slug `privacy`, FR and EN), text
   validated by Yoann with an e-mail contact only (no postal address); `site.name` set and a
-  footer link to `/privacy`. The footer now keeps `rel="me"` for external profiles only.
+  footer link to `/privacy`. The footer now keeps `rel="me"` for absolute
+  `http(s)` links only, and serves a path without a language in the page's language (`/fr/privacy`).
