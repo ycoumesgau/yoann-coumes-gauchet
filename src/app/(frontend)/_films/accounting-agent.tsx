@@ -224,25 +224,6 @@ function Stage({ t, width: w, texts }: StageProps) {
           </span>
         </span>
       </div>
-      {texts.tag ? (
-        <span
-          style={{
-            position: 'absolute',
-            right: '10px',
-            bottom: '10px',
-            fontFamily: 'var(--mono)',
-            fontSize: '11px',
-            letterSpacing: '.02em',
-            color: 'var(--ink2)',
-            background: 'var(--surf)',
-            border: '1px solid var(--line)',
-            borderRadius: '3px',
-            padding: '3px 8px',
-          }}
-        >
-          {texts.tag}
-        </span>
-      ) : null}
     </>
   )
 }

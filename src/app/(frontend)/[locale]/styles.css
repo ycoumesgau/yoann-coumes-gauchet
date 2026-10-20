@@ -713,11 +713,11 @@ main {
 }
 
 .thumb.phone > img {
+  inset: auto;
   left: 50%;
   top: 6%;
   width: 62%;
   height: auto;
-  inset: auto;
   transform: translateX(-50%);
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
 }
@@ -758,6 +758,19 @@ main {
 
 .work-row figure {
   margin: 0;
+}
+
+.work-row .shot img {
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.shot img[data-tall],
+.work-row .shot img[data-tall] {
+  aspect-ratio: 4 / 3.4;
+  object-fit: cover;
+  object-position: top left;
 }
 
 /* Fact lists */

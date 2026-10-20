@@ -96,6 +96,7 @@ export function Screens({
             alt={screen.alt}
             width={screen.width}
             height={screen.height}
+            data-tall={screen.height > screen.width ? '' : undefined}
             loading="lazy"
           />
           {screen.tag ? <span className="tag">{screen.tag}</span> : null}
@@ -108,6 +109,7 @@ export function Screens({
             alt={screen.alt}
             width={screen.width}
             height={screen.height}
+            data-tall={screen.height > screen.width ? '' : undefined}
             loading="lazy"
           />
           {screen.tag ? <span className="tag">{screen.tag}</span> : null}

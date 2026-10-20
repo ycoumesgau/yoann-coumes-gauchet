@@ -26,7 +26,6 @@ const r2vKeys = [
   'total',
   'video.title',
   'video.play',
-  'tag',
 ]
 const agentKeys = [
   'title',
@@ -41,7 +40,6 @@ const agentKeys = [
   'entry.label',
   'go',
   'say',
-  'tag',
 ]
 
 /** Keys a frame does not show: the passing frame hides the mold's red and its fix. */

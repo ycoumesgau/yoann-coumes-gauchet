@@ -181,10 +181,11 @@ function Stage({ t, width, texts }: StageProps) {
       <div
         style={{
           position: 'absolute',
-          left: pad + (narrow ? 118 : 150),
-          top: narrow ? 26 : 22,
+          // On a phone the review label needs the row: the counter goes under the heading.
+          left: narrow ? pad : pad + 150,
+          top: narrow ? 50 : 22,
           fontFamily: 'var(--mono)',
-          fontSize: 13,
+          fontSize: narrow ? 11 : 13,
           color: 'var(--ink2)',
           opacity: sstep((t - 2) / 0.4),
         }}

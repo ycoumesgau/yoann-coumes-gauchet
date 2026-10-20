@@ -116,6 +116,7 @@ describe('addresses', () => {
   it('stores a footer link only as a web address or a path of this site', () => {
     expect(footerLinkUrl('https://www.linkedin.com/in/ycoumesgau')).toBe(true)
     expect(footerLinkUrl('/privacy')).toBe(true)
+    expect(footerLinkUrl('mailto:someone@example.com')).toBe(true)
     expect(footerLinkUrl('javascript:alert(1)')).not.toBe(true)
     expect(footerLinkUrl('data:text/html,x')).not.toBe(true)
     expect(footerLinkUrl('//evil.example')).not.toBe(true)
