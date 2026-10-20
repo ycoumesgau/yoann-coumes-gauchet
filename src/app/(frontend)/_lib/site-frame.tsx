@@ -1,10 +1,29 @@
 import type React from 'react'
 
-import { pagePath } from '@/domain/locale-routing'
+import { localeOfPath, pagePath } from '@/domain/locale-routing'
 import type { Locale } from '@/domain/locales'
 import type { Site } from '@/payload-types'
 
 import { LanguageSwitch } from './language-switch'
+
+/**
+ * `rel="me"` claims the linked page is the same person's profile: given to an
+ * absolute `http(s)` URL, never to a path on this site (the privacy page). It
+ * reads the scheme, not the host: a site page belongs in the footer as a path.
+ */
+export const footerLinkRel = (url: string): 'me' | undefined =>
+  /^https?:\/\//i.test(url) ? 'me' : undefined
+
+/**
+ * A footer path without a language (`/privacy`) stays in the page's language
+ * (`/fr/privacy`), instead of a redirect that would pick the browser's.
+ */
+export const footerLinkHref = (locale: Locale, url: string): string =>
+  url.startsWith('/') && !url.startsWith('//') && localeOfPath(url) === null
+    ? url === '/'
+      ? pagePath(locale, 'home')
+      : `/${locale}${url}`
+    : url
 
 /** Header (name, navigation, language switch) and footer around a page. */
 export function SiteFrame({
@@ -41,7 +60,11 @@ export function SiteFrame({
         <footer>
           {site.links.map((link) =>
             link.label ? (
-              <a key={link.id ?? link.url} href={link.url} rel="me">
+              <a
+                key={link.id ?? link.url}
+                href={footerLinkHref(locale, link.url)}
+                rel={footerLinkRel(link.url)}
+              >
                 {link.label}
               </a>
             ) : null,

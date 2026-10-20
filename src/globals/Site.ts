@@ -22,7 +22,10 @@ export const Site: GlobalConfig = {
     {
       name: 'links',
       type: 'array',
-      admin: { description: 'Profiles and contact links shown in the footer.' },
+      admin: {
+        description:
+          "Footer links. A profile is a full URL; a page of this site is a path without its language (`/privacy`), which the footer keeps in the reader's language.",
+      },
       fields: [
         { name: 'label', type: 'text', required: true, localized: true },
         { name: 'url', type: 'text', required: true },

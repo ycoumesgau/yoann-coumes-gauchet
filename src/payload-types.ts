@@ -1022,7 +1022,7 @@ export interface Site {
       }[]
     | null;
   /**
-   * Profiles and contact links shown in the footer.
+   * Footer links. A profile is a full URL; a page of this site is a path without its language (`/privacy`), which the footer keeps in the reader's language.
    */
   links?:
     | {
