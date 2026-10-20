@@ -37,7 +37,7 @@ export const MCP_RESOURCE_PATH = '/api/mcp'
 /** The only algorithm for MCP tokens. Enumerated, never read from a header. */
 export const MCP_SIGNING_ALGORITHM = 'ES256'
 
-const parsePublicUrl = (raw: string): string | null => {
+export const parsePublicUrl = (raw: string): string | null => {
   let url: URL
   try {
     url = new URL(raw)

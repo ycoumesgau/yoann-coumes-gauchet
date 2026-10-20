@@ -9,38 +9,40 @@ The detailed brief (content, demos, Claude Design) lives in Yoann's project file
   from Claude everywhere, including deletion under his confirmation; Supabase EU free plan; French
   and English; he alone decides when it goes public and when he applies to jobs. Nothing is
   published before it is ready and clean.
-- Visual direction from Claude Design: track "1A", a neutral background that leaves room for
-  screenshots, videos and animations of the products. Animations and wording of the Design pass
-  are to be redone; the text source is the validated content document.
+- Languages (Yoann, 2026-10-20): the browser's language decides, the switch is clearly visible
+  in the header, any other language falls back to English. Proposed by the session in the same
+  message Yoann answered "je suis ta reco": one URL per language (`/en`, `/fr`) so both are
+  indexed, and the switch's choice remembered. Also the session's: a page missing in one
+  language redirects to the other rather than a 404.
+- Visual direction: the "1A" mockup was criticised and is not kept; a new Claude Design pass
+  follows the message platform. Nothing visual is coded before it.
 
 ## 1. Batches
 
 | Batch | Content                                                                     | Status                 |
 | ----- | --------------------------------------------------------------------------- | ---------------------- |
-| L0    | Method: CLAUDE.md, ADRs, hostile reviewer, hooks, pre-push, CI, PR template | In progress            |
-| L1    | Next 16.4 + Payload 4 beta, content model, FR/EN, first migration, tests    | In progress            |
-| L2a   | MCP plugin, audit log, kill switch                                          | Done, in review        |
-| L2b   | OAuth server (ADR-2), deletion confirmation; connector added in claude.ai   | Done; connector: Yoann |
+| L0    | Method: CLAUDE.md, ADRs, hostile reviewer, hooks, pre-push, CI, PR template | Merged                 |
+| L1    | Next 16.4 + Payload 4 beta, content model, FR/EN, first migration, tests    | Merged                 |
+| L2a   | MCP plugin, audit log, kill switch                                          | Merged                 |
+| L2b   | OAuth server (ADR-2), deletion confirmation; connector added in claude.ai   | Merged, connector live |
+| L3a   | `/en` and `/fr` URLs, language from the browser, visible switch, `hreflang` | In review              |
 | L3    | Front end from the mockup; content entered through the MCP server           | Waits for the mockup   |
 | L4    | Demos, in batches                                                           | To do                  |
 | L5    | Lighthouse, repository public, DNS switched to Vercel                       | Yoann's go             |
 
 ## 2. Owed by Yoann
 
-- Supabase project created (ADR-3) and `ENABLE_MCP`, `SITE_URL` set in Vercel (Production) by the
-  session. Secrets are Yoann's to set, never routed through a session: the `site_payload`
-  password (SQL editor, `alter role`), then `DATABASE_URL` (transaction pooler, user
-  `site_payload.pgmqmjpaltifcjzegksu`), `PAYLOAD_SECRET`, `MCP_OAUTH_SIGNING_KEY`
-  (`.env.example`). Turn the Data API off in the dashboard.
+- Done on 2026-10-20: secrets in Vercel, Data API off, administrator account, connector in
+  claude.ai (Yoann's messages in the project thread).
+- S3 keys for Supabase Storage, before any media upload in production (not wired yet).
 - `SITE_URL` is the `vercel.app` URL until the DNS switch (L5), then `https://yoann.coumes-gauchet.fr`.
-- Create the administrator account **before** the deployment URL is shared or reachable: Payload
-  lets the first visitor of an empty `users` table create it.
-- Add the MCP connector in claude.ai (L2b).
 - Switch the DNS of `yoann.coumes-gauchet.fr` from Figma to Vercel (L5).
 
 ## 3. Open questions for Yoann
 
-- Default locale: `en` (assumed: a recruiter at Mistral reads English first), or `fr`?
+- None open on this batch. Visual direction and texts: a new Claude Design pass after the
+  message platform is settled (Yoann's project files, `synthese/branding/07-plateforme-de-message.md`);
+  the "1A" mockup is not the one kept.
 
 ## 4. Content inputs given by Yoann
 
@@ -90,3 +92,10 @@ Source: Yoann's project file `synthese/03-site-refonte-concept.md` §3 (2026-10-
   second lock); no anti-framing header; `payload-llm-instructions` removed (`llmInstructions:
   false`) rather than accepted public; loopback ports above 65535. Rejected or deferred findings
   are listed on PR #1. Supabase project created in Yoann's free organisation.
+- 2026-10-20: production live on `yoann-coumes-gauchet.vercel.app` (cdg1); Yoann created the
+  admin account, added the connector in claude.ai (one `getConfigInfo` call from a session: the
+  four collections and `site`, nothing else) and turned the Data API off.
+- 2026-10-20: L3a. `src/proxy.ts` redirects a path without language (the `locale` cookie written
+  by the switch, then `Accept-Language`, else English); pages live under `[locale]`, read with
+  `fallbackLocale: false`; `decidePage`, `languageLinks` and `alternateLanguages` (pure) decide
+  redirects, the switch's targets and `hreflang`. Mutations seen red: listed on the PR.

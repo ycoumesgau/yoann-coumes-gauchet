@@ -60,3 +60,14 @@ The "Connect" string of Supabase names `postgres.<ref>`. Payload connects as `si
 The first Next build succeeded and every route answered 404: the project's framework preset was
 still "Other", so Vercel served no Next output. `vercel.json` now pins `framework: "nextjs"`.
 Seen on `/admin` after the first production deployment.
+
+## 2026-10-20 — `PageProps` and `LayoutProps` exist only after a Next build
+
+Next 16 declares these helpers in `.next/types`, which CI does not have when `pnpm typecheck`
+runs (before `pnpm build`). Routes type their `params` explicitly instead.
+
+## 2026-10-20 — Payload's locale fallback is off on the public site
+
+The configuration keeps `fallback: true` for `/admin`. The public reads pass `fallbackLocale:
+false`: with the fallback, a French page with an empty field shows the English text
+(`tests/db/public-locales.test.ts`, seen red when the option is removed).
