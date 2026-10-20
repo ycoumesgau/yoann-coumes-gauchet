@@ -33,7 +33,12 @@ describe('public surface', () => {
   })
 
   afterAll(async () => {
-    await payload.delete({ collection: 'pages', overrideAccess: true, id: await pageId() })
+    await payload.delete({
+      collection: 'pages',
+      overrideAccess: true,
+      trash: true,
+      id: await pageId(),
+    })
   })
 
   it('serves an English-only page in no French form', async () => {
