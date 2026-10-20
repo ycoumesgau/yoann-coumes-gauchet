@@ -1,51 +1,54 @@
 import type { Metadata } from 'next'
-import { notFound, redirect } from 'next/navigation'
+import { notFound, permanentRedirect, redirect } from 'next/navigation'
 
-import { pagePath } from '@/domain/locale-routing'
-import { defaultLocale, isLocale, type Locale } from '@/domain/locales'
+import { alternateLanguages, decidePage, languageLinks, pagePath } from '@/domain/locale-routing'
+import { isLocale } from '@/domain/locales'
 
-import { findPublishedPage, getSitePayload, publishedLocales, siteOrigin } from './content'
+import {
+  findPublishedPage,
+  findSite,
+  getSitePayload,
+  publishedLocales,
+  siteOrigin,
+} from './content'
+import { SiteFrame } from './site-frame'
 
-/**
- * One page in one language. Not published in this language but in the other:
- * the visitor is sent there rather than shown a 404 or a mixed-language page.
- */
+/** One page in one language; every redirect and 404 is `decidePage`'s. */
+export async function renderPage(locale: string, slug: string, viaSlugRoute: boolean) {
+  const payload = await getSitePayload()
+  const published = isLocale(locale) ? await publishedLocales(payload, slug) : []
+  const decision = decidePage({ locale, slug, viaSlugRoute, published })
+  if (decision.kind === 'not-found') notFound()
+  if (decision.kind === 'redirect') {
+    if (decision.permanent) permanentRedirect(decision.to)
+    redirect(decision.to)
+  }
 
-const resolveLocale = (raw: string): Locale => {
-  if (!isLocale(raw)) notFound()
-  return raw
+  const page = await findPublishedPage(payload, slug, decision.locale)
+  if (!page) notFound()
+  const site = await findSite(payload, decision.locale)
+  return (
+    <SiteFrame site={site} locale={decision.locale} languageLinks={languageLinks(slug, published)}>
+      <article>
+        <h1>{page.title}</h1>
+      </article>
+    </SiteFrame>
+  )
 }
 
-export async function renderPage(rawLocale: string, slug: string) {
-  const locale = resolveLocale(rawLocale)
+export async function pageMetadata(locale: string, slug: string): Promise<Metadata> {
+  if (!isLocale(locale)) return {}
   const payload = await getSitePayload()
   const page = await findPublishedPage(payload, slug, locale)
-  if (!page) {
-    const other = (await publishedLocales(payload, slug))[0]
-    if (other) redirect(pagePath(other, slug))
-    notFound()
-  }
-  return (
-    <article>
-      <h1>{page.title}</h1>
-    </article>
-  )
-}
-
-export async function pageMetadata(rawLocale: string, slug: string): Promise<Metadata> {
-  if (!isLocale(rawLocale)) return {}
-  const payload = await getSitePayload()
-  const page = await findPublishedPage(payload, slug, rawLocale)
   if (!page) return {}
-  const available = await publishedLocales(payload, slug)
-  const languages: Record<string, string> = Object.fromEntries(
-    available.map((locale) => [locale, pagePath(locale, slug)]),
-  )
-  if (available.includes(defaultLocale)) languages['x-default'] = pagePath(defaultLocale, slug)
+  const site = await findSite(payload, locale)
   return {
     metadataBase: siteOrigin() ?? null,
-    title: page.meta?.title || page.title,
+    title: page.meta?.title || `${page.title} · ${site.name}`,
     description: page.meta?.description || undefined,
-    alternates: { canonical: pagePath(rawLocale, slug), languages },
+    alternates: {
+      canonical: pagePath(locale, slug),
+      languages: alternateLanguages(slug, await publishedLocales(payload, slug)),
+    },
   }
 }

@@ -7,8 +7,8 @@ import config from '@/payload.config'
 
 /**
  * What the public site reads, always as an anonymous caller and in one
- * language only: a French URL never shows English text, it is a 404 until the
- * French version is published (Payload stores `_status` per locale).
+ * language only: a French URL never shows English text (Payload stores
+ * `_status` per locale; `decidePage` says where a missing language leads).
  */
 
 const anonymous = {
@@ -32,9 +32,8 @@ export const findPublishedPage = async (
     depth: 1,
     ...anonymous,
   })
-  const page = docs[0]
-  // A page published in one language only comes back with the other's fields empty.
-  return page?.title ? page : null
+  // The anonymous read filters on the requested language's `_status`.
+  return docs[0] ?? null
 }
 
 /** The languages a page is published in, for `hreflang` and the language switch. */

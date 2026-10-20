@@ -54,7 +54,8 @@ never from memory: a claim it does not back is not published.
 ## 4. Rules
 
 1. **Schema in English, content in two locales** (`en` default, `fr`). User-facing text lives in
-   Payload, never hard-coded in a component.
+   Payload, never hard-coded in a component. One exemption: each language's own name and code
+   (`localeLabels`, the switch), which are not translated.
 2. **Payload 4 stores `_status` per locale**: publishing English does not publish French, and a
    locale publishes only with its own required fields (`tests/db/pages-access.test.ts`). The
    public site reads with `fallbackLocale: false`: no English text under a French URL.

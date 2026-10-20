@@ -24,6 +24,7 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Everything but the admin, the APIs, OAuth, Next's own files and files with an extension.
-  matcher: ['/((?!admin|api|oauth|\\.well-known|_next|.*\\..*).*)'],
+  // Everything but the admin, the APIs, OAuth and Next's own files (whole first
+  // segments: `/api-design` is a page), and files with an extension.
+  matcher: ['/((?!(?:admin|api|oauth|\\.well-known|_next)(?:/|$)|.*\\..*).*)'],
 }
