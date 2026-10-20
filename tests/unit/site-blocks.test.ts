@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest'
 
 import { playerState, youtubeSrc } from '@/app/(frontend)/_blocks/shorts'
-import { linkHref, stepFlags, type PageBlock } from '@/app/(frontend)/_blocks/render-blocks'
+import {
+  filmTextsByFilm,
+  linkHref,
+  stepFlags,
+  type PageBlock,
+} from '@/app/(frontend)/_blocks/render-blocks'
 import { isDemoKey } from '@/domain/demos'
 
 const body = { root: { type: 'root', children: [] } } as never
@@ -53,5 +58,18 @@ describe('films and players', () => {
     expect(playerState('not json')).toBeNull()
     expect(playerState('{"event":"onReady"}')).toBeNull()
     expect(playerState('{"event":"onStateChange","info":"0"}')).toBeNull()
+  })
+})
+
+describe('film texts', () => {
+  it('groups the words of each film by key, and skips a missing translation', () => {
+    expect(
+      filmTextsByFilm([
+        { film: 'wsb-funding', key: 'total', text: '€162M funded' },
+        { film: 'hostile-review', key: 'total', text: 'Blocking' },
+        { film: 'wsb-funding', key: 'note', text: null as never },
+      ]),
+    ).toEqual({ 'wsb-funding': { total: '€162M funded' }, 'hostile-review': { total: 'Blocking' } })
+    expect(filmTextsByFilm(undefined)).toEqual({})
   })
 })

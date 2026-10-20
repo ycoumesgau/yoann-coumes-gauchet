@@ -14,12 +14,16 @@ const stills: Partial<Record<DemoKey, { src: string; width: number; height: numb
   'nexcan-photos': { src: '/films/photos-d-1440.png', width: 1440, height: 900 },
 }
 
+export type FilmTexts = Readonly<Record<string, string>>
+
 export function Film({
   demo,
   still = false,
 }: {
   demo: DemoKey
   labels: FrameLabels
+  /** This film's words in the page's language, by key (`site.filmTexts`). */
+  texts: FilmTexts
   still?: boolean
 }) {
   const poster = stills[demo]

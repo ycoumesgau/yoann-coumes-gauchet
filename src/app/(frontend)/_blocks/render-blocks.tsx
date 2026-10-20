@@ -8,7 +8,7 @@ import { pagePath } from '@/domain/locale-routing'
 import type { Locale } from '@/domain/locales'
 import type { Media, Page, Project, Site } from '@/payload-types'
 
-import { Film } from '../_films/film'
+import { Film, type FilmTexts } from '../_films/film'
 import { Embed } from './embed'
 import { Screens, type Screen } from './screens'
 import { Shorts } from './shorts'
@@ -21,6 +21,18 @@ import { Shorts } from './shorts'
 
 export type PageBlock = NonNullable<Page['layout']>[number]
 export type FrameLabels = NonNullable<Site['labels']>
+
+/** The words of every film in this language, grouped by film. */
+export const filmTextsByFilm = (
+  entries: Site['filmTexts'],
+): Readonly<Partial<Record<string, FilmTexts>>> => {
+  const byFilm: Record<string, Record<string, string>> = {}
+  for (const entry of entries ?? []) {
+    if (!entry.text) continue
+    ;(byFilm[entry.film] ??= {})[entry.key] = entry.text
+  }
+  return byFilm
+}
 
 const providerNames: Record<VideoPlatform, string> = {
   youtube: 'YouTube',
@@ -185,17 +197,20 @@ export function RenderBlocks({
   blocks,
   locale,
   labels = {},
+  filmTexts = [],
 }: {
   blocks: readonly PageBlock[]
   locale: Locale
   labels?: FrameLabels | null | undefined
+  filmTexts?: Site['filmTexts']
 }) {
+  const texts = filmTextsByFilm(filmTexts)
   const flags = stepFlags(blocks)
   const frame = labels ?? {}
   return blocks.map((block, index) => {
     const key = block.id ?? `${block.blockType}-${index}`
     const flag = flags[index]
-    const content = renderBlock(block, index, locale, frame)
+    const content = renderBlock(block, index, locale, frame, texts)
     if (content === null) return null
     if (flag === 'in-step') {
       return (
@@ -226,6 +241,7 @@ function renderBlock(
   index: number,
   locale: Locale,
   labels: FrameLabels,
+  texts: Readonly<Partial<Record<string, FilmTexts>>>,
 ): Rendered | null {
   switch (block.blockType) {
     case 'hero': {
@@ -270,7 +286,7 @@ function renderBlock(
             )}
             {isDemoKey(block.demo) ? (
               <div className="hero-film">
-                <Film demo={block.demo} labels={labels} />
+                <Film demo={block.demo} labels={labels} texts={texts[block.demo] ?? {}} />
               </div>
             ) : null}
           </>
@@ -315,7 +331,7 @@ function renderBlock(
       )
       const film = isDemoKey(block.demo) ? (
         <div className="section-film">
-          <Film demo={block.demo} labels={labels} />
+          <Film demo={block.demo} labels={labels} texts={texts[block.demo] ?? {}} />
           {block.demoCaption ? <p className="film-caption">{block.demoCaption}</p> : null}
         </div>
       ) : null
@@ -352,7 +368,12 @@ function renderBlock(
                     {image || isDemoKey(item.demo) ? (
                       <div className={phone ? 'thumb phone' : 'thumb'}>
                         {isDemoKey(item.demo) ? (
-                          <Film demo={item.demo} labels={labels} still />
+                          <Film
+                            demo={item.demo}
+                            labels={labels}
+                            texts={texts[item.demo] ?? {}}
+                            still
+                          />
                         ) : image ? (
                           <MediaImage media={image} sizes="(max-width: 700px) 100vw, 33vw" />
                         ) : null}
@@ -859,7 +880,7 @@ function renderBlock(
         inner: (
           <>
             <Heading text={block.heading} />
-            <Film demo={block.demo} labels={labels} />
+            <Film demo={block.demo} labels={labels} texts={texts[block.demo] ?? {}} />
             {block.caption || block.source ? (
               <p className="film-caption">
                 {block.caption}

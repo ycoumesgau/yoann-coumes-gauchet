@@ -37,7 +37,12 @@ export async function renderPage(locale: string, slug: string, viaSlugRoute: boo
     >
       <article>
         <PageTitle page={page} />
-        <RenderBlocks blocks={page.layout ?? []} locale={decision.locale} labels={site.labels} />
+        <RenderBlocks
+          blocks={page.layout ?? []}
+          locale={decision.locale}
+          labels={site.labels}
+          filmTexts={site.filmTexts}
+        />
       </article>
     </SiteFrame>
   )

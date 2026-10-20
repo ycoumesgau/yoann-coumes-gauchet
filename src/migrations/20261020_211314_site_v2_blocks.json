@@ -14297,6 +14297,161 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.site_film_texts": {
+      "name": "site_film_texts",
+      "schema": "",
+      "columns": {
+        "_order": {
+          "name": "_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "_parent_id": {
+          "name": "_parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id": {
+          "name": "id",
+          "type": "varchar",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "film": {
+          "name": "film",
+          "type": "enum_site_film_texts_film",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "key": {
+          "name": "key",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "site_film_texts_order_idx": {
+          "name": "site_film_texts_order_idx",
+          "columns": [
+            {
+              "expression": "_order",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "site_film_texts_parent_id_idx": {
+          "name": "site_film_texts_parent_id_idx",
+          "columns": [
+            {
+              "expression": "_parent_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "site_film_texts_parent_id_fk": {
+          "name": "site_film_texts_parent_id_fk",
+          "tableFrom": "site_film_texts",
+          "tableTo": "site",
+          "columnsFrom": ["_parent_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.site_film_texts_locales": {
+      "name": "site_film_texts_locales",
+      "schema": "",
+      "columns": {
+        "text": {
+          "name": "text",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "_locale": {
+          "name": "_locale",
+          "type": "_locales",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "_parent_id": {
+          "name": "_parent_id",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "site_film_texts_locales_parent_id_locale_unique": {
+          "name": "site_film_texts_locales_parent_id_locale_unique",
+          "columns": [
+            {
+              "expression": "_parent_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "_locale",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "site_film_texts_locales_parent_id_fk": {
+          "name": "site_film_texts_locales_parent_id_fk",
+          "tableFrom": "site_film_texts_locales",
+          "tableTo": "site_film_texts",
+          "columnsFrom": ["_parent_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.site_links": {
       "name": "site_links",
       "schema": "",
@@ -14895,6 +15050,167 @@
           "name": "_site_v_version_navigation_locales_parent_id_fk",
           "tableFrom": "_site_v_version_navigation_locales",
           "tableTo": "_site_v_version_navigation",
+          "columnsFrom": ["_parent_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public._site_v_version_film_texts": {
+      "name": "_site_v_version_film_texts",
+      "schema": "",
+      "columns": {
+        "_order": {
+          "name": "_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "_parent_id": {
+          "name": "_parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "film": {
+          "name": "film",
+          "type": "enum__site_v_version_film_texts_film",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "key": {
+          "name": "key",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "_uuid": {
+          "name": "_uuid",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "_site_v_version_film_texts_order_idx": {
+          "name": "_site_v_version_film_texts_order_idx",
+          "columns": [
+            {
+              "expression": "_order",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "_site_v_version_film_texts_parent_id_idx": {
+          "name": "_site_v_version_film_texts_parent_id_idx",
+          "columns": [
+            {
+              "expression": "_parent_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "_site_v_version_film_texts_parent_id_fk": {
+          "name": "_site_v_version_film_texts_parent_id_fk",
+          "tableFrom": "_site_v_version_film_texts",
+          "tableTo": "_site_v",
+          "columnsFrom": ["_parent_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public._site_v_version_film_texts_locales": {
+      "name": "_site_v_version_film_texts_locales",
+      "schema": "",
+      "columns": {
+        "text": {
+          "name": "text",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "_locale": {
+          "name": "_locale",
+          "type": "_locales",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "_parent_id": {
+          "name": "_parent_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "_site_v_version_film_texts_locales_parent_id_locale_unique": {
+          "name": "_site_v_version_film_texts_locales_parent_id_locale_unique",
+          "columns": [
+            {
+              "expression": "_parent_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "_locale",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "_site_v_version_film_texts_locales_parent_id_fk": {
+          "name": "_site_v_version_film_texts_locales_parent_id_fk",
+          "tableFrom": "_site_v_version_film_texts_locales",
+          "tableTo": "_site_v_version_film_texts",
           "columnsFrom": ["_parent_id"],
           "columnsTo": ["id"],
           "onDelete": "cascade",
@@ -15618,6 +15934,32 @@
         "lineage_revoked",
         "tool_call"
       ]
+    },
+    "public.enum_site_film_texts_film": {
+      "name": "enum_site_film_texts_film",
+      "schema": "public",
+      "values": [
+        "wsb-funding",
+        "nexcan-inventory",
+        "nexcan-screening",
+        "nexcan-photos",
+        "recipe2video-checks",
+        "hostile-review",
+        "accounting-agent"
+      ]
+    },
+    "public.enum__site_v_version_film_texts_film": {
+      "name": "enum__site_v_version_film_texts_film",
+      "schema": "public",
+      "values": [
+        "wsb-funding",
+        "nexcan-inventory",
+        "nexcan-screening",
+        "nexcan-photos",
+        "recipe2video-checks",
+        "hostile-review",
+        "accounting-agent"
+      ]
     }
   },
   "schemas": {},
@@ -15630,6 +15972,6 @@
     "tables": {},
     "columns": {}
   },
-  "id": "3e2243ec-65ec-4b13-a571-6d70c60c1662",
+  "id": "7b335252-7421-4e27-b6e5-83eed7e28f26",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

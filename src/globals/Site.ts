@@ -1,6 +1,7 @@
 import type { GlobalConfig } from 'payload'
 
 import { adminOnly, publicRead } from '@/domain/access'
+import { demoKeys } from '@/domain/demos'
 
 export const Site: GlobalConfig = {
   slug: 'site',
@@ -34,6 +35,24 @@ export const Site: GlobalConfig = {
       fields: [
         { name: 'label', type: 'text', required: true, localized: true },
         { name: 'page', type: 'relationship', relationTo: 'pages', required: true },
+      ],
+    },
+    {
+      name: 'filmTexts',
+      type: 'array',
+      admin: {
+        description:
+          'Words inside the films (labels, chips, captions), by film and key. A film shows nothing for a key it does not find.',
+      },
+      fields: [
+        {
+          name: 'film',
+          type: 'select',
+          required: true,
+          options: demoKeys.map((key) => ({ label: key, value: key })),
+        },
+        { name: 'key', type: 'text', required: true },
+        { name: 'text', type: 'text', required: true, localized: true },
       ],
     },
     {

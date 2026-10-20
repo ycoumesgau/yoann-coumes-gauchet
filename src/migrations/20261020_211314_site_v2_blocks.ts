@@ -16,6 +16,8 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE TYPE "public"."enum__pages_v_blocks_fact_list_columns" AS ENUM('1', '2', '4');
   CREATE TYPE "public"."enum__pages_v_blocks_gallery_variant" AS ENUM('screens', 'cards', 'wide');
   CREATE TYPE "public"."enum__pages_v_blocks_callout_tone" AS ENUM('plain', 'accent', 'note');
+  CREATE TYPE "public"."enum_site_film_texts_film" AS ENUM('wsb-funding', 'nexcan-inventory', 'nexcan-screening', 'nexcan-photos', 'recipe2video-checks', 'hostile-review', 'accounting-agent');
+  CREATE TYPE "public"."enum__site_v_version_film_texts_film" AS ENUM('wsb-funding', 'nexcan-inventory', 'nexcan-screening', 'nexcan-photos', 'recipe2video-checks', 'hostile-review', 'accounting-agent');
   CREATE TABLE "pages_blocks_features_items" (
   	"_order" integer NOT NULL,
   	"_parent_id" varchar NOT NULL,
@@ -513,6 +515,21 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"_uuid" varchar
   );
   
+  CREATE TABLE "site_film_texts" (
+  	"_order" integer NOT NULL,
+  	"_parent_id" integer NOT NULL,
+  	"id" varchar PRIMARY KEY NOT NULL,
+  	"film" "enum_site_film_texts_film" NOT NULL,
+  	"key" varchar NOT NULL
+  );
+  
+  CREATE TABLE "site_film_texts_locales" (
+  	"text" varchar NOT NULL,
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"_locale" "_locales" NOT NULL,
+  	"_parent_id" varchar NOT NULL
+  );
+  
   CREATE TABLE "site_locales" (
   	"labels_menu" varchar,
   	"labels_close_menu" varchar,
@@ -524,6 +541,22 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"labels_next" varchar,
   	"labels_play" varchar,
   	"labels_replay" varchar,
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"_locale" "_locales" NOT NULL,
+  	"_parent_id" integer NOT NULL
+  );
+  
+  CREATE TABLE "_site_v_version_film_texts" (
+  	"_order" integer NOT NULL,
+  	"_parent_id" integer NOT NULL,
+  	"id" serial PRIMARY KEY NOT NULL,
+  	"film" "enum__site_v_version_film_texts_film" NOT NULL,
+  	"key" varchar NOT NULL,
+  	"_uuid" varchar
+  );
+  
+  CREATE TABLE "_site_v_version_film_texts_locales" (
+  	"text" varchar NOT NULL,
   	"id" serial PRIMARY KEY NOT NULL,
   	"_locale" "_locales" NOT NULL,
   	"_parent_id" integer NOT NULL
@@ -669,7 +702,11 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   ALTER TABLE "_pages_v_blocks_next_links_links" ADD CONSTRAINT "_pages_v_blocks_next_links_links_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."_pages_v_blocks_next_links"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "_pages_v_blocks_next_links" ADD CONSTRAINT "_pages_v_blocks_next_links_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."_pages_v"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "_pages_v_blocks_video_carousel_links" ADD CONSTRAINT "_pages_v_blocks_video_carousel_links_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."_pages_v_blocks_video_carousel"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "site_film_texts" ADD CONSTRAINT "site_film_texts_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."site"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "site_film_texts_locales" ADD CONSTRAINT "site_film_texts_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."site_film_texts"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "site_locales" ADD CONSTRAINT "site_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."site"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "_site_v_version_film_texts" ADD CONSTRAINT "_site_v_version_film_texts_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."_site_v"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "_site_v_version_film_texts_locales" ADD CONSTRAINT "_site_v_version_film_texts_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."_site_v_version_film_texts"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "_site_v_locales" ADD CONSTRAINT "_site_v_locales_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."_site_v"("id") ON DELETE cascade ON UPDATE no action;
   CREATE INDEX "pages_blocks_features_items_order_idx" ON "pages_blocks_features_items" USING btree ("_order");
   CREATE INDEX "pages_blocks_features_items_parent_id_idx" ON "pages_blocks_features_items" USING btree ("_parent_id");
@@ -833,7 +870,13 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE INDEX "_pages_v_blocks_video_carousel_links_order_idx" ON "_pages_v_blocks_video_carousel_links" USING btree ("_order");
   CREATE INDEX "_pages_v_blocks_video_carousel_links_parent_id_idx" ON "_pages_v_blocks_video_carousel_links" USING btree ("_parent_id");
   CREATE INDEX "_pages_v_blocks_video_carousel_links_locale_idx" ON "_pages_v_blocks_video_carousel_links" USING btree ("_locale");
+  CREATE INDEX "site_film_texts_order_idx" ON "site_film_texts" USING btree ("_order");
+  CREATE INDEX "site_film_texts_parent_id_idx" ON "site_film_texts" USING btree ("_parent_id");
+  CREATE UNIQUE INDEX "site_film_texts_locales_parent_id_locale_unique" ON "site_film_texts_locales" USING btree ("_parent_id","_locale");
   CREATE UNIQUE INDEX "site_locales_parent_id_locale_unique" ON "site_locales" USING btree ("_parent_id","_locale");
+  CREATE INDEX "_site_v_version_film_texts_order_idx" ON "_site_v_version_film_texts" USING btree ("_order");
+  CREATE INDEX "_site_v_version_film_texts_parent_id_idx" ON "_site_v_version_film_texts" USING btree ("_parent_id");
+  CREATE UNIQUE INDEX "_site_v_version_film_texts_locales_parent_id_locale_unique" ON "_site_v_version_film_texts_locales" USING btree ("_parent_id","_locale");
   CREATE UNIQUE INDEX "_site_v_locales_parent_id_locale_unique" ON "_site_v_locales" USING btree ("_parent_id","_locale");
   ALTER TABLE "pages_blocks_hero" ADD CONSTRAINT "pages_blocks_hero_image_id_media_id_fk" FOREIGN KEY ("image_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
   ALTER TABLE "pages_blocks_hero" ADD CONSTRAINT "pages_blocks_hero_badge_id_media_id_fk" FOREIGN KEY ("badge_id") REFERENCES "public"."media"("id") ON DELETE set null ON UPDATE no action;
@@ -901,7 +944,11 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   ALTER TABLE "_pages_v_blocks_next_links_links" DISABLE ROW LEVEL SECURITY;
   ALTER TABLE "_pages_v_blocks_next_links" DISABLE ROW LEVEL SECURITY;
   ALTER TABLE "_pages_v_blocks_video_carousel_links" DISABLE ROW LEVEL SECURITY;
+  ALTER TABLE "site_film_texts" DISABLE ROW LEVEL SECURITY;
+  ALTER TABLE "site_film_texts_locales" DISABLE ROW LEVEL SECURITY;
   ALTER TABLE "site_locales" DISABLE ROW LEVEL SECURITY;
+  ALTER TABLE "_site_v_version_film_texts" DISABLE ROW LEVEL SECURITY;
+  ALTER TABLE "_site_v_version_film_texts_locales" DISABLE ROW LEVEL SECURITY;
   ALTER TABLE "_site_v_locales" DISABLE ROW LEVEL SECURITY;
   DROP TABLE "pages_blocks_features_items" CASCADE;
   DROP TABLE "pages_blocks_features" CASCADE;
@@ -945,7 +992,11 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   DROP TABLE "_pages_v_blocks_next_links_links" CASCADE;
   DROP TABLE "_pages_v_blocks_next_links" CASCADE;
   DROP TABLE "_pages_v_blocks_video_carousel_links" CASCADE;
+  DROP TABLE "site_film_texts" CASCADE;
+  DROP TABLE "site_film_texts_locales" CASCADE;
   DROP TABLE "site_locales" CASCADE;
+  DROP TABLE "_site_v_version_film_texts" CASCADE;
+  DROP TABLE "_site_v_version_film_texts_locales" CASCADE;
   DROP TABLE "_site_v_locales" CASCADE;
   ALTER TABLE "pages_blocks_hero" DROP CONSTRAINT "pages_blocks_hero_image_id_media_id_fk";
   
@@ -1056,5 +1107,7 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   DROP TYPE "public"."enum__pages_v_blocks_work_rows_rows_tone";
   DROP TYPE "public"."enum__pages_v_blocks_fact_list_columns";
   DROP TYPE "public"."enum__pages_v_blocks_gallery_variant";
-  DROP TYPE "public"."enum__pages_v_blocks_callout_tone";`)
+  DROP TYPE "public"."enum__pages_v_blocks_callout_tone";
+  DROP TYPE "public"."enum_site_film_texts_film";
+  DROP TYPE "public"."enum__site_v_version_film_texts_film";`)
 }

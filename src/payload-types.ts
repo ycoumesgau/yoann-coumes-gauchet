@@ -1624,6 +1624,24 @@ export interface Site {
       }[]
     | null;
   /**
+   * Words inside the films (labels, chips, captions), by film and key. A film shows nothing for a key it does not find.
+   */
+  filmTexts?:
+    | {
+        film:
+          | 'wsb-funding'
+          | 'nexcan-inventory'
+          | 'nexcan-screening'
+          | 'nexcan-photos'
+          | 'recipe2video-checks'
+          | 'hostile-review'
+          | 'accounting-agent';
+        key: string;
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Footer links. A profile is a full URL; a page of this site is a path without its language (`/privacy`), which the footer keeps in the reader's language.
    */
   links?:
@@ -1669,6 +1687,14 @@ export interface SiteSelect<T extends boolean = true> {
     | {
         label?: T;
         page?: T;
+        id?: T;
+      };
+  filmTexts?:
+    | T
+    | {
+        film?: T;
+        key?: T;
+        text?: T;
         id?: T;
       };
   links?:
