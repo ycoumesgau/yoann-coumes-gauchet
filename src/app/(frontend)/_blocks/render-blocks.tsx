@@ -10,7 +10,9 @@ import type { Locale } from '@/domain/locales'
 import type { Media, Page, Project, Site } from '@/payload-types'
 
 import { Film, type FilmTexts } from '../_films/film'
+import { WsbCurveThumb } from '../_films/wsb-funding'
 import { Embed } from './embed'
+import { Luma } from './luma'
 import { Screens, type Screen } from './screens'
 import { Shorts } from './shorts'
 
@@ -368,7 +370,10 @@ function renderBlock(
                   <li key={item.id ?? i} className="feature">
                     {image || isDemoKey(item.demo) ? (
                       <div className={phone ? 'thumb phone' : 'thumb'}>
-                        {isDemoKey(item.demo) ? (
+                        {item.demo === 'wsb-funding' ? (
+                          // The prototype's card draws the curve, not the film's last frame.
+                          <WsbCurveThumb texts={texts[item.demo] ?? {}} />
+                        ) : isDemoKey(item.demo) ? (
                           <Film
                             demo={item.demo}
                             labels={labels}
@@ -856,6 +861,7 @@ function renderBlock(
     }
     case 'rive': {
       const fallback = readableImage(block.fallback)
+      const riveFile = typeof block.file === 'object' ? block.file : null
       if (!fallback && !block.heading) return null
       return {
         Tag: 'section',
@@ -865,7 +871,19 @@ function renderBlock(
               <Heading text={block.heading} />
               {block.body ? <p className="text">{block.body}</p> : null}
             </div>
-            {fallback ? (
+            {fallback && riveFile?.url ? (
+              <Luma
+                src={riveFile.url}
+                stateMachine={block.stateMachine ?? null}
+                fallback={{
+                  src: fallback.url,
+                  alt: fallback.alt,
+                  width: fallback.width,
+                  height: fallback.height,
+                }}
+                caption={block.caption ?? null}
+              />
+            ) : fallback ? (
               <figure className="rive-stage" style={{ margin: 0 }}>
                 <MediaImage media={fallback} sizes="420px" />
                 {block.caption ? (

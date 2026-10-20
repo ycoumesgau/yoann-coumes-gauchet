@@ -10,21 +10,20 @@ import { film as nexcanInventory } from './nexcan-inventory'
 import { film as nexcanPhotos } from './nexcan-photos'
 import { film as nexcanScreening } from './nexcan-screening'
 import type { FilmModule } from './types'
-// Films written in parallel: uncomment the import and its entry below when the file exists.
-// import { film as wsbFunding } from './wsb-funding'
-// import { film as hostileReview } from './hostile-review'
-// import { film as recipe2videoChecks } from './recipe2video-checks'
-// import { film as accountingAgent } from './accounting-agent'
+import { film as wsbFunding } from './wsb-funding'
+import { film as hostileReview } from './hostile-review'
+import { film as recipe2videoChecks } from './recipe2video-checks'
+import { film as accountingAgent } from './accounting-agent'
 
 /** Every film by key. A key without a module renders nothing. */
 export const films: Partial<Record<DemoKey, FilmModule>> = {
   'nexcan-inventory': nexcanInventory,
   'nexcan-screening': nexcanScreening,
   'nexcan-photos': nexcanPhotos,
-  // 'wsb-funding': wsbFunding,
-  // 'hostile-review': hostileReview,
-  // 'recipe2video-checks': recipe2videoChecks,
-  // 'accounting-agent': accountingAgent,
+  'wsb-funding': wsbFunding,
+  'hostile-review': hostileReview,
+  'recipe2video-checks': recipe2videoChecks,
+  'accounting-agent': accountingAgent,
 }
 
 export type FilmTexts = Readonly<Record<string, string>>

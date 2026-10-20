@@ -35,3 +35,19 @@ peuvent se lancer facilement." The session had stated the risk in the thread bef
   player comes into view.
 - The site does not follow the CNIL guidelines on these trackers: an accepted risk, Yoann's.
 - `tests/unit/blocks.test.ts` checks that each player's URL is the rebuilt one and loads lazily.
+
+## Amendment 1 — the series of shorts plays the next one (2026-10-20, L3d)
+
+The prototype v2 that Yoann approved for coding ("J'ai l'impression qu'on est pas mal cette fois
+sur le prototype… est-ce que, sur cette base, on peut coder le site ?") has a switch "Play next
+automatically" on the series of shorts. So, on that one player only:
+
+- `autoplay` is delegated (`allow` and `&autoplay=1`) once the visitor has picked a video, or
+  turned the switch on and a video ended; never on page load.
+- The player's own `postMessage` events tell the page a video ended: only from
+  `youtube.com` / `youtube-nocookie.com` and from that iframe, once per video
+  (`tests/unit/site-blocks.test.ts`).
+- Thumbnails come from `i.ytimg.com`, a YouTube host the privacy page should name (owed: Yoann
+  validates the line).
+
+Every other player keeps the decision above: no `autoplay`.
