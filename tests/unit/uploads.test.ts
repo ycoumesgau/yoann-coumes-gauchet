@@ -1,12 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  isAllowedOctetStream,
-  PASTE_URL_ALLOW_LIST,
-  riveFileFilter,
-  RIVE_TYPES,
-} from '@/domain/uploads'
-import { isURLAllowed } from 'payload/internal'
+import { isAllowedOctetStream, riveFileFilter, RIVE_TYPES } from '@/domain/uploads'
 
 import { RiveBlock } from '@/blocks/rive'
 import { Media } from '@/collections/Media'
@@ -45,17 +39,8 @@ describe('the rive block picker', () => {
 })
 
 describe('server-side fetch of media', () => {
-  it("the allow-list matches this site's own import folder only (Payload's isURLAllowed)", () => {
-    const allow = (url: string) => isURLAllowed(url, PASTE_URL_ALLOW_LIST)
-    expect(allow('https://yoann-coumes-gauchet.vercel.app/import/luma.riv')).toBe(true)
-    expect(allow('http://yoann-coumes-gauchet.vercel.app/import/luma.riv')).toBe(false)
-    expect(allow('https://yoann-coumes-gauchet.vercel.app/admin/x')).toBe(false)
-    expect(allow('https://yoann-coumes-gauchet.vercel.app/import/a/b.webp')).toBe(false)
-    expect(allow('https://evil.example/import/luma.riv')).toBe(false)
-    expect(allow('https://yoann-coumes-gauchet.vercel.app.evil.example/import/x')).toBe(false)
+  it('is closed: no URL may be fetched into media', () => {
     const upload = Media.upload
-    expect(typeof upload === 'object' && upload.pasteURL).toEqual({
-      allowList: PASTE_URL_ALLOW_LIST,
-    })
+    expect(typeof upload === 'object' && upload.pasteURL).toBeFalsy()
   })
 })

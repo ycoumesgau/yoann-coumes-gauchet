@@ -43,7 +43,7 @@ describe('Luma state machine', () => {
   })
 
   it('names in the .riv file the state machine, view model and its four properties', () => {
-    const riv = readFileSync(path.join(root, 'public/import/luma.riv')).toString('latin1')
+    const riv = readFileSync(path.join(root, 'tests/fixtures/luma.riv')).toString('latin1')
     for (const name of [LUMA_STATE_MACHINE, 'ViewModel1', ...Object.values(LUMA_PROPERTIES)]) {
       expect(riv, name).toContain(name)
     }
