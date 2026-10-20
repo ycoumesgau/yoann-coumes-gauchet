@@ -51,6 +51,18 @@ describe('blocks', () => {
     expect(html).toContain('src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"')
     expect(html).toContain('src="https://open.spotify.com/embed/playlist/32nEjBqPrGjsohHLfqVhI9"')
     expect(html.match(/loading="lazy"/g)).toHaveLength(2)
+    expect(html).toContain('title="A recipe · YouTube"')
+    expect(html).not.toContain('autoplay')
+  })
+
+  it('shows no video whose id the site would refuse', () => {
+    const html = render([
+      {
+        blockType: 'videoCarousel',
+        videos: [{ platform: 'instagram', videoId: '../../evil', title: 'Raw write' }],
+      },
+    ])
+    expect(html).not.toContain('<iframe')
   })
 
   it('gives the page one h1: the opening hero, or the title', () => {

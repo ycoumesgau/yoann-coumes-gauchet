@@ -22,7 +22,9 @@ export const validateVideoId = (platform: unknown, id: unknown): true | string =
   return true
 }
 
-export const videoEmbedUrl = (platform: VideoPlatform, id: string): string => {
+/** Null for an id the field validation would refuse (a raw write, an import): no iframe then. */
+export const videoEmbedUrl = (platform: VideoPlatform, id: string): string | null => {
+  if (validateVideoId(platform, id) !== true) return null
   switch (platform) {
     case 'youtube':
       return `https://www.youtube-nocookie.com/embed/${id}`

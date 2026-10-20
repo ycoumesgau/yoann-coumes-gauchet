@@ -141,15 +141,18 @@ export function RenderBlocks({ blocks, locale }: { blocks: readonly PageBlock[];
             {block.heading ? <h2>{block.heading}</h2> : null}
             {block.intro ? <p>{block.intro}</p> : null}
             <ul>
-              {block.videos.map((video, i) => (
-                <li key={video.id ?? i}>
-                  <Embed
-                    src={videoEmbedUrl(video.platform, video.videoId)}
-                    title={`${video.title} · ${providerNames[video.platform]}`}
-                    aspect="vertical"
-                  />
-                </li>
-              ))}
+              {block.videos.map((video, i) => {
+                const src = videoEmbedUrl(video.platform, video.videoId)
+                return src ? (
+                  <li key={video.id ?? i}>
+                    <Embed
+                      src={src}
+                      title={`${video.title} · ${providerNames[video.platform]}`}
+                      aspect="vertical"
+                    />
+                  </li>
+                ) : null
+              })}
             </ul>
           </section>
         )

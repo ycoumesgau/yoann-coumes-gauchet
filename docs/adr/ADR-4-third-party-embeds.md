@@ -25,7 +25,9 @@ peuvent se lancer facilement." The session had stated the risk in the thread bef
 - The embed URL is still rebuilt from a validated id (`src/domain/embeds.ts`), never taken from
   content; YouTube uses `youtube-nocookie.com`.
 - A privacy page, entered as content, says which providers the players contact and why the site
-  asks no consent.
+  asks no consent (owed: drafted for Yoann's validation).
+- No `autoplay` delegated to the players, and no `sandbox`: TikTok and Instagram embeds need
+  several of its permissions, and a wrong set breaks them.
 
 ## Consequences
 
