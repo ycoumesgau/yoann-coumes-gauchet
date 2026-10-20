@@ -1,7 +1,7 @@
 import { APIError, type CollectionConfig } from 'payload'
 
 import { adminOnly, untrashedOrAdmin } from '@/domain/access'
-import { isAllowedOctetStream, OCTET_STREAM } from '@/domain/uploads'
+import { isAllowedOctetStream, RIVE_TYPES } from '@/domain/uploads'
 
 export const Media: CollectionConfig = {
   slug: 'media',
@@ -26,6 +26,6 @@ export const Media: CollectionConfig = {
   fields: [{ name: 'alt', type: 'text', required: true, localized: true }],
   upload: {
     // Images, short videos, the CV, and Rive animations (`.riv` only, see `domain/uploads.ts`).
-    mimeTypes: ['image/*', 'video/mp4', 'video/webm', 'application/pdf', OCTET_STREAM],
+    mimeTypes: ['image/*', 'video/mp4', 'video/webm', 'application/pdf', ...RIVE_TYPES],
   },
 }

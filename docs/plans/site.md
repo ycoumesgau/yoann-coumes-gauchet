@@ -28,7 +28,8 @@ The detailed brief (content, demos, Claude Design) lives in Yoann's project file
 | L3a   | `/en` and `/fr` URLs, language from the browser, visible switch, `hreflang` | Merged                 |
 | L3b   | Page blocks as plain HTML, players on click (ADR-4), media on Supabase S3   | Merged                 |
 | L3c   | Players loaded with the page (ADR-4 decided by Yoann), notice field removed | Merged                 |
-| L3    | Front end from the mockup; content entered through the MCP server           | Waits for the mockup   |
+| L3d   | Front end from prototype v2 (Tangerine), all blocks, one migration          | In progress            |
+| L3e   | Films (Nexcan captures, WSB curve, Recipe2Video, review, agents), Luma Rive | In progress            |
 | L4    | Demos, in batches                                                           | To do                  |
 | L5    | Lighthouse, repository public, DNS switched to Vercel                       | Yoann's go             |
 
@@ -117,3 +118,7 @@ Source: Yoann's project file `synthese/03-site-refonte-concept.md` §3 (2026-10-
   validated by Yoann with an e-mail contact only (no postal address); `site.name` set and a
   footer link to `/privacy`. The footer now keeps `rel="me"` for absolute
   `http(s)` links only, and serves a path without a language in the page's language (`/fr/privacy`).
+- 2026-10-20 (night): L3d, the site from Claude Design prototype v2, coded without Yoann's
+  review at his request (merge on green CI). Tangerine kept (Yoann). Fonts self-hosted
+  (`@fontsource`), no request to Google. Images reach media by `externalURL` from
+  `public/import/` (the sandbox cannot reach the production upload URL), then that folder goes.

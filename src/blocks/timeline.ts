@@ -6,6 +6,12 @@ export const TimelineBlock: Block = {
   fields: [
     { name: 'heading', type: 'text', localized: true },
     {
+      name: 'linkLabel',
+      type: 'text',
+      localized: true,
+      admin: { description: 'Shown on an entry that links to its page: "→ its page".' },
+    },
+    {
       name: 'entries',
       type: 'array',
       required: true,
@@ -14,6 +20,7 @@ export const TimelineBlock: Block = {
         { name: 'period', type: 'text', required: true, localized: true },
         { name: 'title', type: 'text', required: true, localized: true },
         { name: 'body', type: 'textarea', localized: true },
+        { name: 'page', type: 'relationship', relationTo: 'pages' },
       ],
     },
   ],
