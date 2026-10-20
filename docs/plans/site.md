@@ -26,7 +26,8 @@ The detailed brief (content, demos, Claude Design) lives in Yoann's project file
 | L2a   | MCP plugin, audit log, kill switch                                          | Merged                 |
 | L2b   | OAuth server (ADR-2), deletion confirmation; connector added in claude.ai   | Merged, connector live |
 | L3a   | `/en` and `/fr` URLs, language from the browser, visible switch, `hreflang` | Merged                 |
-| L3b   | Page blocks as plain HTML, players on click (ADR-4), media on Supabase S3   | In review              |
+| L3b   | Page blocks as plain HTML, players on click (ADR-4), media on Supabase S3   | Merged                 |
+| L3c   | Players loaded with the page (ADR-4 decided by Yoann), notice field removed | In review              |
 | L3    | Front end from the mockup; content entered through the MCP server           | Waits for the mockup   |
 | L4    | Demos, in batches                                                           | To do                  |
 | L5    | Lighthouse, repository public, DNS switched to Vercel                       | Yoann's go             |
@@ -108,3 +109,7 @@ Source: Yoann's project file `synthese/03-site-refonte-concept.md` §3 (2026-10-
   `media` (the hostile review caught the missing migration).
   Page structure (Yoann via the coordinator): Videos & music joins the Licorn page, without the
   Runway videos; that is content, nothing in the code changes.
+- 2026-10-20: ADR-4 decided by Yoann: players load with the page, no consent step, a privacy
+  page explains it (his words in the ADR; the session had stated the CNIL risk). The click gate,
+  the `site.thirdPartyNotice` field and the unused video poster are removed (migration
+  `direct_embeds`; both were empty in production).
