@@ -12,9 +12,7 @@ import {
 import type { Media, Project } from '@/payload-types'
 
 const render = (blocks: PageBlock[]) =>
-  renderToStaticMarkup(
-    createElement(RenderBlocks, { blocks, locale: 'en', notice: 'Loads a third party.' }),
-  )
+  renderToStaticMarkup(createElement(RenderBlocks, { blocks, locale: 'en' }))
 
 const paragraph = (text: string) => ({
   root: {
@@ -41,7 +39,7 @@ const paragraph = (text: string) => ({
 })
 
 describe('blocks', () => {
-  it('requests nothing from a provider before the click (ADR-4)', () => {
+  it('loads each player with the page, only from a URL the site rebuilds (ADR-4)', () => {
     const html = render([
       {
         blockType: 'videoCarousel',
@@ -50,11 +48,9 @@ describe('blocks', () => {
       },
       { blockType: 'spotify', heading: 'Playlist', ref: 'playlist:32nEjBqPrGjsohHLfqVhI9' },
     ])
-    expect(html).not.toContain('<iframe')
-    expect(html).not.toContain('youtube')
-    expect(html).not.toContain('spotify.com')
-    expect(html).toContain('A recipe')
-    expect(html).toContain('Loads a third party.')
+    expect(html).toContain('src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"')
+    expect(html).toContain('src="https://open.spotify.com/embed/playlist/32nEjBqPrGjsohHLfqVhI9"')
+    expect(html.match(/loading="lazy"/g)).toHaveLength(2)
   })
 
   it('gives the page one h1: the opening hero, or the title', () => {
@@ -108,27 +104,13 @@ describe('blocks', () => {
     const named = render([
       { blockType: 'spotify', heading: 'Songs', ref: 'album:4aawyAB9vmqN3uQ7FjRGTy' },
     ])
-    expect(named).toContain('Songs<span class="embed-provider"> · Spotify</span>')
+    expect(named).toContain('title="Songs · Spotify"')
     const bare = render([{ blockType: 'spotify', ref: 'album:4aawyAB9vmqN3uQ7FjRGTy' }])
-    expect(bare).not.toContain('·')
-    expect(bare).toContain('Spotify')
+    expect(bare).toContain('title="Spotify"')
     // A reference the site cannot rebuild shows nothing.
     expect(render([{ blockType: 'spotify', heading: 'Songs', ref: 'https://evil.example' }])).toBe(
       '',
     )
-  })
-
-  it('shows the notice once per carousel', () => {
-    const html = render([
-      {
-        blockType: 'videoCarousel',
-        videos: [
-          { platform: 'youtube', videoId: 'dQw4w9WgXcQ', title: 'One' },
-          { platform: 'youtube', videoId: 'aqz-KE-bpKQ', title: 'Two' },
-        ],
-      },
-    ])
-    expect(html.split('Loads a third party.')).toHaveLength(2)
   })
 
   it('links a project to its page only when that page is readable, and keeps headings in order', () => {

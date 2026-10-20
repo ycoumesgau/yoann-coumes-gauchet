@@ -12,8 +12,8 @@ for one app and one developer working through agents.
 Replaced, never extended (25 lines max).
 
 - L0–L2 merged; production on `yoann-coumes-gauchet.vercel.app` (cdg1), connector live.
-- L3a merged: `/en` `/fr` routing and language switch. L3b: blocks as plain HTML, players on
-  click (ADR-4), S3 media storage. Visual and texts wait for a new Claude Design pass (the "1A"
+- L3a merged: `/en` `/fr` routing and language switch. L3b: blocks as plain HTML, players loaded
+  with the page (ADR-4), S3 media storage. Visual and texts wait for a new Claude Design pass (the "1A"
   mockup is not kept); then L4 demos, L5 launch.
 - Not live: `yoann.coumes-gauchet.fr` still points at the old Figma Sites page (DNS in Figma).
 - Owed by Yoann: S3 keys for media storage (wired, inactive until the five `S3_*` variables

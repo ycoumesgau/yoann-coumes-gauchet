@@ -31,12 +31,6 @@ export const VideoCarouselBlock: Block = {
           admin: { description: 'The id only, not the URL (YouTube: 11 characters).' },
         },
         { name: 'title', type: 'text', required: true, localized: true },
-        {
-          name: 'poster',
-          type: 'upload',
-          relationTo: 'media',
-          filterOptions: { mimeType: { like: 'image/' } },
-        },
       ],
     },
   ],

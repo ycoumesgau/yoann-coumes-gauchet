@@ -32,11 +32,7 @@ export async function renderPage(locale: string, slug: string, viaSlugRoute: boo
     <SiteFrame site={site} locale={decision.locale} languageLinks={languageLinks(slug, published)}>
       <article>
         <PageTitle page={page} />
-        <RenderBlocks
-          blocks={page.layout ?? []}
-          locale={decision.locale}
-          notice={site.thirdPartyNotice ?? null}
-        />
+        <RenderBlocks blocks={page.layout ?? []} locale={decision.locale} />
       </article>
     </SiteFrame>
   )

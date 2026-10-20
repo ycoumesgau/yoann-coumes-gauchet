@@ -6,7 +6,7 @@ import { pagePath } from '@/domain/locale-routing'
 import type { Locale } from '@/domain/locales'
 import type { Media, Page, Project } from '@/payload-types'
 
-import { EmbedFacade } from './embed-facade'
+import { Embed } from './embed'
 
 /**
  * Each block of a page as plain, semantic HTML. Structure only: the visual
@@ -61,15 +61,7 @@ export function PageTitle({ page }: { page: Pick<Page, 'title' | 'layout'> }) {
   return opensOnHero(page.layout) ? null : <h1>{page.title}</h1>
 }
 
-export function RenderBlocks({
-  blocks,
-  locale,
-  notice,
-}: {
-  blocks: readonly PageBlock[]
-  locale: Locale
-  notice: string | null
-}) {
+export function RenderBlocks({ blocks, locale }: { blocks: readonly PageBlock[]; locale: Locale }) {
   return blocks.map((block, index) => {
     const key = block.id ?? `${block.blockType}-${index}`
     switch (block.blockType) {
@@ -149,27 +141,16 @@ export function RenderBlocks({
             {block.heading ? <h2>{block.heading}</h2> : null}
             {block.intro ? <p>{block.intro}</p> : null}
             <ul>
-              {block.videos.map((video, i) => {
-                const poster = readableImage(video.poster)
-                return (
-                  <li key={video.id ?? i}>
-                    <EmbedFacade
-                      src={videoEmbedUrl(video.platform, video.videoId)}
-                      title={video.title}
-                      provider={providerNames[video.platform]}
-                      notice={null}
-                      aspect="vertical"
-                      poster={
-                        poster ? (
-                          <MediaImage media={poster} sizes="(max-width: 600px) 100vw, 25vw" />
-                        ) : null
-                      }
-                    />
-                  </li>
-                )
-              })}
+              {block.videos.map((video, i) => (
+                <li key={video.id ?? i}>
+                  <Embed
+                    src={videoEmbedUrl(video.platform, video.videoId)}
+                    title={`${video.title} · ${providerNames[video.platform]}`}
+                    aspect="vertical"
+                  />
+                </li>
+              ))}
             </ul>
-            {notice ? <p className="embed-notice">{notice}</p> : null}
           </section>
         )
       case 'spotify': {
@@ -178,11 +159,9 @@ export function RenderBlocks({
           <section key={key} className="block-spotify">
             {block.heading ? <h2>{block.heading}</h2> : null}
             {block.intro ? <p>{block.intro}</p> : null}
-            <EmbedFacade
+            <Embed
               src={src}
-              title={block.heading ?? null}
-              provider="Spotify"
-              notice={notice}
+              title={block.heading ? `${block.heading} · Spotify` : 'Spotify'}
               aspect="player"
             />
           </section>
