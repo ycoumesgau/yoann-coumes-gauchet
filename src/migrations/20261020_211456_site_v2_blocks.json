@@ -14701,6 +14701,18 @@
           "primaryKey": false,
           "notNull": false
         },
+        "labels_pause": {
+          "name": "labels_pause",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "labels_restart": {
+          "name": "labels_restart",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
         "id": {
           "name": "id",
           "type": "serial",
@@ -15523,6 +15535,18 @@
           "primaryKey": false,
           "notNull": false
         },
+        "version_labels_pause": {
+          "name": "version_labels_pause",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "version_labels_restart": {
+          "name": "version_labels_restart",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
         "id": {
           "name": "id",
           "type": "serial",
@@ -15972,6 +15996,6 @@
     "tables": {},
     "columns": {}
   },
-  "id": "7b335252-7421-4e27-b6e5-83eed7e28f26",
+  "id": "6f71006a-68de-4648-8e8a-35ebfd14e1b4",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

@@ -541,6 +541,8 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"labels_next" varchar,
   	"labels_play" varchar,
   	"labels_replay" varchar,
+  	"labels_pause" varchar,
+  	"labels_restart" varchar,
   	"id" serial PRIMARY KEY NOT NULL,
   	"_locale" "_locales" NOT NULL,
   	"_parent_id" integer NOT NULL
@@ -573,6 +575,8 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"version_labels_next" varchar,
   	"version_labels_play" varchar,
   	"version_labels_replay" varchar,
+  	"version_labels_pause" varchar,
+  	"version_labels_restart" varchar,
   	"id" serial PRIMARY KEY NOT NULL,
   	"_locale" "_locales" NOT NULL,
   	"_parent_id" integer NOT NULL

@@ -1615,6 +1615,8 @@ export interface Site {
     next?: string | null;
     play?: string | null;
     replay?: string | null;
+    pause?: string | null;
+    restart?: string | null;
   };
   navigation?:
     | {
@@ -1681,6 +1683,8 @@ export interface SiteSelect<T extends boolean = true> {
         next?: T;
         play?: T;
         replay?: T;
+        pause?: T;
+        restart?: T;
       };
   navigation?:
     | T

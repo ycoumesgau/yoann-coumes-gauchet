@@ -27,6 +27,8 @@ export const Site: GlobalConfig = {
         { name: 'next', type: 'text', localized: true },
         { name: 'play', type: 'text', localized: true },
         { name: 'replay', type: 'text', localized: true },
+        { name: 'pause', type: 'text', localized: true },
+        { name: 'restart', type: 'text', localized: true },
       ],
     },
     {
