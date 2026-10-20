@@ -1,9 +1,14 @@
+import '@fontsource-variable/newsreader/opsz.css'
+import '@fontsource-variable/schibsted-grotesk/index.css'
+import '@fontsource/ibm-plex-mono/400.css'
+import '@fontsource/ibm-plex-mono/500.css'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import type React from 'react'
 
 import { isLocale } from '@/domain/locales'
 
+import { modeScript } from '../_lib/mode'
 import './styles.css'
 
 export const dynamic = 'force-dynamic'
@@ -22,7 +27,11 @@ export default async function LocaleLayout({
   const { locale } = await params
   if (!isLocale(locale)) notFound()
   return (
-    <html lang={locale}>
+    <html lang={locale} suppressHydrationWarning>
+      <head>
+        {/* Before the first paint, so a reader who chose dark never sees light flash. */}
+        <script dangerouslySetInnerHTML={{ __html: modeScript }} />
+      </head>
       <body>{children}</body>
     </html>
   )

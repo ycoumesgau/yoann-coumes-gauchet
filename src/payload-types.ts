@@ -182,6 +182,16 @@ export interface Page {
     | (
         | HeroBlock
         | SectionBlock
+        | FeaturesBlock
+        | WorkRowsBlock
+        | FactListBlock
+        | StatsBlock
+        | ChecklistBlock
+        | GalleryBlock
+        | ColumnsBlock
+        | CalloutBlock
+        | LinkListBlock
+        | NextLinksBlock
         | ProjectCardsBlock
         | DemoBlock
         | TimelineBlock
@@ -212,82 +222,41 @@ export interface Page {
  * via the `definition` "HeroBlock".
  */
 export interface HeroBlock {
+  /**
+   * Small line above the headline: "WeShareBonds · 2015 – 2024".
+   */
+  eyebrow?: string | null;
+  /**
+   * Status pill beside the eyebrow: "steady state".
+   */
+  status?: string | null;
   headline: string;
   subhead?: string | null;
   /**
-   * Optional demonstration shown beside the headline.
+   * Shown beside the headline, in an accent frame when there is a badge.
+   */
+  image?: (number | null) | Media;
+  /**
+   * Small round image over the photo’s corner (Luma).
+   */
+  badge?: (number | null) | Media;
+  /**
+   * Film shown under the headline.
    */
   demo?:
     | (
-        | 'paper-to-deliverable'
-        | 'nexcan-case'
-        | 'photo-bench'
-        | 'screening-toy'
-        | 'luma-video'
-        | 'recipe-ingestion'
-        | 'recipe2video-validation'
-        | 'recipe2video-videos'
-        | 'build-log'
+        | 'wsb-funding'
+        | 'nexcan-inventory'
+        | 'nexcan-screening'
+        | 'nexcan-photos'
+        | 'recipe2video-checks'
         | 'hostile-review'
-        | 'background-video'
-        | 'ask-this-site'
         | 'accounting-agent'
       )
     | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'hero';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "SectionBlock".
- */
-export interface SectionBlock {
-  heading?: string | null;
-  body: LexicalRichText<LexicalNodes_ECB87CC6>;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'section';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ProjectCardsBlock".
- */
-export interface ProjectCardsBlock {
-  heading?: string | null;
-  projects: (number | Project)[];
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'projectCards';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "projects".
- */
-export interface Project {
-  id: number;
-  name: string;
-  slug: string;
-  tagline: string;
-  period: string;
-  /**
-   * One or two sentences, at the level of the result.
-   */
-  summary: string;
-  page?: (number | null) | Page;
-  image?: (number | null) | Media;
-  createdBy?: {
-    relationTo: 'users';
-    value: number | User;
-  } | null;
-  updatedBy?: {
-    relationTo: 'users';
-    value: number | User;
-  } | null;
-  updatedAt: string;
-  createdAt: string;
-  deletedAt?: string | null;
-  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -366,23 +335,339 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SectionBlock".
+ */
+export interface SectionBlock {
+  /**
+   * A step number ("01"). The blocks that follow, up to the next numbered section, sit in its column.
+   */
+  number?: string | null;
+  heading?: string | null;
+  body: LexicalRichText<LexicalNodes_ECB87CC6>;
+  image?: (number | null) | Media;
+  tag?: string | null;
+  imageCaption?: string | null;
+  imageSide?: ('right' | 'left') | null;
+  /**
+   * Film shown under the text.
+   */
+  demo?:
+    | (
+        | 'wsb-funding'
+        | 'nexcan-inventory'
+        | 'nexcan-screening'
+        | 'nexcan-photos'
+        | 'recipe2video-checks'
+        | 'hostile-review'
+        | 'accounting-agent'
+      )
+    | null;
+  demoCaption?: string | null;
+  detailsLabel?: string | null;
+  /**
+   * Longer text, folded under "detailsLabel".
+   */
+  details?: LexicalRichText<LexicalNodes_ECB87CC6> | null;
+  link?: {
+    label?: string | null;
+    page?: (number | null) | Page;
+    /**
+     * A full URL (https://…, mailto:…) when the link leaves the site.
+     */
+    url?: string | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'section';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FeaturesBlock".
+ */
+export interface FeaturesBlock {
+  heading?: string | null;
+  items: {
+    lead?: string | null;
+    body: string;
+    image?: (number | null) | Media;
+    /**
+     * A still of a film instead of an image.
+     */
+    demo?:
+      | (
+          | 'wsb-funding'
+          | 'nexcan-inventory'
+          | 'nexcan-screening'
+          | 'nexcan-photos'
+          | 'recipe2video-checks'
+          | 'hostile-review'
+          | 'accounting-agent'
+        )
+      | null;
+    tag?: string | null;
+    link?: {
+      label?: string | null;
+      page?: (number | null) | Page;
+      /**
+       * A full URL (https://…, mailto:…) when the link leaves the site.
+       */
+      url?: string | null;
+    };
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'features';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "WorkRowsBlock".
+ */
+export interface WorkRowsBlock {
+  heading?: string | null;
+  rows: {
+    status?: string | null;
+    /**
+     * Colour of the status dot: past (grey), live (accent), private.
+     */
+    tone?: ('past' | 'live' | 'private') | null;
+    title: string;
+    meta?: string | null;
+    body?: string | null;
+    link?: {
+      label?: string | null;
+      page?: (number | null) | Page;
+      /**
+       * A full URL (https://…, mailto:…) when the link leaves the site.
+       */
+      url?: string | null;
+    };
+    image?: (number | null) | Media;
+    tag?: string | null;
+    imageCaption?: string | null;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'workRows';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FactListBlock".
+ */
+export interface FactListBlock {
+  heading?: string | null;
+  intro?: string | null;
+  numbered?: boolean | null;
+  columns?: ('1' | '2' | '4') | null;
+  items: {
+    kicker?: string | null;
+    lead?: string | null;
+    body?: string | null;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'factList';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "StatsBlock".
+ */
+export interface StatsBlock {
+  heading?: string | null;
+  items: {
+    value: string;
+    label: string;
+    id?: string | null;
+  }[];
+  body?: LexicalRichText<LexicalNodes_ECB87CC6> | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'stats';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ChecklistBlock".
+ */
+export interface ChecklistBlock {
+  items: {
+    text: string;
+    id?: string | null;
+  }[];
+  note?: {
+    kicker?: string | null;
+    title?: string | null;
+    body?: string | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'checklist';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GalleryBlock".
+ */
+export interface GalleryBlock {
+  heading?: string | null;
+  intro?: string | null;
+  source?: string | null;
+  variant?: ('screens' | 'cards' | 'wide') | null;
+  items: {
+    image?: (number | null) | Media;
+    title?: string | null;
+    caption?: string | null;
+    tag?: string | null;
+    badge?: string | null;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'gallery';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ColumnsBlock".
+ */
+export interface ColumnsBlock {
+  columns: {
+    status?: string | null;
+    heading?: string | null;
+    body: LexicalRichText<LexicalNodes_ECB87CC6>;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'columns';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CalloutBlock".
+ */
+export interface CalloutBlock {
+  tone?: ('plain' | 'accent' | 'note') | null;
+  heading?: string | null;
+  body: string;
+  link?: {
+    label?: string | null;
+    page?: (number | null) | Page;
+    /**
+     * A full URL (https://…, mailto:…) when the link leaves the site.
+     */
+    url?: string | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'callout';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LinkListBlock".
+ */
+export interface LinkListBlock {
+  heading?: string | null;
+  items: {
+    period?: string | null;
+    title: string;
+    body?: string | null;
+    url?: string | null;
+    urlLabel?: string | null;
+    id?: string | null;
+  }[];
+  /**
+   * A line of documents to download (the CV).
+   */
+  files?: {
+    label?: string | null;
+    items?:
+      | {
+          label: string;
+          file?: (number | null) | Media;
+          lang?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'linkList';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "NextLinksBlock".
+ */
+export interface NextLinksBlock {
+  links: {
+    kicker?: string | null;
+    link?: {
+      label?: string | null;
+      page?: (number | null) | Page;
+      /**
+       * A full URL (https://…, mailto:…) when the link leaves the site.
+       */
+      url?: string | null;
+    };
+    id?: string | null;
+  }[];
+  note?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'nextLinks';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProjectCardsBlock".
+ */
+export interface ProjectCardsBlock {
+  heading?: string | null;
+  projects: (number | Project)[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'projectCards';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "projects".
+ */
+export interface Project {
+  id: number;
+  name: string;
+  slug: string;
+  tagline: string;
+  period: string;
+  /**
+   * One or two sentences, at the level of the result.
+   */
+  summary: string;
+  page?: (number | null) | Page;
+  image?: (number | null) | Media;
+  createdBy?: {
+    relationTo: 'users';
+    value: number | User;
+  } | null;
+  updatedBy?: {
+    relationTo: 'users';
+    value: number | User;
+  } | null;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "DemoBlock".
  */
 export interface DemoBlock {
   demo:
-    | 'paper-to-deliverable'
-    | 'nexcan-case'
-    | 'photo-bench'
-    | 'screening-toy'
-    | 'luma-video'
-    | 'recipe-ingestion'
-    | 'recipe2video-validation'
-    | 'recipe2video-videos'
-    | 'build-log'
+    | 'wsb-funding'
+    | 'nexcan-inventory'
+    | 'nexcan-screening'
+    | 'nexcan-photos'
+    | 'recipe2video-checks'
     | 'hostile-review'
-    | 'background-video'
-    | 'ask-this-site'
     | 'accounting-agent';
+  heading?: string | null;
   caption?: string | null;
   /**
    * Where the figures come from: a benchmark, an ADR, a public page.
@@ -398,10 +683,15 @@ export interface DemoBlock {
  */
 export interface TimelineBlock {
   heading?: string | null;
+  /**
+   * Shown on an entry that links to its page: "→ its page".
+   */
+  linkLabel?: string | null;
   entries: {
     period: string;
     title: string;
     body?: string | null;
+    page?: (number | null) | Page;
     id?: string | null;
   }[];
   id?: string | null;
@@ -415,6 +705,24 @@ export interface TimelineBlock {
 export interface VideoCarouselBlock {
   heading?: string | null;
   intro?: string | null;
+  /**
+   * The carousel’s own controls.
+   */
+  labels?: {
+    previous?: string | null;
+    next?: string | null;
+    autoplay?: string | null;
+  };
+  /**
+   * The channels, under the player.
+   */
+  links?:
+    | {
+        label: string;
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
   videos: {
     platform: 'youtube' | 'tiktok' | 'instagram';
     /**
@@ -435,6 +743,7 @@ export interface VideoCarouselBlock {
 export interface SpotifyBlock {
   heading?: string | null;
   intro?: string | null;
+  linkLabel?: string | null;
   /**
    * For example `playlist:<id>`.
    */
@@ -448,7 +757,12 @@ export interface SpotifyBlock {
  * via the `definition` "RiveBlock".
  */
 export interface RiveBlock {
-  file: number | Media;
+  heading?: string | null;
+  body?: string | null;
+  /**
+   * The .riv file. Without it, the still image is shown.
+   */
+  file?: (number | null) | Media;
   /**
    * State machine to play, if any.
    */
@@ -697,6 +1011,16 @@ export interface PagesSelect<T extends boolean = true> {
     | {
         hero?: T | HeroBlockSelect<T>;
         section?: T | SectionBlockSelect<T>;
+        features?: T | FeaturesBlockSelect<T>;
+        workRows?: T | WorkRowsBlockSelect<T>;
+        factList?: T | FactListBlockSelect<T>;
+        stats?: T | StatsBlockSelect<T>;
+        checklist?: T | ChecklistBlockSelect<T>;
+        gallery?: T | GalleryBlockSelect<T>;
+        columns?: T | ColumnsBlockSelect<T>;
+        callout?: T | CalloutBlockSelect<T>;
+        linkList?: T | LinkListBlockSelect<T>;
+        nextLinks?: T | NextLinksBlockSelect<T>;
         projectCards?: T | ProjectCardsBlockSelect<T>;
         demo?: T | DemoBlockSelect<T>;
         timeline?: T | TimelineBlockSelect<T>;
@@ -722,8 +1046,12 @@ export interface PagesSelect<T extends boolean = true> {
  * via the `definition` "HeroBlock_select".
  */
 export interface HeroBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  status?: T;
   headline?: T;
   subhead?: T;
+  image?: T;
+  badge?: T;
   demo?: T;
   id?: T;
   blockName?: T;
@@ -733,8 +1061,247 @@ export interface HeroBlockSelect<T extends boolean = true> {
  * via the `definition` "SectionBlock_select".
  */
 export interface SectionBlockSelect<T extends boolean = true> {
+  number?: T;
   heading?: T;
   body?: T;
+  image?: T;
+  tag?: T;
+  imageCaption?: T;
+  imageSide?: T;
+  demo?: T;
+  demoCaption?: T;
+  detailsLabel?: T;
+  details?: T;
+  link?:
+    | T
+    | {
+        label?: T;
+        page?: T;
+        url?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FeaturesBlock_select".
+ */
+export interface FeaturesBlockSelect<T extends boolean = true> {
+  heading?: T;
+  items?:
+    | T
+    | {
+        lead?: T;
+        body?: T;
+        image?: T;
+        demo?: T;
+        tag?: T;
+        link?:
+          | T
+          | {
+              label?: T;
+              page?: T;
+              url?: T;
+            };
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "WorkRowsBlock_select".
+ */
+export interface WorkRowsBlockSelect<T extends boolean = true> {
+  heading?: T;
+  rows?:
+    | T
+    | {
+        status?: T;
+        tone?: T;
+        title?: T;
+        meta?: T;
+        body?: T;
+        link?:
+          | T
+          | {
+              label?: T;
+              page?: T;
+              url?: T;
+            };
+        image?: T;
+        tag?: T;
+        imageCaption?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FactListBlock_select".
+ */
+export interface FactListBlockSelect<T extends boolean = true> {
+  heading?: T;
+  intro?: T;
+  numbered?: T;
+  columns?: T;
+  items?:
+    | T
+    | {
+        kicker?: T;
+        lead?: T;
+        body?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "StatsBlock_select".
+ */
+export interface StatsBlockSelect<T extends boolean = true> {
+  heading?: T;
+  items?:
+    | T
+    | {
+        value?: T;
+        label?: T;
+        id?: T;
+      };
+  body?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ChecklistBlock_select".
+ */
+export interface ChecklistBlockSelect<T extends boolean = true> {
+  items?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  note?:
+    | T
+    | {
+        kicker?: T;
+        title?: T;
+        body?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GalleryBlock_select".
+ */
+export interface GalleryBlockSelect<T extends boolean = true> {
+  heading?: T;
+  intro?: T;
+  source?: T;
+  variant?: T;
+  items?:
+    | T
+    | {
+        image?: T;
+        title?: T;
+        caption?: T;
+        tag?: T;
+        badge?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ColumnsBlock_select".
+ */
+export interface ColumnsBlockSelect<T extends boolean = true> {
+  columns?:
+    | T
+    | {
+        status?: T;
+        heading?: T;
+        body?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CalloutBlock_select".
+ */
+export interface CalloutBlockSelect<T extends boolean = true> {
+  tone?: T;
+  heading?: T;
+  body?: T;
+  link?:
+    | T
+    | {
+        label?: T;
+        page?: T;
+        url?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LinkListBlock_select".
+ */
+export interface LinkListBlockSelect<T extends boolean = true> {
+  heading?: T;
+  items?:
+    | T
+    | {
+        period?: T;
+        title?: T;
+        body?: T;
+        url?: T;
+        urlLabel?: T;
+        id?: T;
+      };
+  files?:
+    | T
+    | {
+        label?: T;
+        items?:
+          | T
+          | {
+              label?: T;
+              file?: T;
+              lang?: T;
+              id?: T;
+            };
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "NextLinksBlock_select".
+ */
+export interface NextLinksBlockSelect<T extends boolean = true> {
+  links?:
+    | T
+    | {
+        kicker?: T;
+        link?:
+          | T
+          | {
+              label?: T;
+              page?: T;
+              url?: T;
+            };
+        id?: T;
+      };
+  note?: T;
   id?: T;
   blockName?: T;
 }
@@ -754,6 +1321,7 @@ export interface ProjectCardsBlockSelect<T extends boolean = true> {
  */
 export interface DemoBlockSelect<T extends boolean = true> {
   demo?: T;
+  heading?: T;
   caption?: T;
   source?: T;
   id?: T;
@@ -765,12 +1333,14 @@ export interface DemoBlockSelect<T extends boolean = true> {
  */
 export interface TimelineBlockSelect<T extends boolean = true> {
   heading?: T;
+  linkLabel?: T;
   entries?:
     | T
     | {
         period?: T;
         title?: T;
         body?: T;
+        page?: T;
         id?: T;
       };
   id?: T;
@@ -783,6 +1353,20 @@ export interface TimelineBlockSelect<T extends boolean = true> {
 export interface VideoCarouselBlockSelect<T extends boolean = true> {
   heading?: T;
   intro?: T;
+  labels?:
+    | T
+    | {
+        previous?: T;
+        next?: T;
+        autoplay?: T;
+      };
+  links?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        id?: T;
+      };
   videos?:
     | T
     | {
@@ -801,6 +1385,7 @@ export interface VideoCarouselBlockSelect<T extends boolean = true> {
 export interface SpotifyBlockSelect<T extends boolean = true> {
   heading?: T;
   intro?: T;
+  linkLabel?: T;
   ref?: T;
   id?: T;
   blockName?: T;
@@ -810,6 +1395,8 @@ export interface SpotifyBlockSelect<T extends boolean = true> {
  * via the `definition` "RiveBlock_select".
  */
 export interface RiveBlockSelect<T extends boolean = true> {
+  heading?: T;
+  body?: T;
   file?: T;
   stateMachine?: T;
   caption?: T;
@@ -1014,6 +1601,21 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
 export interface Site {
   id: number;
   name: string;
+  /**
+   * The words of the frame itself: menu, theme, screenshot viewer.
+   */
+  labels?: {
+    menu?: string | null;
+    closeMenu?: string | null;
+    dark?: string | null;
+    light?: string | null;
+    viewLarger?: string | null;
+    close?: string | null;
+    previous?: string | null;
+    next?: string | null;
+    play?: string | null;
+    replay?: string | null;
+  };
   navigation?:
     | {
         label: string;
@@ -1048,6 +1650,20 @@ export interface Site {
  */
 export interface SiteSelect<T extends boolean = true> {
   name?: T;
+  labels?:
+    | T
+    | {
+        menu?: T;
+        closeMenu?: T;
+        dark?: T;
+        light?: T;
+        viewLarger?: T;
+        close?: T;
+        previous?: T;
+        next?: T;
+        play?: T;
+        replay?: T;
+      };
   navigation?:
     | T
     | {

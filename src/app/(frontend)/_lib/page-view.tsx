@@ -29,10 +29,15 @@ export async function renderPage(locale: string, slug: string, viaSlugRoute: boo
   if (!page) notFound()
   const site = await findSite(payload, decision.locale)
   return (
-    <SiteFrame site={site} locale={decision.locale} languageLinks={languageLinks(slug, published)}>
+    <SiteFrame
+      site={site}
+      locale={decision.locale}
+      slug={slug}
+      languageLinks={languageLinks(slug, published)}
+    >
       <article>
         <PageTitle page={page} />
-        <RenderBlocks blocks={page.layout ?? []} locale={decision.locale} />
+        <RenderBlocks blocks={page.layout ?? []} locale={decision.locale} labels={site.labels} />
       </article>
     </SiteFrame>
   )

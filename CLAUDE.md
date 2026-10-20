@@ -15,11 +15,12 @@ Replaced, never extended (25 lines max).
 - L3a merged: `/en` `/fr` routing and language switch. L3b merged: blocks as plain HTML, S3 media
   storage. L3c merged: players load with the page, no consent step (ADR-4, Yoann's call). The
   `privacy` page (FR, EN) is published, linked from the footer; its text is
-  `/mnt/project-files/synthese/contenu/politique-confidentialite.md`. Visual and texts wait for a
-  new Claude Design pass (the "1A" mockup is not kept); then L4 demos, L5 launch.
+  `/mnt/project-files/synthese/contenu/politique-confidentialite.md`. L3d (2026-10-20, night):
+  the site from Claude Design prototype v2 (Tangerine), every block its pages need; films in
+  `src/app/(frontend)/_films/`, their files in `public/films/`. `public/import/` holds images
+  only until they are imported into media (the sandbox cannot PUT to production): then removed.
 - Not live: `yoann.coumes-gauchet.fr` still points at the old Figma Sites page (DNS in Figma).
-- Owed by Yoann: S3 keys for media storage (wired, inactive until the five `S3_*` variables
-  exist: no upload in production before), DNS (L5).
+- Owed by Yoann: DNS (L5), the go to drop `noindex`.
 - MCP code: `src/domain/mcp-oauth/` (pure), `src/mcp/` (server side). Only `oauth-store.ts` may
   skip access, and the lint exemption names it.
 

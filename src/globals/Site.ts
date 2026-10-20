@@ -12,6 +12,23 @@ export const Site: GlobalConfig = {
   fields: [
     { name: 'name', type: 'text', required: true },
     {
+      name: 'labels',
+      type: 'group',
+      admin: { description: 'The words of the frame itself: menu, theme, screenshot viewer.' },
+      fields: [
+        { name: 'menu', type: 'text', localized: true },
+        { name: 'closeMenu', type: 'text', localized: true },
+        { name: 'dark', type: 'text', localized: true },
+        { name: 'light', type: 'text', localized: true },
+        { name: 'viewLarger', type: 'text', localized: true },
+        { name: 'close', type: 'text', localized: true },
+        { name: 'previous', type: 'text', localized: true },
+        { name: 'next', type: 'text', localized: true },
+        { name: 'play', type: 'text', localized: true },
+        { name: 'replay', type: 'text', localized: true },
+      ],
+    },
+    {
       name: 'navigation',
       type: 'array',
       fields: [

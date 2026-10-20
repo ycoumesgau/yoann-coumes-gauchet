@@ -12,6 +12,7 @@ export const DemoBlock: Block = {
       required: true,
       options: demoKeys.map((key) => ({ label: key, value: key })),
     },
+    { name: 'heading', type: 'text', localized: true },
     { name: 'caption', type: 'textarea', localized: true },
     {
       name: 'source',

@@ -5,12 +5,14 @@ export const RiveBlock: Block = {
   slug: 'rive',
   interfaceName: 'RiveBlock',
   fields: [
+    { name: 'heading', type: 'text', localized: true },
+    { name: 'body', type: 'textarea', localized: true },
     {
       name: 'file',
       type: 'upload',
       relationTo: 'media',
-      required: true,
       filterOptions: { mimeType: { equals: 'application/octet-stream' } },
+      admin: { description: 'The .riv file. Without it, the still image is shown.' },
     },
     {
       name: 'stateMachine',

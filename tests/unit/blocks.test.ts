@@ -48,9 +48,12 @@ describe('blocks', () => {
       },
       { blockType: 'spotify', heading: 'Playlist', ref: 'playlist:32nEjBqPrGjsohHLfqVhI9' },
     ])
-    expect(html).toContain('src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"')
+    // The player's API is on (to follow on to the next video), autoplay is not.
+    expect(html).toContain(
+      'src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&amp;playsinline=1&amp;rel=0"',
+    )
     expect(html).toContain('src="https://open.spotify.com/embed/playlist/32nEjBqPrGjsohHLfqVhI9"')
-    expect(html.match(/loading="lazy"/g)).toHaveLength(2)
+    expect(html.match(/<iframe[^>]*loading="lazy"/g)).toHaveLength(2)
     expect(html).toContain('title="A recipe · YouTube"')
     expect(html).not.toContain('autoplay')
   })
@@ -69,10 +72,10 @@ describe('blocks', () => {
     const hero: PageBlock = { blockType: 'hero', headline: 'Builder' }
     expect(opensOnHero([hero])).toBe(true)
     expect(opensOnHero([])).toBe(false)
-    expect(render([hero])).toContain('<h1>Builder</h1>')
+    expect(render([hero])).toContain('<h1 class="h1">Builder</h1>')
     expect(
       render([{ blockType: 'timeline', entries: [{ period: '2015', title: 'x' }] }, hero]),
-    ).toContain('<h2>Builder</h2>')
+    ).toContain('<h2 class="h1">Builder</h2>')
   })
 
   it('renders rich text and leaves out what the visitor may not read', () => {
@@ -81,7 +84,9 @@ describe('blocks', () => {
       // An unpublished project arrives as a bare id.
       { blockType: 'projectCards', heading: 'Projects', projects: [42] },
     ])
-    expect(html).toContain('<h2>About</h2>')
+    expect(html).toContain(
+      '<h2 class="h2"><span class="h-mark" aria-hidden="true"></span>About</h2>',
+    )
     expect(html).toContain('Hands-on.')
     expect(html).not.toContain('42')
     expect(html).not.toContain('<li')
@@ -90,7 +95,7 @@ describe('blocks', () => {
   it('puts the title in the h1 only when no hero opens the page', () => {
     const title = (layout: PageBlock[]) =>
       renderToStaticMarkup(createElement(PageTitle, { page: { title: 'Nexcan', layout } }))
-    expect(title([])).toBe('<h1>Nexcan</h1>')
+    expect(title([])).toBe('<header class="block hero"><h1 class="h1">Nexcan</h1></header>')
     expect(title([{ blockType: 'hero', headline: 'Builder' }])).toBe('')
   })
 
@@ -140,14 +145,14 @@ describe('blocks', () => {
         projects: [{ ...project, page: { id: 2, slug: 'nexcan', title: 'Nexcan' } as never }],
       },
     ])
-    expect(linked).toContain('<h2><a href="/en/nexcan">Nexcan</a></h2>')
+    expect(linked).toContain('<h2 class="h3"><a href="/en/nexcan">Nexcan</a></h2>')
     const unlinked = render([
       { blockType: 'projectCards', heading: 'Work', projects: [{ ...project, page: 2 }] },
     ])
-    expect(unlinked).toContain('<h3>Nexcan</h3>')
+    expect(unlinked).toContain('<h3 class="h3">Nexcan</h3>')
     expect(unlinked).not.toContain('href')
     const timeline = render([{ blockType: 'timeline', entries: [{ period: '2015', title: 'x' }] }])
-    expect(timeline).toContain('<h2>x</h2>')
+    expect(timeline).toContain('<h2 class="t-title">x</h2>')
   })
 
   it('renders nothing for a project block whose projects are all unreadable', () => {

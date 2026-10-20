@@ -10,6 +10,25 @@ export const VideoCarouselBlock: Block = {
     { name: 'heading', type: 'text', localized: true },
     { name: 'intro', type: 'textarea', localized: true },
     {
+      name: 'labels',
+      type: 'group',
+      admin: { description: 'The carousel’s own controls.' },
+      fields: [
+        { name: 'previous', type: 'text', localized: true },
+        { name: 'next', type: 'text', localized: true },
+        { name: 'autoplay', type: 'text', localized: true },
+      ],
+    },
+    {
+      name: 'links',
+      type: 'array',
+      admin: { description: 'The channels, under the player.' },
+      fields: [
+        { name: 'label', type: 'text', required: true, localized: true },
+        { name: 'url', type: 'text', required: true },
+      ],
+    },
+    {
       name: 'videos',
       type: 'array',
       required: true,

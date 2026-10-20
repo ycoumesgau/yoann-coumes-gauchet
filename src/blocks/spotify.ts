@@ -8,6 +8,7 @@ export const SpotifyBlock: Block = {
   fields: [
     { name: 'heading', type: 'text', localized: true },
     { name: 'intro', type: 'textarea', localized: true },
+    { name: 'linkLabel', type: 'text', localized: true },
     {
       name: 'ref',
       type: 'text',

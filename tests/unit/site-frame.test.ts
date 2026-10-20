@@ -25,7 +25,9 @@ describe('footer links', () => {
       { id: 'a', label: 'LinkedIn', url: 'https://www.linkedin.com/in/someone' },
       { id: 'b', label: 'Privacy', url: '/privacy' },
     ])
-    expect(html).toContain('<a href="https://www.linkedin.com/in/someone" rel="me">LinkedIn</a>')
+    expect(html).toContain(
+      '<a href="https://www.linkedin.com/in/someone" rel="me" target="_blank">LinkedIn</a>',
+    )
     expect(html).toContain('<a href="/en/privacy">Privacy</a>')
   })
 
