@@ -13,5 +13,14 @@ export const Media: CollectionConfig = {
   },
   trash: true,
   fields: [{ name: 'alt', type: 'text', required: true, localized: true }],
-  upload: true,
+  upload: {
+    // Images, short videos, the CV, and Rive animations (`.riv` arrives as octet-stream).
+    mimeTypes: [
+      'image/*',
+      'video/mp4',
+      'video/webm',
+      'application/pdf',
+      'application/octet-stream',
+    ],
+  },
 }

@@ -180,7 +180,18 @@ export interface Page {
    * `home` is the root page.
    */
   slug: string;
-  layout?: (HeroBlock | SectionBlock | ProjectCardsBlock | DemoBlock | TimelineBlock)[] | null;
+  layout?:
+    | (
+        | HeroBlock
+        | SectionBlock
+        | ProjectCardsBlock
+        | DemoBlock
+        | TimelineBlock
+        | VideoCarouselBlock
+        | SpotifyBlock
+        | RiveBlock
+      )[]
+    | null;
   meta?: {
     title?: string | null;
     description?: string | null;
@@ -399,6 +410,61 @@ export interface TimelineBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "VideoCarouselBlock".
+ */
+export interface VideoCarouselBlock {
+  heading?: string | null;
+  intro?: string | null;
+  videos: {
+    platform: 'youtube' | 'tiktok' | 'instagram';
+    /**
+     * The id only, not the URL (YouTube: 11 characters).
+     */
+    videoId: string;
+    title: string;
+    poster?: (number | null) | Media;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'videoCarousel';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SpotifyBlock".
+ */
+export interface SpotifyBlock {
+  heading?: string | null;
+  intro?: string | null;
+  /**
+   * For example `playlist:<id>`.
+   */
+  ref: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'spotify';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "RiveBlock".
+ */
+export interface RiveBlock {
+  file: number | Media;
+  /**
+   * State machine to play, if any.
+   */
+  stateMachine?: string | null;
+  caption?: string | null;
+  /**
+   * Still image shown when animation is unavailable or motion is reduced.
+   */
+  fallback?: (number | null) | Media;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'rive';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -516,6 +582,9 @@ export interface PagesSelect<T extends boolean = true> {
         projectCards?: T | ProjectCardsBlockSelect<T>;
         demo?: T | DemoBlockSelect<T>;
         timeline?: T | TimelineBlockSelect<T>;
+        videoCarousel?: T | VideoCarouselBlockSelect<T>;
+        spotify?: T | SpotifyBlockSelect<T>;
+        rive?: T | RiveBlockSelect<T>;
       };
   meta?:
     | T
@@ -586,6 +655,48 @@ export interface TimelineBlockSelect<T extends boolean = true> {
         body?: T;
         id?: T;
       };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "VideoCarouselBlock_select".
+ */
+export interface VideoCarouselBlockSelect<T extends boolean = true> {
+  heading?: T;
+  intro?: T;
+  videos?:
+    | T
+    | {
+        platform?: T;
+        videoId?: T;
+        title?: T;
+        poster?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SpotifyBlock_select".
+ */
+export interface SpotifyBlockSelect<T extends boolean = true> {
+  heading?: T;
+  intro?: T;
+  ref?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "RiveBlock_select".
+ */
+export interface RiveBlockSelect<T extends boolean = true> {
+  file?: T;
+  stateMachine?: T;
+  caption?: T;
+  fallback?: T;
   id?: T;
   blockName?: T;
 }
