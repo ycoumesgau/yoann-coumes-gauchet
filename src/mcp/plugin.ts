@@ -8,6 +8,8 @@ import {
   type Plugin,
 } from 'payload'
 
+import { pageBlocks } from '@/blocks'
+import { patchBlock } from '@/domain/mcp-blocks'
 import { isDeletableCollection, type DeletableCollection } from '@/domain/mcp-oauth/deletion'
 
 import { recordMcpEvent } from './oauth-store'
@@ -25,6 +27,8 @@ import { mcpOAuthConfig } from './runtime'
  *   caller acts as Yoann's account, with Payload access enforced.
  * - Deletion: `update` with `deletedAt` moves a document to the trash (and
  *   back); `requestPermanentDeletion` asks Yoann, who confirms in `/admin`.
+ * - `updateBlock` changes one block of a page; `updateDocument` with `layout`
+ *   replaces the whole list. `restoreVersion` ignores `select` (`withoutSelect`).
  * - Every call that reaches a tool is journaled in `mcp-events`, refused or
  *   thrown included (`journaled`). A call the plugin refuses before any tool
  *   (a slug outside the closed list) is answered with an error and not journaled.
@@ -120,7 +124,95 @@ export const requestPermanentDeletion = defineCollectionTool({
   }
 })
 
+/** The top-level fields of each page block, by `blockType`. */
+const blockFields = new Map<string, ReadonlySet<string>>(
+  pageBlocks.map((block) => [
+    block.slug,
+    new Set(block.fields.flatMap((field) => ('name' in field ? [field.name] : []))),
+  ]),
+)
+
+export const updateBlock = defineCollectionTool({
+  annotations: {
+    destructiveHint: true,
+    idempotentHint: true,
+    openWorldHint: false,
+    readOnlyHint: false,
+    title: 'Update one block of a page',
+  },
+  description:
+    "Change some fields of one block in a page's layout, in one locale, and keep every other block as it is. Prefer it to `updateDocument`, whose `layout` replaces the whole list (a block left out is deleted). A group (`labels`, `link`) is merged field by field; a list or a rich text is replaced as sent (an empty list empties it). A field the block does not have is refused. Lands as a draft unless `publish` is true; publishing makes the whole draft of that locale live, not only this block.",
+  input: {
+    type: 'object',
+    properties: {
+      id: { type: 'number', description: 'The page id.' },
+      locale: { type: 'string', enum: ['en', 'fr'] },
+      blockId: {
+        type: 'string',
+        description: 'The block id, from `findDocuments` in that locale.',
+      },
+      fields: { type: 'object', description: 'The fields to change, as in the block schema.' },
+      publish: { type: 'boolean', description: 'Publish this locale with the change.' },
+    },
+    required: ['id', 'locale', 'blockId', 'fields'],
+    additionalProperties: false,
+  },
+}).handler(async ({ slug, input, req }) => {
+  if (slug !== 'pages') throw new APIError('Only pages have blocks.', 400)
+  const { id, locale, blockId, fields, publish } = input as {
+    id: number
+    locale: 'en' | 'fr'
+    blockId: string
+    fields: Record<string, unknown>
+    publish?: boolean
+  }
+  const page = await req.payload.findByID({
+    collection: 'pages',
+    id,
+    locale,
+    fallbackLocale: false,
+    draft: true,
+    depth: 0,
+    overrideAccess: false,
+    req,
+  })
+  const patched = patchBlock(
+    page.layout as Parameters<typeof patchBlock>[0],
+    blockId,
+    fields,
+    (type) => blockFields.get(type),
+  )
+  if (!patched.ok) return { content: [{ type: 'text', text: patched.error }], isError: true }
+  await req.payload.update({
+    collection: 'pages',
+    id,
+    locale,
+    draft: !publish,
+    depth: 0,
+    overrideAccess: false,
+    req,
+    data: {
+      layout: patched.layout as never,
+      ...(publish ? { _status: 'published' as const } : {}),
+    },
+  })
+  return {
+    content: [
+      {
+        type: 'text',
+        text: `Block ${blockId} of page ${id} updated in ${locale}${publish ? ' and published' : ' as a draft'}; the other ${patched.layout.length - 1} blocks are unchanged.`,
+      },
+    ],
+  }
+})
+
 const contentTools = { delete: false as const, requestPermanentDeletion }
+const pageTools = { ...contentTools, updateBlock }
+
+/** The tools of each content collection: `updateBlock` on pages only. */
+export const collectionTools = Object.fromEntries(
+  CONTENT.map((slug) => [slug, { tools: slug === 'pages' ? pageTools : contentTools }]),
+) as Record<CollectionSlug, { tools: typeof pageTools }>
 
 /** Input is journaled, cut short: a media upload carries its file in base64. */
 const summarize = (input: unknown): Record<string, unknown> => {
@@ -177,12 +269,33 @@ export const journaled = <T extends MCPItem>(item: T): T => {
   return { ...item, tool: { ...item.tool, handler: wrapped } } as T
 }
 
+/**
+ * Payload 4.0.0-beta.3 writes the version a `restoreVersion` creates through its
+ * `select`: with `select`, the new latest version holds only the selected fields
+ * (no title, no slug, no layout), and every later update of the document fails
+ * on it. Measured on page 5, 2026-10-21. The restore tools drop `select`.
+ */
+const RESTORE_TOOLS = new Set(['restoreVersion', 'restoreGlobalVersion'])
+
+export const withoutSelect = <T extends MCPItem>(item: T): T => {
+  if (item.type !== 'collectionTool' && item.type !== 'globalTool') return item
+  if (!RESTORE_TOOLS.has(item.configKey)) return item
+  const handler = item.tool.handler as unknown as ToolHandler
+  const wrapped: ToolHandler = (args) => {
+    const { select: _select, ...input } = args.input
+    return handler({ ...args, input })
+  }
+  return { ...item, tool: { ...item.tool, handler: wrapped } } as T
+}
+
+/** What every item the caller may see goes through before it is served. */
+export const servedItems = (items: readonly MCPItem[]): MCPItem[] =>
+  items.map((item) => journaled(withoutSelect(item)))
+
 export const sitePlugins = (): Plugin[] => [
   mcpPlugin({
     disabled: process.env.ENABLE_MCP !== 'true',
-    collections: Object.fromEntries(
-      CONTENT.map((slug) => [slug, { tools: contentTools }]),
-    ) as Record<CollectionSlug, { tools: typeof contentTools }>,
+    collections: collectionTools,
     mcp: {
       serverOptions: { serverInfo: { name: 'yoann-coumes-gauchet.fr', version: '1' } },
     },
@@ -202,7 +315,7 @@ export const sitePlugins = (): Plugin[] => [
         overrideAccess: false,
         req,
       })
-      return { items: items.map(journaled), overrideAccess: false }
+      return { items: servedItems(items), overrideAccess: false }
     },
   }),
 ]

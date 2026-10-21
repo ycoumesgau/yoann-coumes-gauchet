@@ -80,3 +80,16 @@ config key is `storage: StorageAdapter[]`, initialised after the plugins and tra
 collection even when disabled: registering it only when its variables exist made the schema
 differ with and without them, and a migration generated without them missed two columns that
 storage, once on, reads (`tests/db/media-schema.test.ts`). Register it always, with `enabled`.
+
+## 2026-10-21 — MCP: `layout` replaces the whole list; `restoreVersion` with `select` saves an empty version
+
+Through `updateDocument`, `layout` is the whole list for the locale: a block left out is deleted,
+ids or not. Seen on page 5 (Licorn): one row sent, the other seven English blocks gone until a
+restore. `updateBlock` changes one block and writes the rest back (`src/domain/mcp-blocks.ts`).
+
+Payload 4.0.0-beta.3 saves the version a `restoreVersion` creates through its `select`: with
+`select: { updatedAt: true }`, the new latest version had no title, slug, layout nor createdAt,
+and every later update failed ("title required", then a null `created_at` on insert). The page
+itself stayed whole. A second restore without `select` repaired it. The MCP server now drops
+`select` on `restoreVersion` and `restoreGlobalVersion` (`withoutSelect`,
+`tests/unit/mcp-blocks.test.ts`); the `site` global has no versions today, so only the first exists.
