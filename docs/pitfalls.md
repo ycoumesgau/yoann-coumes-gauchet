@@ -92,4 +92,9 @@ Payload 4.0.0-beta.3 saves the version a `restoreVersion` creates through its `s
 and every later update failed ("title required", then a null `created_at` on insert). The page
 itself stayed whole. A second restore without `select` repaired it. The MCP server now drops
 `select` on `restoreVersion` and `restoreGlobalVersion` (`withoutSelect`,
-`tests/unit/mcp-blocks.test.ts`); the `site` global has no versions today, so only the first exists.
+`tests/unit/mcp-blocks.test.ts`).
+
+Correction, same day: the `site` global does keep versions (`_site_v`). `updateGlobal` on it with
+`select` failed three times on the version insert, "null value in column version_name" in the
+Postgres log, and wrote nothing; the same call without `select` went through. `updateGlobal` now
+drops `select` too.

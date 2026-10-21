@@ -28,7 +28,8 @@ import { mcpOAuthConfig } from './runtime'
  * - Deletion: `update` with `deletedAt` moves a document to the trash (and
  *   back); `requestPermanentDeletion` asks Yoann, who confirms in `/admin`.
  * - `updateBlock` changes one block of a page; `updateDocument` with `layout`
- *   replaces the whole list. `restoreVersion` ignores `select` (`withoutSelect`).
+ *   replaces the whole list. `restoreVersion` and `updateGlobal` ignore `select`
+ *   (`withoutSelect`).
  * - Every call that reaches a tool is journaled in `mcp-events`, refused or
  *   thrown included (`journaled`). A call the plugin refuses before any tool
  *   (a slug outside the closed list) is answered with an error and not journaled.
@@ -273,13 +274,15 @@ export const journaled = <T extends MCPItem>(item: T): T => {
  * Payload 4.0.0-beta.3 writes the version a `restoreVersion` creates through its
  * `select`: with `select`, the new latest version holds only the selected fields
  * (no title, no slug, no layout), and every later update of the document fails
- * on it. Measured on page 5, 2026-10-21. The restore tools drop `select`.
+ * on it. Measured on page 5, 2026-10-21. `updateGlobal` on `site` with `select`
+ * fails on the same version row (a null `version_name`) and writes nothing.
+ * Measured 2026-10-21. These tools drop `select`.
  */
-const RESTORE_TOOLS = new Set(['restoreVersion', 'restoreGlobalVersion'])
+const SELECT_DROPPED = new Set(['restoreVersion', 'restoreGlobalVersion', 'updateGlobal'])
 
 export const withoutSelect = <T extends MCPItem>(item: T): T => {
   if (item.type !== 'collectionTool' && item.type !== 'globalTool') return item
-  if (!RESTORE_TOOLS.has(item.configKey)) return item
+  if (!SELECT_DROPPED.has(item.configKey)) return item
   const handler = item.tool.handler as unknown as ToolHandler
   const wrapped: ToolHandler = (args) => {
     const { select: _select, ...input } = args.input
