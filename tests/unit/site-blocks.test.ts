@@ -5,6 +5,7 @@ import {
   advancesOn,
   isPlayerOrigin,
   playerState,
+  startIndex,
   youtubeSrc,
 } from '@/app/(frontend)/_blocks/shorts'
 import { footerLinkUrl, isOutboundUrl } from '@/domain/links'
@@ -14,6 +15,7 @@ import {
   filmTextsByFilm,
   linkHref,
   RenderBlocks,
+  shortsAsides,
   stepFlags,
   timelineSpan,
   columnCard,
@@ -520,6 +522,56 @@ describe('the series of shorts', () => {
     expect(advancesOn(null, 'a')).toBe(true)
     expect(advancesOn('a', 'a')).toBe(false)
     expect(advancesOn('a', 'b')).toBe(true)
+  })
+
+  const shorts = (extra: Record<string, unknown> = {}) => ({
+    blockType: 'videoCarousel',
+    labels: { previous: 'Previous', next: 'Next', autoplay: 'Autoplay', play: 'Play' },
+    videos: [
+      { platform: 'youtube', videoId: 'aaaaaaaaaaa', title: 'Paris-Brest' },
+      { platform: 'youtube', videoId: 'bbbbbbbbbbb', title: 'Saint-Honoré' },
+    ],
+    ...extra,
+  })
+  const spotify = (extra: Record<string, unknown> = {}) => ({
+    blockType: 'spotify',
+    ref: 'artist:3r1CwJAxYcji4TTINozzWi',
+    linkLabel: 'Spotify',
+    ...extra,
+  })
+  const html = (blocks: unknown[]) =>
+    renderToStaticMarkup(RenderBlocks({ blocks: blocks as PageBlock[], locale: 'en' }))
+
+  it('shows the chosen video first, and the first when the choice is outside the list', () => {
+    expect(startIndex(2, 21)).toBe(1)
+    expect(startIndex(1, 21)).toBe(0)
+    expect(startIndex(21, 21)).toBe(20)
+    expect(startIndex(22, 21)).toBe(0)
+    expect(startIndex(0, 21)).toBe(0)
+    expect(startIndex(1.5, 21)).toBe(0)
+    expect(startIndex(null, 21)).toBe(0)
+  })
+
+  it('loads no YouTube player before the visitor presses play, and plays on through the series once started', () => {
+    const markup = html([shorts({ start: 2 })])
+    expect(markup).not.toContain('<iframe')
+    expect(markup).toMatch(/class="shorts-facade"[^>]*aria-label="Play Saint-Honoré"/)
+    expect(markup).toMatch(/class="shorts-thumb"[^>]*vi\/bbbbbbbbbbb\//)
+    expect(markup).toMatch(/role="switch" aria-checked="true"/)
+  })
+
+  it('puts a bare Spotify player under the strip of the shorts before it, and leaves a titled one alone', () => {
+    expect(shortsAsides([shorts(), spotify()] as PageBlock[])).toEqual(new Map([[0, 1]]))
+    expect(shortsAsides([shorts(), spotify({ heading: 'Songs' })] as PageBlock[]).size).toBe(0)
+    expect(shortsAsides([shorts(), spotify({ intro: 'Listen' })] as PageBlock[]).size).toBe(0)
+    expect(shortsAsides([spotify(), shorts()] as PageBlock[]).size).toBe(0)
+    const paired = html([shorts(), spotify()])
+    expect(paired.match(/open\.spotify\.com\/embed/g)).toHaveLength(1)
+    expect(paired).toMatch(/class="shorts-side"[\s\S]*class="spotify"/)
+    const alone = html([shorts(), spotify({ heading: 'Songs' })])
+    expect(alone.indexOf('class="spotify"')).toBeGreaterThan(alone.indexOf('</section>'))
+    expect(alone).toContain('Songs')
+    expect(alone.match(/open\.spotify\.com\/embed/g)).toHaveLength(1)
   })
 })
 

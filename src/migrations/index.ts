@@ -13,6 +13,7 @@ import * as migration_20261021_052418_gallery_badge_tone from './20261021_052418
 import * as migration_20261021_054325_fact_columns_three_column_heading_size from './20261021_054325_fact_columns_three_column_heading_size'
 import * as migration_20261021_060441_timeline_tone_span from './20261021_060441_timeline_tone_span'
 import * as migration_20261021_061710_columns_card from './20261021_061710_columns_card'
+import * as migration_20261021_063641_carousel_play_start from './20261021_063641_carousel_play_start'
 
 export const migrations = [
   {
@@ -89,5 +90,10 @@ export const migrations = [
     up: migration_20261021_061710_columns_card.up,
     down: migration_20261021_061710_columns_card.down,
     name: '20261021_061710_columns_card',
+  },
+  {
+    up: migration_20261021_063641_carousel_play_start.up,
+    down: migration_20261021_063641_carousel_play_start.down,
+    name: '20261021_063641_carousel_play_start',
   },
 ]

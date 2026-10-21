@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { type ReactNode, useEffect, useRef, useState } from 'react'
 
 import type { VideoPlatform } from '@/domain/embeds'
 
@@ -34,38 +34,52 @@ export const isPlayerOrigin = (origin: string): boolean =>
  */
 export const advancesOn = (ended: string | null, playing: string): boolean => ended !== playing
 
+/** The video shown first: its place in the list (1-based), within the list, the first unless set. */
+export const startIndex = (start: number | null | undefined, count: number): number =>
+  typeof start === 'number' && Number.isInteger(start) && start >= 1 && start <= count
+    ? start - 1
+    : 0
+
 /**
- * The series of shorts: one player, loaded with the page (ADR-4), and a strip
- * to pick another. A video starts on its own only after the visitor picked it
- * or asked for the next one to follow.
+ * The series of shorts, as in the prototype (L341-387): at rest, the player
+ * shows the video's thumbnail and title behind a play button, and YouTube
+ * loads only once the visitor asks for it (ADR-4, amended 2026-10-21). The
+ * strip picks and plays another; the arrows change the video without starting
+ * it. Once a video played, the next follows it unless the visitor turned that off.
  */
 export function Shorts({
   videos,
   labels,
   links,
+  start,
+  aside,
 }: {
   videos: Video[]
-  labels: { previous: string; next: string; autoplay: string }
+  labels: { previous: string; next: string; autoplay: string; play: string }
   links: { id?: string | null; label: string; url: string }[]
+  start?: number | null
+  /** Shown under the strip, in the same column (the Spotify player). */
+  aside?: ReactNode
 }) {
-  const [index, setIndex] = useState(0)
+  const [index, setIndex] = useState(() => startIndex(start, videos.length))
   const [started, setStarted] = useState(false)
-  const [follow, setFollow] = useState(false)
+  const [follow, setFollow] = useState(true)
   const frame = useRef<HTMLIFrameElement | null>(null)
   const strip = useRef<HTMLDivElement | null>(null)
   const ended = useRef<string | null>(null)
-  const scrolledTo = useRef(0)
+  const scrolledTo = useRef(index)
   const video = videos[index] ?? videos[0]
   const count = videos.length
   const playing = video?.videoId ?? ''
 
+  const step = (by: number) => setIndex((current) => (current + by + count) % count)
   const pick = (next: number) => {
     setIndex((next + count) % count)
     setStarted(true)
   }
 
-  // Bring the chosen thumbnail into the strip, never on load and never by
-  // scrolling the page itself.
+  // Bring the chosen thumbnail to the start of the strip, never on load and
+  // never by scrolling the page itself.
   useEffect(() => {
     if (scrolledTo.current === index) return
     scrolledTo.current = index
@@ -75,49 +89,69 @@ export function Shorts({
     const offset = item.getBoundingClientRect().left - box.getBoundingClientRect().left
     const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     box.scrollTo({
-      left: box.scrollLeft + offset - (box.clientWidth - item.offsetWidth) / 2,
+      left: Math.max(0, box.scrollLeft + offset - 8),
       behavior: still ? 'auto' : 'smooth',
     })
   }, [index])
 
   useEffect(() => {
-    if (!follow) return
+    if (!follow || !started) return
     const onMessage = (event: MessageEvent) => {
       if (!isPlayerOrigin(event.origin)) return
       if (event.source !== frame.current?.contentWindow) return
       if (playerState(event.data) !== 0 || !advancesOn(ended.current, playing)) return
       ended.current = playing
       setIndex((current) => (current + 1) % count)
-      setStarted(true)
     }
     window.addEventListener('message', onMessage)
     return () => window.removeEventListener('message', onMessage)
-  }, [follow, count, playing])
+  }, [follow, started, count, playing])
 
   if (!video) return null
-  const src = video.platform === 'youtube' ? youtubeSrc(video.src, started) : video.src
+  const youtube = video.platform === 'youtube'
+  const src = youtube ? youtubeSrc(video.src, true) : video.src
+  const thumb = (id: string) => `https://i.ytimg.com/vi/${id}/hqdefault.jpg`
 
   return (
     <div className="shorts">
-      <div>
+      <div className="shorts-main">
         <div className="shorts-player">
-          <iframe
-            ref={frame}
-            key={src}
-            className="embed embed-vertical"
-            src={src}
-            title={video.title}
-            loading="lazy"
-            allow={`encrypted-media; picture-in-picture; fullscreen${started && video.platform === 'youtube' ? '; autoplay' : ''}`}
-            referrerPolicy="strict-origin-when-cross-origin"
-            onLoad={(event) => {
-              // Ask the player to report its state (YouTube's iframe API handshake).
-              event.currentTarget.contentWindow?.postMessage(
-                JSON.stringify({ event: 'listening', id: 1, channel: 'widget' }),
-                '*',
-              )
-            }}
-          />
+          {started ? (
+            <iframe
+              ref={frame}
+              key={src}
+              src={src}
+              title={video.title}
+              allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+              referrerPolicy="strict-origin-when-cross-origin"
+              onLoad={(event) => {
+                // Ask the player to report its state (YouTube's iframe API handshake).
+                event.currentTarget.contentWindow?.postMessage(
+                  JSON.stringify({ event: 'listening', id: 1, channel: 'widget' }),
+                  '*',
+                )
+              }}
+            />
+          ) : (
+            <button
+              type="button"
+              className="shorts-facade"
+              aria-label={labels.play ? `${labels.play} ${video.label}` : video.label}
+              onClick={() => setStarted(true)}
+            >
+              {youtube ? (
+                <span
+                  className="shorts-thumb"
+                  style={{ backgroundImage: `url(${thumb(video.videoId)})` }}
+                />
+              ) : null}
+              <span className="shorts-shade" />
+              <span className="shorts-play" aria-hidden="true" />
+              <span className="shorts-facade-title" aria-hidden="true">
+                {video.label}
+              </span>
+            </button>
+          )}
         </div>
         {links.length ? (
           <p className="channel-links">
@@ -129,8 +163,8 @@ export function Shorts({
           </p>
         ) : null}
       </div>
-      <div>
-        <div className="shorts-bar">
+      <div className="shorts-side">
+        <div className="shorts-head">
           <span className="shorts-count">
             {index + 1} / {count}
           </span>
@@ -139,7 +173,7 @@ export function Shorts({
             <button
               type="button"
               className="round"
-              onClick={() => pick(index - 1)}
+              onClick={() => step(-1)}
               aria-label={labels.previous}
             >
               ←
@@ -147,7 +181,7 @@ export function Shorts({
             <button
               type="button"
               className="round"
-              onClick={() => pick(index + 1)}
+              onClick={() => step(1)}
               aria-label={labels.next}
             >
               →
@@ -174,20 +208,20 @@ export function Shorts({
               className="short"
               data-index={i}
               aria-current={i === index ? 'true' : undefined}
+              aria-label={labels.play ? `${labels.play} ${item.label}` : undefined}
               onClick={() => pick(i)}
             >
-              {item.platform === 'youtube' ? (
-                // eslint-disable-next-line @next/next/no-img-element -- YouTube's own thumbnail
-                <img
-                  src={`https://i.ytimg.com/vi/${item.videoId}/hqdefault.jpg`}
-                  alt=""
-                  loading="lazy"
-                />
-              ) : null}
-              <span>{item.label}</span>
+              <span className="short-thumb">
+                {item.platform === 'youtube' ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- YouTube's own thumbnail
+                  <img src={thumb(item.videoId)} alt="" loading="lazy" />
+                ) : null}
+              </span>
+              <span className="short-title">{item.label}</span>
             </button>
           ))}
         </div>
+        {aside}
       </div>
     </div>
   )
