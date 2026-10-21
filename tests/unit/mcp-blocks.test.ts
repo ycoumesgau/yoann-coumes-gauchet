@@ -97,6 +97,15 @@ describe('restoring a version through the MCP server', () => {
     expect(seen).toEqual([{ id: 21 }, { id: 3 }])
   })
 
+  it('never passes `select` on to updateGlobal, whose version row would lack the name', async () => {
+    const seen: unknown[] = []
+    await call(withoutSelect(tool('updateGlobal', seen, 'globalTool')), {
+      data: { name: 'x' },
+      select: { updatedAt: true },
+    })
+    expect(seen).toEqual([{ data: { name: 'x' } }])
+  })
+
   it('leaves the other tools as they are', async () => {
     const seen: unknown[] = []
     await call(withoutSelect(tool('find', seen)), { select: { title: true } })
