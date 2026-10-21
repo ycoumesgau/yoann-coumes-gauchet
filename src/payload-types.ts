@@ -720,6 +720,14 @@ export interface TimelineBlock {
     title: string;
     body?: string | null;
     page?: (number | null) | Page;
+    /**
+     * Highlighted: the orange cell, as WeShareBonds on About.
+     */
+    tone?: ('past' | 'current' | 'highlight') | null;
+    /**
+     * Width of the cell on a wide screen, relative to the others (1 = one year).
+     */
+    span?: number | null;
     id?: string | null;
   }[];
   id?: string | null;
@@ -1376,6 +1384,8 @@ export interface TimelineBlockSelect<T extends boolean = true> {
         title?: T;
         body?: T;
         page?: T;
+        tone?: T;
+        span?: T;
         id?: T;
       };
   id?: T;

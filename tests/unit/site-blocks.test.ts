@@ -15,6 +15,7 @@ import {
   linkHref,
   RenderBlocks,
   stepFlags,
+  timelineSpan,
   type PageBlock,
 } from '@/app/(frontend)/_blocks/render-blocks'
 import { isDemoKey } from '@/domain/demos'
@@ -351,6 +352,54 @@ describe('nexcan blocks', () => {
     const markup = html([film('nexcan-screening'), film('nexcan-photos')])
     expect(markup.split('class="block film-pair"').length - 1).toBe(1)
     expect(markup.split('class="film"').length - 1).toBe(2)
+  })
+})
+
+describe('about blocks', () => {
+  const html = (blocks: unknown[]) =>
+    renderToStaticMarkup(RenderBlocks({ blocks: blocks as PageBlock[], locale: 'en' }))
+
+  it('gives each timeline cell its tone and its span, past and one unless chosen', () => {
+    const markup = html([
+      {
+        blockType: 'timeline',
+        entries: [
+          { period: '2015 – 2024', title: 'WeShareBonds', tone: 'highlight', span: 7 },
+          { period: '2012', title: 'Saint-Gobain Isover' },
+        ],
+      },
+    ])
+    expect(markup).toContain('<li data-tone="highlight" style="--span:7">')
+    expect(markup).toContain('<li data-tone="past" style="--span:1">')
+  })
+
+  it("reads a span outside Payload's range as one", () => {
+    expect(timelineSpan(1.3)).toBe(1.3)
+    expect(timelineSpan(12)).toBe(12)
+    expect(timelineSpan(0)).toBe(1)
+    expect(timelineSpan(13)).toBe(1)
+    expect(timelineSpan(Number.NaN)).toBe(1)
+    expect(timelineSpan(null)).toBe(1)
+  })
+
+  it('leaves no space between a bold lead and the punctuation that follows it', () => {
+    const fact = (lead: string, body: string) =>
+      html([{ blockType: 'factList', items: [{ lead, body }] }])
+    expect(fact('Phillimore', ', private equity')).toContain(
+      '<strong>Phillimore</strong>, private equity',
+    )
+    expect(fact('Product.', 'I designed')).toContain('<strong>Product. </strong>I designed')
+  })
+
+  it('sets dated links as cards, and keeps a list with a contact line as rows', () => {
+    const dated = { period: '2007 – 2013', title: 'INSA Lyon', body: 'B', url: 'https://a.fr' }
+    const contact = { title: 'LinkedIn', url: 'https://b.fr' }
+    expect(html([{ blockType: 'linkList', items: [dated] }])).toContain(
+      'class="links" data-variant="cards"',
+    )
+    const mixed = html([{ blockType: 'linkList', items: [dated, contact] }])
+    expect(mixed).toContain('class="links"')
+    expect(mixed).not.toContain('data-variant')
   })
 })
 
