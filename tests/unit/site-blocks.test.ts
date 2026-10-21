@@ -16,9 +16,11 @@ import {
   RenderBlocks,
   stepFlags,
   timelineSpan,
+  columnCard,
   type PageBlock,
 } from '@/app/(frontend)/_blocks/render-blocks'
 import { isDemoKey } from '@/domain/demos'
+import { ColumnsBlock } from '@/blocks/columns'
 import { GalleryBlock } from '@/blocks/gallery'
 
 const body = { root: { type: 'root', children: [] } } as never
@@ -400,6 +402,71 @@ describe('about blocks', () => {
     const mixed = html([{ blockType: 'linkList', items: [dated, contact] }])
     expect(mixed).toContain('class="links"')
     expect(mixed).not.toContain('data-variant')
+  })
+})
+
+describe('contact blocks', () => {
+  const html = (blocks: unknown[]) =>
+    renderToStaticMarkup(RenderBlocks({ blocks: blocks as PageBlock[], locale: 'en' }))
+
+  it('sets a column in the card chosen in Payload, and no card unless chosen', () => {
+    const markup = html([
+      {
+        blockType: 'columns',
+        columns: [
+          { heading: 'The role', card: 'accent', body },
+          { heading: 'About Nexcan', card: 'plain', body },
+        ],
+      },
+    ])
+    expect(markup).toMatch(/class="columns"[^>]*data-cards=""/)
+    expect(markup).toContain('<div data-card="accent">')
+    expect(markup).toContain('<div data-card="plain">')
+    const plain = html([{ blockType: 'columns', columns: [{ heading: 'H', card: 'none', body }] }])
+    expect(plain).not.toContain('data-card')
+    const mixed = html([
+      {
+        blockType: 'columns',
+        columns: [
+          { heading: 'A', card: 'accent', body },
+          { heading: 'B', body },
+        ],
+      },
+    ])
+    expect(mixed).toMatch(/class="columns"[^>]*data-cards=""/)
+    expect(mixed.match(/data-card="/g)).toHaveLength(1)
+    expect(columnCard('accent')).toBe('accent')
+    expect(columnCard('none')).toBeUndefined()
+    expect(columnCard('gold')).toBeUndefined()
+    expect(columnCard(null)).toBeUndefined()
+    const columns = ColumnsBlock.fields.find((f) => 'name' in f && f.name === 'columns')
+    const card =
+      columns && 'fields' in columns
+        ? columns.fields.find((f) => 'name' in f && f.name === 'card')
+        : undefined
+    expect(card && 'defaultValue' in card ? card.defaultValue : undefined).toBe('none')
+  })
+
+  it('offers only the files that can be opened, and drops the line when none can', () => {
+    const list = (items: unknown[]) =>
+      html([
+        {
+          blockType: 'linkList',
+          items: [{ label: 'Email', url: 'mailto:a@b.c' }],
+          files: { label: 'CV:', items },
+        },
+      ])
+    const cv = { id: 1, url: '/api/media/file/cv-en.pdf', mimeType: 'application/pdf' }
+    const both = list([
+      { label: 'English, PDF', lang: 'en', file: cv },
+      { label: 'Français, PDF', lang: 'fr', file: null },
+    ])
+    expect(both).toContain('<span class="files-label">CV:</span>')
+    expect(both).toContain('href="/api/media/file/cv-en.pdf"')
+    expect(both).toContain('target="_blank"')
+    expect(both).not.toContain('Français, PDF')
+    const none = list([{ label: 'Français, PDF', lang: 'fr', file: 7 }])
+    expect(none).not.toContain('class="files"')
   })
 })
 

@@ -559,6 +559,7 @@ export interface GalleryBlock {
 export interface ColumnsBlock {
   headingSize?: ('large' | 'small') | null;
   columns: {
+    card?: ('none' | 'plain' | 'accent') | null;
     status?: string | null;
     heading?: string | null;
     body: LexicalRichText<LexicalNodes_ECB87CC6>;
@@ -1268,6 +1269,7 @@ export interface ColumnsBlockSelect<T extends boolean = true> {
   columns?:
     | T
     | {
+        card?: T;
         status?: T;
         heading?: T;
         body?: T;

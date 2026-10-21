@@ -21,6 +21,16 @@ export const ColumnsBlock: Block = {
       minRows: 1,
       maxRows: 3,
       fields: [
+        {
+          name: 'card',
+          type: 'select',
+          defaultValue: 'none',
+          options: [
+            { label: 'No card', value: 'none' },
+            { label: 'White card', value: 'plain' },
+            { label: 'Accent card, its text as a lead', value: 'accent' },
+          ],
+        },
         { name: 'status', type: 'text', localized: true },
         { name: 'heading', type: 'text', localized: true },
         { name: 'body', type: 'richText', required: true, localized: true },
