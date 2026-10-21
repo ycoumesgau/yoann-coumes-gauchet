@@ -128,6 +128,47 @@ describe('work rows', () => {
     expect(html(null)).not.toContain('work-pair')
     expect(html(null)).toContain('forum.webp')
   })
+
+  it('prints the caption once under the pair', () => {
+    expect(html(image('/milo.png')).split('Licorn forum').length - 1).toBe(1)
+  })
+
+  it('drops an illustration the visitor may not read: a bare id, or no alt in this language', () => {
+    for (const unreadable of [7, { ...(image('/milo.png') as object), alt: null }]) {
+      expect(html(unreadable)).not.toContain('work-pair')
+      expect(html(unreadable)).toContain('forum.webp')
+    }
+  })
+})
+
+describe('callouts and galleries', () => {
+  const html = (blocks: unknown[]) =>
+    renderToStaticMarkup(RenderBlocks({ blocks: blocks as PageBlock[], locale: 'en' }))
+
+  it('draws the link of an accent callout as a pill, and a plain one as a text link', () => {
+    const callout = (tone: string) => ({
+      blockType: 'callout',
+      tone,
+      body: 'B',
+      link: { label: 'Contact', url: 'mailto:a@b.c' },
+    })
+    expect(html([callout('accent')])).toContain('class="pill-link"')
+    expect(html([callout('plain')])).not.toContain('pill-link')
+  })
+
+  it('marks a gallery of screenshots, so its tags sit where the prototype puts them', () => {
+    const image = {
+      id: 1,
+      url: '/s.webp',
+      alt: 'alt',
+      width: 800,
+      height: 600,
+      mimeType: 'image/webp',
+    }
+    expect(html([{ blockType: 'gallery', items: [{ image, tag: 'illustration' }] }])).toContain(
+      'class="gallery" data-variant="screens"',
+    )
+  })
 })
 
 describe('films and players', () => {

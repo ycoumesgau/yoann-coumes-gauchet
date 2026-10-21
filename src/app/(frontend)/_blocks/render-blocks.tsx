@@ -433,7 +433,7 @@ function renderBlock(
                     </div>
                     {screen && illustration ? (
                       <div className="work-pair">
-                        <Screens screens={[{ ...screen, caption: null }]} labels={labels} />
+                        <Screens screens={[screen]} labels={labels} hideCaption />
                         <div className="work-illustration">
                           <MediaImage media={illustration} sizes="240px" />
                         </div>

@@ -21,10 +21,13 @@ export function Screens({
   screens,
   labels,
   grid = false,
+  hideCaption = false,
 }: {
   screens: Screen[]
   labels: FrameLabels
   grid?: boolean
+  /** The caption is printed by the caller; the full-size view still names the shot by it. */
+  hideCaption?: boolean
 }) {
   const [open, setOpen] = useState<number | null>(null)
   const openers = useRef<(HTMLButtonElement | null)[]>([])
@@ -115,13 +118,21 @@ export function Screens({
           {screen.tag ? <span className="tag">{screen.tag}</span> : null}
         </span>
       )}
-      {screen.caption ? <figcaption className="caption">{screen.caption}</figcaption> : null}
+      {screen.caption && !hideCaption ? (
+        <figcaption className="caption">{screen.caption}</figcaption>
+      ) : null}
     </figure>
   ))
 
   return (
     <>
-      {grid ? <div className="gallery">{items}</div> : items}
+      {grid ? (
+        <div className="gallery" data-variant="screens">
+          {items}
+        </div>
+      ) : (
+        items
+      )}
       {shown ? (
         <div
           ref={dialog}
