@@ -12,7 +12,9 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
 
 export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {
   await db.execute(sql`
-   ALTER TABLE "pages_blocks_fact_list" ALTER COLUMN "columns" SET DATA TYPE text;
+   UPDATE "pages_blocks_fact_list" SET "columns" = '2' WHERE "columns" = '3';
+  UPDATE "_pages_v_blocks_fact_list" SET "columns" = '2' WHERE "columns" = '3';
+  ALTER TABLE "pages_blocks_fact_list" ALTER COLUMN "columns" SET DATA TYPE text;
   ALTER TABLE "pages_blocks_fact_list" ALTER COLUMN "columns" SET DEFAULT '2'::text;
   DROP TYPE "public"."enum_pages_blocks_fact_list_columns";
   CREATE TYPE "public"."enum_pages_blocks_fact_list_columns" AS ENUM('1', '2', '4');

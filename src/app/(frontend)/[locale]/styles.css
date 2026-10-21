@@ -1146,7 +1146,7 @@ main {
   margin-top: clamp(32px, 4vw, 56px);
 }
 
-.gallery[data-variant='screens'] .shot img {
+.gallery[data-variant='screens'] .shot img:not([data-tall]) {
   aspect-ratio: 4 / 3;
   object-fit: cover;
   object-position: center top;
@@ -1328,7 +1328,7 @@ main {
 }
 
 .columns .h2 {
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 /* Sub-headings of two texts side by side (prototype L234, L238). */
@@ -1337,6 +1337,7 @@ main {
 }
 
 .columns[data-heading='small'] .h2 {
+  margin-bottom: 16px;
   font-size: clamp(24px, 2.2vw, 32px);
   letter-spacing: normal;
 }
