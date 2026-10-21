@@ -348,6 +348,10 @@ export interface SectionBlock {
   number?: string | null;
   heading?: string | null;
   body: LexicalRichText<LexicalNodes_ECB87CC6>;
+  /**
+   * Set the text larger and darker, as a lead paragraph.
+   */
+  lead?: boolean | null;
   image?: (number | null) | Media;
   tag?: string | null;
   imageCaption?: string | null;
@@ -1069,6 +1073,7 @@ export interface SectionBlockSelect<T extends boolean = true> {
   number?: T;
   heading?: T;
   body?: T;
+  lead?: T;
   image?: T;
   tag?: T;
   imageCaption?: T;

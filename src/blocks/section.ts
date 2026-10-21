@@ -20,6 +20,12 @@ export const SectionBlock: Block = {
     },
     headingField,
     { name: 'body', type: 'richText', required: true, localized: true },
+    {
+      name: 'lead',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: { description: 'Set the text larger and darker, as a lead paragraph.' },
+    },
     imageField('image'),
     tagField,
     { name: 'imageCaption', type: 'text', localized: true },

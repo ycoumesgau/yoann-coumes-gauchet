@@ -1,3 +1,4 @@
+import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -10,6 +11,7 @@ import { footerLinkUrl, isOutboundUrl } from '@/domain/links'
 import {
   filmTextsByFilm,
   linkHref,
+  RenderBlocks,
   stepFlags,
   type PageBlock,
 } from '@/app/(frontend)/_blocks/render-blocks'
@@ -52,6 +54,21 @@ describe('method steps', () => {
     const next = { blockType: 'nextLinks', links: [] } as unknown as PageBlock
     expect(stepFlags([step, hero, after])).toEqual(['step', null, null])
     expect(stepFlags([step, next, after])).toEqual(['step', null, null])
+  })
+})
+
+describe('lead paragraphs', () => {
+  const html = (lead: boolean) =>
+    renderToStaticMarkup(
+      RenderBlocks({
+        blocks: [{ blockType: 'section', heading: 'H', body, lead }] as PageBlock[],
+        locale: 'en',
+      }),
+    )
+
+  it('sets a section marked as a lead in the lead style, and no other', () => {
+    expect(html(true)).toContain('class="rich lead-text"')
+    expect(html(false)).not.toContain('lead-text')
   })
 })
 
