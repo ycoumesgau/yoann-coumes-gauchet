@@ -411,13 +411,38 @@ main {
   margin: 0;
 }
 
+.work-row .h3 {
+  font-size: clamp(26px, 2.4vw, 34px);
+}
+
 .lead {
   font-size: clamp(18px, 1.45vw, 21px);
   line-height: 1.5;
   color: var(--ink2);
   margin: clamp(20px, 2vw, 32px) 0 0;
-  max-width: 40em;
+  max-width: 38em;
   text-wrap: pretty;
+}
+
+/* A hero's line lengths, set per page in Payload (prototype: 16–18em, 34–38em). */
+.h1[data-measure='16'] {
+  max-width: 16em;
+}
+
+.h1[data-measure='17'] {
+  max-width: 17em;
+}
+
+.h1[data-measure='18'] {
+  max-width: 18em;
+}
+
+.lead[data-measure='34'] {
+  max-width: 34em;
+}
+
+.lead[data-measure='36'] {
+  max-width: 36em;
 }
 
 .text,
@@ -798,6 +823,11 @@ main {
 }
 
 /* Work rows */
+/* Prototype L131: the rows' own padding spaces them from the heading. */
+.h2:has(+ .work) {
+  margin-bottom: clamp(8px, 1vw, 12px);
+}
+
 .work {
   list-style: none;
   margin: 0;
@@ -834,6 +864,48 @@ main {
   aspect-ratio: 16 / 9;
   object-fit: cover;
   object-position: center top;
+}
+
+/* The screenshot's tag sits bottom right in work rows and screen galleries (prototype). */
+.work-row .tag,
+.gallery[data-variant='screens'] .tag {
+  left: auto;
+  top: auto;
+  right: 10px;
+  bottom: 10px;
+}
+
+/* A screenshot and a drawing side by side, one caption under both. */
+.work-pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 10px;
+}
+
+.work-pair .shot img {
+  aspect-ratio: 4 / 3.4;
+  object-position: top left;
+}
+
+.work-illustration {
+  position: relative;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.work-illustration img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.work-pair-caption {
+  grid-column: 1 / -1;
+  margin-top: 0;
 }
 
 .shot img[data-tall],
@@ -1052,11 +1124,9 @@ main {
 /* Callout */
 .callout {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
-  gap: 16px clamp(24px, 4vw, 64px);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  gap: clamp(16px, 3vw, 48px);
   align-items: start;
-  border-top: 1px solid var(--line);
-  padding-top: clamp(24px, 3vw, 40px);
 }
 
 .callout .h2 {
@@ -1066,20 +1136,30 @@ main {
 .callout-body {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
   align-items: flex-start;
 }
 
 .callout[data-tone='accent'] {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+  align-items: end;
   background: var(--acc);
   color: var(--on-acc);
-  border: 0;
-  border-radius: 8px;
-  padding: clamp(28px, 4vw, 56px);
+  border-radius: 10px;
+  padding: clamp(28px, 4vw, 64px);
 }
 
-.callout[data-tone='accent'] .text,
-.callout[data-tone='accent'] a {
+.callout[data-tone='accent'] .h2 {
+  font-size: clamp(30px, 3.4vw, 50px);
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+}
+
+.callout[data-tone='accent'] .callout-body {
+  gap: 20px;
+}
+
+.callout[data-tone='accent'] .text {
   color: var(--on-acc);
 }
 
@@ -1087,9 +1167,25 @@ main {
   display: none;
 }
 
-.callout[data-tone='note'] {
-  border: 0;
-  padding-top: 0;
+.pill-link {
+  display: inline-flex;
+  align-items: center;
+  height: 48px;
+  padding: 0 22px;
+  border-radius: 999px;
+  background: #141414;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 16px;
+  text-decoration: none;
+}
+
+.pill-link:hover {
+  text-decoration: none;
+}
+
+.pill-link:focus-visible {
+  outline-color: #141414;
 }
 
 .callout[data-tone='note'] .text {
