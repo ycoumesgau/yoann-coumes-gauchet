@@ -115,6 +115,14 @@ export const linkHref = (locale: Locale, link: Link | null | undefined): string 
 
 const isWeb = (href: string) => /^https?:\/\//i.test(href)
 
+/** The space after a fact's bold lead, none when the text goes on with punctuation (« Phillimore, … »). */
+export const leadSpace = (body: string | null | undefined): string =>
+  body && /^[,.;:)]/.test(body) ? '' : ' '
+
+/** A timeline cell's share of the row on a wide screen: Payload's span, 1 when unset or out of range. */
+export const timelineSpan = (span: number | null | undefined): number =>
+  typeof span === 'number' && Number.isFinite(span) && span >= 1 && span <= 12 ? span : 1
+
 function ArrowLink({
   locale,
   link,
@@ -598,7 +606,10 @@ function renderBlock(
                       cards ? (
                         <span className="fact-lead">{item.lead}</span>
                       ) : (
-                        <strong>{item.lead} </strong>
+                        <strong>
+                          {item.lead}
+                          {leadSpace(item.body)}
+                        </strong>
                       )
                     ) : null}
                     {item.body}
@@ -778,17 +789,19 @@ function renderBlock(
           </div>
         ),
       }
-    case 'linkList':
+    case 'linkList': {
+      const isContact = (item: (typeof block.items)[number]) => !item.period && !item.body
       return {
         Tag: 'section',
         inner: (
           <>
             <Heading text={block.heading} />
-            <ul className="links">
+            {/* Dated rows are cards (prototype L612-649); contact lines stay rows. */}
+            <ul className="links" data-variant={block.items.some(isContact) ? undefined : 'cards'}>
               {block.items.map((item, i) => {
                 const href = item.url && isOutboundUrl(item.url) ? item.url : null
                 const web = href ? isWeb(href) : false
-                const contact = !item.period && !item.body
+                const contact = isContact(item)
                 const inner = contact ? (
                   <>
                     <span>{item.title}</span>
@@ -843,6 +856,7 @@ function renderBlock(
           </>
         ),
       }
+    }
     case 'nextLinks': {
       const links = block.links.flatMap((entry) => {
         const href = linkHref(locale, entry.link)
@@ -930,18 +944,28 @@ function renderBlock(
                 const inner = (
                   <>
                     <span className="link-period">{entry.period}</span>
-                    <EntryTitle className="t-title">{entry.title}</EntryTitle>
-                    {page && block.linkLabel ? (
-                      <span className="link-go">→ {block.linkLabel}</span>
-                    ) : (
-                      <span />
-                    )}
+                    <span className="t-main">
+                      <EntryTitle className="t-title">{entry.title}</EntryTitle>
+                      {page && block.linkLabel ? (
+                        <span className="link-go">→ {block.linkLabel}</span>
+                      ) : null}
+                    </span>
                     {entry.body ? <span className="t-body">{entry.body}</span> : null}
                   </>
                 )
                 return (
-                  <li key={entry.id ?? i}>
-                    {page ? <a href={pagePath(locale, page.slug)}>{inner}</a> : <div>{inner}</div>}
+                  <li
+                    key={entry.id ?? i}
+                    data-tone={entry.tone ?? 'past'}
+                    style={{ '--span': timelineSpan(entry.span) } as React.CSSProperties}
+                  >
+                    {page ? (
+                      <a className="t-cell" href={pagePath(locale, page.slug)}>
+                        {inner}
+                      </a>
+                    ) : (
+                      <div className="t-cell">{inner}</div>
+                    )}
                   </li>
                 )
               })}

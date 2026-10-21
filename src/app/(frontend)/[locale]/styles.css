@@ -963,6 +963,16 @@ main {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
 }
 
+/* Two-column facts sit under hairlines, without a row gap (prototype L601-606). */
+.facts[data-columns='2']:not([data-numbered]) {
+  gap: 0 clamp(24px, 3vw, 48px);
+}
+
+.facts[data-columns='2']:not([data-numbered]) .fact {
+  padding: 18px 0;
+  border-top: 1px solid var(--line);
+}
+
 /* Three facts a row at desktop width, each under a hairline (prototype L210-217). */
 .facts[data-columns='3'] {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
@@ -1540,6 +1550,54 @@ a.link-row:hover {
   color: var(--ink);
 }
 
+/* Dated links as cards under a 3 px accent rule (prototype L612-649). Cards share
+   the row; a lone card keeps a column's width (Writing, L637). */
+.links[data-variant='cards'] {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: clamp(14px, 2vw, 24px);
+  border-top: 0;
+}
+
+.links[data-variant='cards']:has(> li:only-child) {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+}
+
+.links[data-variant='cards'] .link-row {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 28px;
+  height: 100%;
+  min-height: 240px;
+  padding: clamp(20px, 2.4vw, 32px);
+  background: var(--surf);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--acc);
+  border-radius: 8px;
+}
+
+.links[data-variant='cards'] a.link-row:hover {
+  border-color: var(--ink);
+  border-top-color: var(--acc);
+}
+
+.links[data-variant='cards'] .link-period {
+  font-size: 12px;
+}
+
+.links[data-variant='cards'] .link-title {
+  font-size: clamp(28px, 2.6vw, 38px);
+  font-weight: 500;
+  line-height: 1.05;
+}
+
+.links[data-variant='cards'] .link-body {
+  font-size: 17px;
+  line-height: 1.5;
+  margin-top: 10px;
+}
+
 .files {
   display: flex;
   flex-wrap: wrap;
@@ -1612,49 +1670,139 @@ a.link-row:hover {
   margin: 32px 0 0;
 }
 
-/* Timeline */
+/* Timeline: one row of cells as wide as their span, the highlighted one in the
+   accent (prototype L571-583); a stack under a 2 px rule below 1024 px (L585-595). */
 .timeline {
+  display: flex;
+  gap: 4px;
+  align-items: stretch;
   list-style: none;
   margin: 0;
   padding: 0;
-  border-top: 1px solid var(--line);
 }
 
-.timeline li > * {
-  display: grid;
-  grid-template-columns: 140px minmax(0, 1fr) auto;
-  gap: 4px 24px;
-  align-items: baseline;
-  padding: 16px 0;
-  border-bottom: 1px solid var(--line);
+.timeline li {
+  display: flex;
+  flex: var(--span, 1) 1 0;
+  min-width: 0;
+}
+
+.timeline .t-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 10px 16px;
+  background: var(--surf);
+  border-top: 3px solid var(--ink2);
   color: var(--ink);
+}
+
+.timeline [data-tone='current'] .t-cell {
+  border-top-color: var(--ink);
+}
+
+.timeline .link-period {
+  font-size: 12px;
+}
+
+.timeline .t-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .timeline .t-title {
   margin: 0;
-  font-weight: 500;
-  font-family: var(--serif);
-  font-size: 22px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
 }
 
-.timeline a:hover {
-  text-decoration: none;
-  background: var(--surf);
+.timeline .link-go {
+  color: inherit;
 }
 
 .timeline .t-body {
-  grid-column: 2 / -1;
   font-size: 15px;
   color: var(--ink2);
 }
 
-@media (max-width: 700px) {
-  .timeline li > * {
-    grid-template-columns: 1fr;
+.timeline [data-tone]:not([data-tone='highlight']) a.t-cell:hover {
+  text-decoration: none;
+  border-top-color: var(--ink);
+}
+
+.timeline [data-tone='highlight'] .t-cell {
+  justify-content: space-between;
+  gap: 28px;
+  padding: 14px 16px 16px;
+  background: var(--acc);
+  border-top-color: #141414;
+  color: #141414;
+}
+
+.timeline [data-tone='highlight'] .link-period,
+.timeline [data-tone='highlight'] .t-body {
+  color: inherit;
+}
+
+.timeline [data-tone='highlight'] .t-main {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.timeline [data-tone='highlight'] .t-title {
+  font-family: var(--serif);
+  font-size: clamp(26px, 2.4vw, 36px);
+  font-weight: 500;
+  line-height: 1;
+}
+
+@media (max-width: 1023px) {
+  .timeline {
+    flex-direction: column;
+    border-left: 2px solid var(--ink);
+  }
+
+  .timeline .t-cell {
+    display: grid;
+    grid-template-columns: 96px 1fr;
+    gap: 12px;
+    padding: 12px 14px;
+    border-top: 0;
+  }
+
+  .timeline .link-period {
+    line-height: 22px;
+  }
+
+  .timeline .t-title {
+    font-size: 16px;
   }
 
   .timeline .t-body {
-    grid-column: auto;
+    grid-column: 2;
+  }
+
+  .timeline [data-tone='highlight'] .t-cell {
+    display: flex;
+    gap: 12px;
+    min-height: 240px;
+    padding: 14px;
+  }
+
+  .timeline [data-tone='highlight'] .t-main {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .timeline [data-tone='highlight'] .t-title {
+    font-size: 30px;
   }
 }
 
