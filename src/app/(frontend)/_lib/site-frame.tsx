@@ -98,27 +98,29 @@ export function SiteFrame({
       <main id="main">{children}</main>
       <footer className="site-footer">
         <div className="wrap">
-          <span className="brand">
-            <span className="brand-mark" aria-hidden="true" />
-            <span className="brand-name">{site.name}</span>
-          </span>
-          {site.links?.length ? (
-            <span className="footer-links">
-              {site.links.map((link) =>
-                // A row saved before the validator, or written around it, is not rendered.
-                link.label && footerLinkUrl(link.url) === true ? (
-                  <a
-                    key={link.id ?? link.url}
-                    href={footerLinkHref(locale, link.url)}
-                    rel={footerLinkRel(link.url)}
-                    target={external(link.url) ? '_blank' : undefined}
-                  >
-                    {link.label}
-                  </a>
-                ) : null,
-              )}
+          <div className="footer-row">
+            <span className="brand">
+              <span className="brand-mark" aria-hidden="true" />
+              <span className="brand-name">{site.name}</span>
             </span>
-          ) : null}
+            {site.links?.length ? (
+              <span className="footer-links">
+                {site.links.map((link) =>
+                  // A row saved before the validator, or written around it, is not rendered.
+                  link.label && footerLinkUrl(link.url) === true ? (
+                    <a
+                      key={link.id ?? link.url}
+                      href={footerLinkHref(locale, link.url)}
+                      rel={footerLinkRel(link.url)}
+                      target={external(link.url) ? '_blank' : undefined}
+                    >
+                      {link.label}
+                    </a>
+                  ) : null,
+                )}
+              </span>
+            ) : null}
+          </div>
         </div>
       </footer>
     </>

@@ -308,7 +308,7 @@ function renderBlock(
           ) : (
             <Heading text={block.heading} />
           )}
-          <div className="rich">
+          <div className={block.lead ? 'rich lead-text' : 'rich'}>
             <RichText data={block.body} />
           </div>
           <ArrowLink locale={locale} link={block.link} />

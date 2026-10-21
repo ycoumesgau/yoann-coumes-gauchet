@@ -7,6 +7,7 @@ import * as migration_20261020_143717_media_storage_fields from './20261020_1437
 import * as migration_20261020_145310_direct_embeds from './20261020_145310_direct_embeds'
 import * as migration_20261020_212418_site_v2_blocks from './20261020_212418_site_v2_blocks'
 import * as migration_20261021_040203_seo_plugin from './20261021_040203_seo_plugin'
+import * as migration_20261021_043746_section_lead from './20261021_043746_section_lead'
 
 export const migrations = [
   {
@@ -53,5 +54,10 @@ export const migrations = [
     up: migration_20261021_040203_seo_plugin.up,
     down: migration_20261021_040203_seo_plugin.down,
     name: '20261021_040203_seo_plugin',
+  },
+  {
+    up: migration_20261021_043746_section_lead.up,
+    down: migration_20261021_043746_section_lead.down,
+    name: '20261021_043746_section_lead',
   },
 ]
