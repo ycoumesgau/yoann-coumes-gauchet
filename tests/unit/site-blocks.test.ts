@@ -72,6 +72,64 @@ describe('lead paragraphs', () => {
   })
 })
 
+describe('hero measures', () => {
+  const html = (headlineWidth?: string, subheadWidth?: string) =>
+    renderToStaticMarkup(
+      RenderBlocks({
+        blocks: [
+          { blockType: 'hero', headline: 'H', subhead: 'S', headlineWidth, subheadWidth },
+        ] as PageBlock[],
+        locale: 'en',
+      }),
+    )
+
+  it('caps the headline and the lead at the width chosen in Payload, and at none otherwise', () => {
+    expect(html('16', '34')).toMatch(/<h1[^>]*data-measure="16"/)
+    expect(html('16', '34')).toMatch(/<p class="lead" data-measure="34"/)
+    expect(html()).not.toContain('data-measure')
+  })
+})
+
+describe('work rows', () => {
+  const image = (url: string) =>
+    ({
+      id: 1,
+      url,
+      alt: 'alt',
+      width: 800,
+      height: 600,
+      mimeType: 'image/png',
+    }) as never
+  const html = (illustration: unknown) =>
+    renderToStaticMarkup(
+      RenderBlocks({
+        blocks: [
+          {
+            blockType: 'workRows',
+            rows: [
+              {
+                title: 'Licorn',
+                image: image('/forum.webp'),
+                imageCaption: 'Licorn forum',
+                illustration: illustration as never,
+              },
+            ],
+          },
+        ] as PageBlock[],
+        locale: 'en',
+      }),
+    )
+
+  it('draws an illustration beside the screenshot, and the screenshot alone without one', () => {
+    expect(html(image('/milo.png'))).toContain('class="work-pair"')
+    expect(html(image('/milo.png'))).toContain('class="work-illustration"')
+    expect(html(image('/milo.png'))).toContain('milo.png')
+    expect(html(image('/milo.png'))).toContain('work-pair-caption')
+    expect(html(null)).not.toContain('work-pair')
+    expect(html(null)).toContain('forum.webp')
+  })
+})
+
 describe('films and players', () => {
   it('knows only the films of the closed list', () => {
     expect(isDemoKey('nexcan-inventory')).toBe(true)

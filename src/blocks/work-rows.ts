@@ -29,6 +29,7 @@ export const WorkRowsBlock: Block = {
         { name: 'body', type: 'textarea', localized: true },
         linkField('link'),
         imageField('image'),
+        imageField('illustration', 'Drawn beside the screenshot, in a narrower white frame.'),
         tagField,
         { name: 'imageCaption', type: 'text', localized: true },
       ],

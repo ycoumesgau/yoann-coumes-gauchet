@@ -237,6 +237,14 @@ export interface HeroBlock {
   headline: string;
   subhead?: string | null;
   /**
+   * Longest line of the headline. Empty: the column width.
+   */
+  headlineWidth?: ('16' | '17' | '18') | null;
+  /**
+   * Longest line of the lead. Empty: 38em.
+   */
+  subheadWidth?: ('34' | '36' | '38') | null;
+  /**
    * Shown beside the headline, in an accent frame when there is a badge.
    */
   image?: (number | null) | Media;
@@ -451,6 +459,10 @@ export interface WorkRowsBlock {
       url?: string | null;
     };
     image?: (number | null) | Media;
+    /**
+     * Drawn beside the screenshot, in a narrower white frame.
+     */
+    illustration?: (number | null) | Media;
     tag?: string | null;
     imageCaption?: string | null;
     id?: string | null;
@@ -1059,6 +1071,8 @@ export interface HeroBlockSelect<T extends boolean = true> {
   status?: T;
   headline?: T;
   subhead?: T;
+  headlineWidth?: T;
+  subheadWidth?: T;
   image?: T;
   badge?: T;
   demo?: T;
@@ -1140,6 +1154,7 @@ export interface WorkRowsBlockSelect<T extends boolean = true> {
               url?: T;
             };
         image?: T;
+        illustration?: T;
         tag?: T;
         imageCaption?: T;
         id?: T;

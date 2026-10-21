@@ -263,8 +263,14 @@ function renderBlock(
               ) : null}
             </p>
           ) : null}
-          <Title className="h1">{block.headline}</Title>
-          {block.subhead ? <p className="lead">{block.subhead}</p> : null}
+          <Title className="h1" data-measure={block.headlineWidth ?? undefined}>
+            {block.headline}
+          </Title>
+          {block.subhead ? (
+            <p className="lead" data-measure={block.subheadWidth ?? undefined}>
+              {block.subhead}
+            </p>
+          ) : null}
         </div>
       )
       return {
@@ -409,6 +415,7 @@ function renderBlock(
             <ul className="work">
               {block.rows.map((row, i) => {
                 const screen = screenOf(row.image, row.imageCaption, row.tag)
+                const illustration = readableImage(row.illustration)
                 return (
                   <li key={row.id ?? i} className="work-row">
                     <div className="stack">
@@ -424,7 +431,19 @@ function renderBlock(
                       {row.body ? <p className="text">{row.body}</p> : null}
                       <ArrowLink locale={locale} link={row.link} />
                     </div>
-                    {screen ? <Screens screens={[screen]} labels={labels} /> : null}
+                    {screen && illustration ? (
+                      <div className="work-pair">
+                        <Screens screens={[{ ...screen, caption: null }]} labels={labels} />
+                        <div className="work-illustration">
+                          <MediaImage media={illustration} sizes="240px" />
+                        </div>
+                        {screen.caption ? (
+                          <p className="caption work-pair-caption">{screen.caption}</p>
+                        ) : null}
+                      </div>
+                    ) : screen ? (
+                      <Screens screens={[screen]} labels={labels} />
+                    ) : null}
                   </li>
                 )
               })}
@@ -612,7 +631,11 @@ function renderBlock(
             {block.heading ? <Heading text={block.heading} /> : null}
             <div className="callout-body">
               <p className="text">{block.body}</p>
-              <ArrowLink locale={locale} link={block.link} />
+              <ArrowLink
+                locale={locale}
+                link={block.link}
+                className={block.tone === 'accent' ? 'pill-link' : 'more'}
+              />
             </div>
           </div>
         ),
