@@ -1563,12 +1563,18 @@ a.link-row:hover {
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
 }
 
+.links[data-variant='cards'] > li {
+  display: flex;
+}
+
 .links[data-variant='cards'] .link-row {
   display: flex;
   flex-direction: column;
+  flex: 1;
   justify-content: space-between;
   gap: 28px;
-  height: 100%;
+  /* The prototype's min-heights count without padding (content-box). */
+  box-sizing: content-box;
   min-height: 240px;
   padding: clamp(20px, 2.4vw, 32px);
   background: var(--surf);
@@ -1796,6 +1802,7 @@ a.link-row:hover {
   .timeline [data-tone='highlight'] .t-cell {
     display: flex;
     gap: 12px;
+    box-sizing: content-box;
     min-height: 240px;
     padding: 14px;
   }
