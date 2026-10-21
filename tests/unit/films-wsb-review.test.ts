@@ -43,7 +43,13 @@ const reviewKeys = [
 const textsFor = (keys: string[]) => Object.fromEntries(keys.map((k) => [k, `«${k}»`]))
 
 const render = (f: FilmModule, t: number, width: number, texts: Record<string, string>) =>
-  renderToStaticMarkup(createElement('div', null, f.Stage({ t, playing: false, width, texts })))
+  renderToStaticMarkup(
+    createElement(
+      'div',
+      null,
+      f.Stage({ t, playing: false, width, height: f.height(width), texts }),
+    ),
+  )
 
 const cases: [string, FilmModule, string[]][] = [
   ['wsb-funding', wsbFunding, wsbKeys],

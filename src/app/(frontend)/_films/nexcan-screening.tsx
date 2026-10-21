@@ -20,10 +20,9 @@ const cuts: readonly Cut[] = [
 
 const height = (width: number) => Math.round(width < 600 ? width * 1.3 : width / 1.691)
 
-function Stage({ t, playing, width, texts }: StageProps) {
+function Stage({ t, playing, width, height: H, texts }: StageProps) {
   const { bind, onLoaded } = useVideoSync(cuts, t, playing)
   const narrow = width < 600
-  const H = height(width)
   let vSt: React.CSSProperties
   let chipPos: React.CSSProperties
   if (!narrow) {

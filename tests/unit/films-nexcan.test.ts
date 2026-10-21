@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest'
 import type { FrameLabels } from '@/app/(frontend)/_blocks/render-blocks'
 import { Film, films } from '@/app/(frontend)/_films/film'
 import type { FilmModule } from '@/app/(frontend)/_films/types'
+import { phoneTop } from '@/app/(frontend)/_films/nexcan-photos'
 import { cutAt, videoTime } from '@/app/(frontend)/_films/video-sync'
 import type { DemoKey } from '@/domain/demos'
 
@@ -12,18 +13,20 @@ import type { DemoKey } from '@/domain/demos'
 const words: Record<string, Record<string, string>> = {
   'nexcan-inventory': { chip1: 'W-chip1', stillAlt: 'W-stillAlt' },
   'nexcan-screening': { chip1: 'W-chip1', chip2: 'W-chip2' },
-  'nexcan-photos': { heading: 'W-heading', lot: 'W-lot', review: 'W-review' },
+  'nexcan-photos': { stillAlt: 'W-stillAlt' },
 }
 /** When each word is on screen (the poster is the last frame). */
 const shownAt: Record<string, Record<string, number>> = {
   'nexcan-inventory': { chip1: 6, stillAlt: 10 },
   'nexcan-screening': { chip1: 3, chip2: 7 },
-  'nexcan-photos': { heading: 1, lot: 3, review: 8 },
+  'nexcan-photos': { stillAlt: 10 },
 }
 
 const nexcan = Object.keys(words) as DemoKey[]
 const stage = (film: FilmModule, t: number, width: number, texts: Record<string, string>) =>
-  renderToStaticMarkup(createElement(film.Stage, { t, playing: false, width, texts }))
+  renderToStaticMarkup(
+    createElement(film.Stage, { t, playing: false, width, height: film.height(width), texts }),
+  )
 
 describe('the Nexcan films', () => {
   for (const key of nexcan) {
@@ -66,10 +69,40 @@ describe('the Nexcan films', () => {
     })
   }
 
-  it('lets the photo film sort 173 photos and set one apart', () => {
+  it("plays the real capture of Nexcan's demo D, the phone one on a phone", () => {
     const film = films['nexcan-photos']!
-    expect(stage(film, film.duration, 1200, {})).toContain('173 / 174')
-    expect(stage(film, 0, 1200, {})).toContain('0 / 174')
+    expect(stage(film, 0, 1200, {})).toContain('/films/photos-d-1440.webm')
+    expect(stage(film, 0, 390, {})).toContain('/films/photos-d-390.webm')
+    expect(stage(film, film.duration, 390, {})).toContain('/films/photos-d-390.webp')
+  })
+
+  it('follows the action down the phone capture, inside it', () => {
+    // A window of 470 px of capture: the jumble at the top, the touch-up of
+    // lot 46 (down to 845 px), the doubtful lot 43 (from 150), the button and the end (958).
+    expect(phoneTop(1, 470)).toBe(0)
+    expect(phoneTop(6, 470)).toBe(845 - 470)
+    expect(phoneTop(8, 470)).toBe(150)
+    expect(phoneTop(10, 470)).toBe(958 - 470)
+    // a window as tall as the capture never moves
+    for (const t of [0, 3, 6, 8, 10]) expect(phoneTop(t, 958)).toBe(0)
+  })
+
+  it("covers the prototype's own footer and controls on a phone", () => {
+    // 390 px wide, 470 px of capture shown at the end: the footer starts at 900
+    const film = films['nexcan-photos']!
+    const scale = 390 / 338
+    const H = Math.round(470 * scale)
+    const html = renderToStaticMarkup(
+      createElement(film.Stage, {
+        t: film.duration,
+        playing: false,
+        width: 390,
+        height: H,
+        texts: {},
+      }),
+    )
+    const top = Math.round((900 - phoneTop(film.duration, H / scale)) * scale)
+    expect(html).toContain(`top:${top}px;bottom:0`)
   })
 
   it('cuts the inventory film between the two real captures', () => {

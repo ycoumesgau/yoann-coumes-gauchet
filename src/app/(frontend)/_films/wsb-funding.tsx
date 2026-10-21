@@ -130,15 +130,24 @@ const tileKeys = [1, 2, 3, 4, 5, 6] as const
 
 const duration = 21
 
-function Stage({ t: rawT, width: w, texts }: StageProps): React.ReactNode {
+function Stage({ t: rawT, width: w, height: H, texts }: StageProps): React.ReactNode {
   const t = Math.max(0, Math.min(rawT, duration))
   const vert = w < 600
-  const H = height(w)
   const pad = vert ? 16 : 28
+  const cols = vert ? 2 : 6
+  const gap = 8
+  const tw = (w - pad * 2 - gap * (cols - 1)) / cols
+  // A phone screen too short for the full tiles: they lose some height.
+  const th = vert ? (H < 560 ? 60 : 76) : tw < 150 ? 108 : 92
+  const tilesTop = vert ? 16 : 20
+  const rows = Math.ceil(tileKeys.length / cols)
+  // Narrow, the chart starts under the shot's title and words, then steps down
+  // under the tiles and their source when they come.
+  const tilesEnd = tilesTop + rows * (th + gap) - gap + 44
   const frame: Frame = {
     L: vert ? 20 : 44,
     R: w - (vert ? 16 : 32),
-    T: vert ? 300 : 196,
+    T: vert ? Math.round(190 + (tilesEnd - 190) * sstep((t - 17.4) / 0.6)) : 196,
     B: H - (vert ? 64 : 66),
   }
   const { L, R, T, B } = frame
@@ -223,13 +232,14 @@ function Stage({ t: rawT, width: w, texts }: StageProps): React.ReactNode {
       op(13.6, 15),
       { transform: vert ? 'translateX(-100%)' : 'none', whiteSpace: 'nowrap', maxWidth: 'none' },
     ),
-    pin('point.funded', null, Y(total) - 30, op(16.6), {
+    // On a phone the source line sits just above the curve: both end pins go under its top.
+    pin('point.funded', null, Y(total) + (vert ? 10 : -30), op(16.6), {
       right: `${Math.max(0, w - x7 - 4).toFixed(0)}px`,
       fontWeight: 500,
       whiteSpace: 'nowrap',
       maxWidth: 'none',
     }),
-    pin('point.repayments', null, Y(total) + 10, op(17.1), {
+    pin('point.repayments', null, Y(total) + (vert ? 40 : 10), op(17.1), {
       right: `${Math.max(0, w - R).toFixed(0)}px`,
       color: 'var(--ink2)',
       whiteSpace: 'nowrap',
@@ -245,12 +255,6 @@ function Stage({ t: rawT, width: w, texts }: StageProps): React.ReactNode {
       ]
   const tailOpacity = sstep((t - 16.8) / 0.6)
 
-  const cols = vert ? 2 : 6
-  const gap = 8
-  const tw = (w - pad * 2 - gap * (cols - 1)) / cols
-  const th = vert ? 76 : tw < 150 ? 108 : 92
-  const tilesTop = vert ? 16 : 20
-  const rows = Math.ceil(tileKeys.length / cols)
   const myPart = texts['myPart']
 
   return (

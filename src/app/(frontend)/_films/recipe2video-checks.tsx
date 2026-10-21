@@ -35,6 +35,12 @@ const CAUGHT = 3
 
 const DURATION = 12.5
 
+const oneLine: CSSProperties = {
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+}
+
 const caption = (
   t: number,
   a: number,
@@ -54,14 +60,20 @@ const caption = (
   ...extra,
 })
 
-function Stage({ t, width: w, texts }: StageProps) {
+function Stage({ t, width: w, height: H, texts }: StageProps) {
   const [started, setStarted] = useState(false)
   const vert = w < 600
-  const H = height(w)
   const pad = vert ? 16 : 28
   const top = vert ? 132 : 122
-  const rowH = vert ? 62 : 50
   const gap = 6
+  // On a phone cut short (fit.ts), the cards shrink, leaving room for the total
+  // and the tag, and the video comes over them instead of below. Too short for
+  // two lines, a card shows one: its title, then its check once there is one.
+  const short = vert && H < height(w)
+  const rowH = vert ? Math.min(62, Math.floor((H - top - 64) / ROWS.length) - gap) : 50
+  // narrower than 320 px, a title on two lines leaves no room for its check
+  const compact = vert && (rowH < 56 || w < 320)
+  const single = vert && rowH < 36
   const listW = vert ? w - pad * 2 : Math.round(w * 0.6)
   const right = vert ? pad : w - pad - listW
   const listBottom = top + ROWS.length * (rowH + gap)
@@ -72,11 +84,18 @@ function Stage({ t, width: w, texts }: StageProps) {
     vh = Math.round((vw * 16) / 9)
     vx = w - pad - vw
     vy = Math.round((H - vh) / 2)
-  } else {
+  } else if (!short) {
     vw = Math.round(w * 0.7)
     vh = Math.round((vw * 16) / 9)
     vx = Math.round((w - vw) / 2)
     vy = listBottom + 44
+  } else {
+    // under the heading and its caption, which keep the verdict in view
+    vy = top - 6
+    // above the tag the shell lays at the foot of the stage
+    vw = Math.min(Math.round(((H - vy - 40) * 9) / 16), Math.round(w * 0.8))
+    vh = Math.round((vw * 16) / 9)
+    vx = Math.round((w - vw) / 2)
   }
   const vo = started ? 1 : sstep((t - 11) / 0.5)
   const capPos: CSSProperties = {
@@ -164,14 +183,21 @@ function Stage({ t, width: w, texts }: StageProps) {
               {n}
             </span>
             <span
-              style={{ fontSize: '15px', lineHeight: '19px', color: 'var(--ink)', minWidth: 0 }}
+              style={{
+                fontSize: compact ? '14px' : '15px',
+                lineHeight: compact ? '17px' : '19px',
+                color: 'var(--ink)',
+                minWidth: 0,
+                ...(compact ? oneLine : {}),
+              }}
             >
-              {texts[`row.${n}.title`]}
+              {single && status ? null : texts[`row.${n}.title`]}
               <span
                 style={{
-                  display: 'block',
-                  fontSize: '13px',
-                  lineHeight: '17px',
+                  display: single && !status ? 'none' : 'block',
+                  fontSize: compact ? '12px' : '13px',
+                  lineHeight: compact ? '15px' : '17px',
+                  ...(compact ? oneLine : {}),
                   fontWeight: 600,
                   color: red ? 'var(--anom)' : green ? OK : 'var(--ink2)',
                   marginTop: '1px',

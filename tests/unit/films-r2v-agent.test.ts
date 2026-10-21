@@ -7,7 +7,9 @@ import { film as recipe2videoChecks } from '@/app/(frontend)/_films/recipe2video
 import type { FilmModule } from '@/app/(frontend)/_films/types'
 
 const render = (film: FilmModule, t: number, width: number, texts: Record<string, string>) =>
-  renderToStaticMarkup(createElement(film.Stage, { t, playing: false, width, texts }))
+  renderToStaticMarkup(
+    createElement(film.Stage, { t, playing: false, width, height: film.height(width), texts }),
+  )
 
 /** Every key a film reads, each with a distinct marker as its text. */
 const marked = (keys: readonly string[]) =>
@@ -104,5 +106,75 @@ describe('film accounting-agent', () => {
     const html = render(accountingAgent, accountingAgent.duration, 1200, marked(agentKeys))
     expect(html.match(/✓/g)).toHaveLength(3)
     expect(html.match(/>!</g)).toHaveLength(1)
+  })
+})
+
+describe('the Recipe2Video film on a phone cut short', () => {
+  const box = (html: string) => {
+    const style = /data-film-video="" style="([^"]*)"/.exec(html)?.[1] ?? ''
+    const px = (name: string) => Number(new RegExp(`${name}:(\\d+)px`).exec(style)?.[1])
+    return { top: px('top'), height: px('height') }
+  }
+
+  it('lays its video over the cards, under the heading and its verdict, inside the stage', () => {
+    const H = 500
+    const html = renderToStaticMarkup(
+      createElement(recipe2videoChecks.Stage, {
+        t: recipe2videoChecks.duration,
+        playing: false,
+        width: 348,
+        height: H,
+        texts: marked(r2vKeys),
+      }),
+    )
+    const { top, height } = box(html)
+    // the verdict caption ends at 94 + 20 px
+    expect(top).toBeGreaterThanOrEqual(114)
+    expect(top + height).toBeLessThanOrEqual(H)
+    expect(html).toContain('text-overflow:ellipsis')
+  })
+
+  it('keeps its video below the cards when it has its full height', () => {
+    const H = recipe2videoChecks.height(348)
+    const html = renderToStaticMarkup(
+      createElement(recipe2videoChecks.Stage, {
+        t: recipe2videoChecks.duration,
+        playing: false,
+        width: 348,
+        height: H,
+        texts: marked(r2vKeys),
+      }),
+    )
+    expect(box(html).top).toBeGreaterThan(H / 2)
+    expect(html).not.toContain('text-overflow:ellipsis')
+  })
+
+  it('gives each card one line when two do not fit: its title, then its check', () => {
+    const at = (t: number) =>
+      renderToStaticMarkup(
+        createElement(recipe2videoChecks.Stage, {
+          t,
+          playing: false,
+          width: 348,
+          height: 440,
+          texts: marked(r2vKeys),
+        }),
+      )
+    const written = at(4)
+    expect(written).toContain('«row.01.title»')
+    const checked = at(recipe2videoChecks.duration)
+    expect(checked).toContain('«row.01.rule»')
+    expect(checked).not.toContain('«row.01.title»')
+    // at 500 px, two lines fit: both stay
+    const roomy = renderToStaticMarkup(
+      createElement(recipe2videoChecks.Stage, {
+        t: recipe2videoChecks.duration,
+        playing: false,
+        width: 348,
+        height: 500,
+        texts: marked(r2vKeys),
+      }),
+    )
+    expect(roomy).toContain('«row.01.title»')
   })
 })
