@@ -1419,6 +1419,54 @@ main {
   letter-spacing: normal;
 }
 
+/* Cards sit closer to what precedes and follows them (prototype L660, L674). */
+.block:has(> .columns[data-cards]) {
+  padding-top: clamp(40px, 5vw, 72px);
+}
+
+.block:has(> .columns[data-cards]) + .block {
+  padding-top: clamp(56px, 6vw, 96px);
+}
+
+/* Texts set in cards (Contact, prototype L661-672): an accent card whose text is a
+   lead, a white card beside it. */
+.columns[data-cards] {
+  gap: clamp(20px, 3vw, 40px);
+  align-items: stretch;
+}
+
+.columns [data-card] {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: clamp(24px, 3vw, 44px);
+  background: var(--surf);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.columns [data-card='accent'] {
+  background: var(--acc-soft);
+  border-top: 6px solid var(--acc);
+  color: var(--ink);
+}
+
+.columns [data-card] .eyebrow,
+.columns [data-card] .h2 {
+  margin: 0;
+}
+
+.columns [data-card] .eyebrow {
+  align-self: flex-start;
+}
+
+.columns [data-card='accent'] .rich p,
+.columns [data-card='accent'] .rich li {
+  font-size: clamp(18px, 1.45vw, 21px);
+  line-height: 1.5;
+  color: var(--ink);
+}
+
 /* Callout */
 .callout {
   display: grid;
@@ -1539,15 +1587,27 @@ a.link-row:hover {
   font-size: 15px;
 }
 
+/* Contact lines (prototype L676-677): serif up to 34 px, a small accent arrow. */
 .contact-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 18px 0;
+  gap: 16px;
+  box-sizing: content-box;
+  min-height: 72px;
+  padding: 12px 0;
   border-bottom: 1px solid var(--line);
   font-family: var(--serif);
-  font-size: clamp(22px, 2.2vw, 30px);
+  font-size: clamp(22px, 2.4vw, 34px);
   color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.contact-row > span:last-child {
+  font-family: var(--sans);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--acc-ink);
 }
 
 /* Dated links as cards under a 3 px accent rule (prototype L612-649). Cards share
@@ -1604,13 +1664,40 @@ a.link-row:hover {
   margin-top: 10px;
 }
 
+/* The CV line closes the contact lines: its label in serif, a pill per file
+   (prototype L678-684). */
 .files {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
-  align-items: baseline;
-  padding: 18px 0;
-  font-size: 16px;
+  align-items: center;
+  gap: 12px 20px;
+  box-sizing: content-box;
+  min-height: 72px;
+  margin: 0;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.files-label {
+  font-family: var(--serif);
+  font-size: clamp(22px, 2.4vw, 34px);
+}
+
+.files a {
+  display: inline-flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 20px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.files a:hover {
+  border-color: var(--ink);
+  text-decoration: none;
 }
 
 @media (max-width: 700px) {

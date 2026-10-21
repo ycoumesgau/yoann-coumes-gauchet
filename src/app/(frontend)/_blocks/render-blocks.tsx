@@ -115,6 +115,10 @@ export const linkHref = (locale: Locale, link: Link | null | undefined): string 
 
 const isWeb = (href: string) => /^https?:\/\//i.test(href)
 
+/** A column's card, as chosen in Payload; no card when unset or unknown. */
+export const columnCard = (card: string | null | undefined): 'plain' | 'accent' | undefined =>
+  card === 'plain' || card === 'accent' ? card : undefined
+
 /** The space after a fact's bold lead, none when the text goes on with punctuation (« Phillimore, … »). */
 export const leadSpace = (body: string | null | undefined): string =>
   body && /^[,.;:)]/.test(body) ? '' : ' '
@@ -753,9 +757,13 @@ function renderBlock(
       return {
         Tag: 'section',
         inner: (
-          <div className="columns" data-heading={block.headingSize ?? 'large'}>
+          <div
+            className="columns"
+            data-heading={block.headingSize ?? 'large'}
+            data-cards={block.columns.some((column) => columnCard(column.card)) ? '' : undefined}
+          >
             {block.columns.map((column, i) => (
-              <div key={column.id ?? i}>
+              <div key={column.id ?? i} data-card={columnCard(column.card)}>
                 {column.status ? (
                   <p className="eyebrow">
                     <span className="status" data-tone="live">
@@ -791,6 +799,11 @@ function renderBlock(
       }
     case 'linkList': {
       const isContact = (item: (typeof block.items)[number]) => !item.period && !item.body
+      // A file without a readable media is left out, and the line with it when none is left.
+      const files = (block.files?.items ?? []).flatMap((file) => {
+        const url = readableFile(file.file)?.url
+        return url ? [{ file, url }] : []
+      })
       return {
         Tag: 'section',
         inner: (
@@ -836,21 +849,22 @@ function renderBlock(
                 )
               })}
             </ul>
-            {block.files?.items?.length ? (
+            {files.length ? (
               <p className="files">
-                {block.files.label ? <span>{block.files.label}</span> : null}
-                {block.files.items.map((file, i) => {
-                  const media = readableFile(file.file)
-                  return media ? (
-                    <a key={file.id ?? i} href={media.url} lang={file.lang ?? undefined} download>
-                      {file.label}
-                    </a>
-                  ) : (
-                    <span key={file.id ?? i} lang={file.lang ?? undefined} className="meta">
-                      {file.label}
-                    </span>
-                  )
-                })}
+                {block.files?.label ? (
+                  <span className="files-label">{block.files.label}</span>
+                ) : null}
+                {files.map(({ file, url }, i) => (
+                  <a
+                    key={file.id ?? i}
+                    href={url}
+                    lang={file.lang ?? undefined}
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    {file.label}
+                  </a>
+                ))}
               </p>
             ) : null}
           </>
