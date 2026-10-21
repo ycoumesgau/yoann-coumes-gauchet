@@ -1,6 +1,7 @@
 import type { Block } from 'payload'
 
 import { headingField, imageField, tagField } from './fields'
+import { statusTones } from './work-rows'
 
 /** Screenshots that open larger on click, or cards with a name (the agents, the characters). */
 export const GalleryBlock: Block = {
@@ -31,6 +32,16 @@ export const GalleryBlock: Block = {
         { name: 'caption', type: 'text', localized: true },
         tagField,
         { name: 'badge', type: 'text', localized: true },
+        {
+          name: 'badgeTone',
+          type: 'select',
+          defaultValue: 'live',
+          options: statusTones.map((value) => ({ label: value, value })),
+          admin: {
+            description:
+              'Dot of the badge: past (grey), live (accent), private (hollow). A live card gets an accent top rule.',
+          },
+        },
       ],
     },
   ],

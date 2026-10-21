@@ -7,7 +7,7 @@ import { spotifyEmbedUrl, videoEmbedUrl, type VideoPlatform } from '@/domain/emb
 import { isOutboundUrl } from '@/domain/links'
 import { pagePath } from '@/domain/locale-routing'
 import type { Locale } from '@/domain/locales'
-import type { Media, Page, Project, Site } from '@/payload-types'
+import type { Media, Page, Project, SectionBlock, Site } from '@/payload-types'
 
 import { Film, type FilmTexts } from '../_films/film'
 import { WsbCurveThumb } from '../_films/wsb-funding'
@@ -43,7 +43,12 @@ const providerNames: Record<VideoPlatform, string> = {
   instagram: 'Instagram',
 }
 
-type ReadableImage = Media & { url: string; alt: string; width: number; height: number }
+type ReadableImage = Media & {
+  url: string
+  alt: string
+  width: number
+  height: number
+}
 
 /**
  * An image the visitor may see, with its text alternative in this language
@@ -196,6 +201,54 @@ export const stepFlags = (blocks: readonly PageBlock[]): ('step' | 'in-step' | n
   })
 }
 
+/**
+ * A step's « The details » close the step, after the blocks in its column (the
+ * figures, the checklist), as in the prototype. Maps the last block of the
+ * step to the section whose details it carries. A block that renders nothing
+ * (a gallery whose images are all trashed) is skipped, so the details never
+ * vanish with it.
+ */
+export const deferredDetails = (
+  blocks: readonly PageBlock[],
+  renders: (index: number) => boolean = () => true,
+): Map<number, number> => {
+  const flags = stepFlags(blocks)
+  const moves = new Map<number, number>()
+  blocks.forEach((block, i) => {
+    if (flags[i] !== 'step' || block.blockType !== 'section') return
+    if (!block.details || !block.detailsLabel) return
+    let last = i
+    for (let next = i + 1; flags[next] === 'in-step'; next += 1) {
+      if (renders(next)) last = next
+    }
+    if (last > i) moves.set(last, i)
+  })
+  return moves
+}
+
+/** The id of a step's heading, which its details point to. */
+const stepHeadingId = (block: PageBlock, index: number) => `step-${block.id ?? index}`
+
+function Details({
+  label,
+  data,
+  stepId,
+}: {
+  label: string
+  data: SectionBlock['details']
+  stepId?: string | undefined
+}) {
+  if (!data) return null
+  return (
+    <details className="details">
+      <summary aria-describedby={stepId}>{label}</summary>
+      <div className="rich">
+        <RichText data={data} />
+      </div>
+    </details>
+  )
+}
+
 export function RenderBlocks({
   blocks,
   locale,
@@ -210,15 +263,37 @@ export function RenderBlocks({
   const texts = filmTextsByFilm(filmTexts)
   const flags = stepFlags(blocks)
   const frame = labels ?? {}
+  // A block inside a step never hosts details, so it renders the same before
+  // the details are placed: render it first to know whether it shows at all.
+  const inStep = blocks.map((block, index) =>
+    flags[index] === 'in-step' ? renderBlock(block, index, locale, frame, texts) : undefined,
+  )
+  const moves = deferredDetails(blocks, (index) => inStep[index] !== null)
+  const deferred = new Set(moves.values())
   return blocks.map((block, index) => {
     const key = block.id ?? `${block.blockType}-${index}`
     const flag = flags[index]
-    const content = renderBlock(block, index, locale, frame, texts)
+    const content =
+      flag === 'in-step'
+        ? inStep[index]
+        : renderBlock(block, index, locale, frame, texts, deferred.has(index))
+    if (content === undefined) return null
     if (content === null) return null
     if (flag === 'in-step') {
+      const owner = moves.get(index)
+      const host = owner === undefined ? undefined : blocks[owner]
       return (
         <div key={key} className="block in-step">
-          <div className="in-step-body">{content.inner}</div>
+          <div className="in-step-body">
+            {content.inner}
+            {host?.blockType === 'section' && host.detailsLabel ? (
+              <Details
+                label={host.detailsLabel}
+                data={host.details}
+                stepId={host.heading ? stepHeadingId(host, owner ?? index) : undefined}
+              />
+            ) : null}
+          </div>
         </div>
       )
     }
@@ -245,6 +320,7 @@ function renderBlock(
   locale: Locale,
   labels: FrameLabels,
   texts: Readonly<Partial<Record<string, FilmTexts>>>,
+  withoutDetails = false,
 ): Rendered | null {
   switch (block.blockType) {
     case 'hero': {
@@ -309,7 +385,9 @@ function renderBlock(
         <div>
           {step ? (
             block.heading ? (
-              <h2 className="h2">{block.heading}</h2>
+              <h2 className="h2" id={stepHeadingId(block, index)}>
+                {block.heading}
+              </h2>
             ) : null
           ) : (
             <Heading text={block.heading} />
@@ -318,16 +396,16 @@ function renderBlock(
             <RichText data={block.body} />
           </div>
           <ArrowLink locale={locale} link={block.link} />
-          {block.details && block.detailsLabel ? (
-            <details className="details">
-              <summary>{block.detailsLabel}</summary>
-              <div className="rich">
-                <RichText data={block.details} />
-              </div>
-            </details>
-          ) : null}
         </div>
       )
+      const details =
+        block.detailsLabel && !withoutDetails ? (
+          <Details
+            label={block.detailsLabel}
+            data={block.details}
+            stepId={step && block.heading ? stepHeadingId(block, index) : undefined}
+          />
+        ) : null
       const withMedia = screen ? (
         <div className={`section-grid ${block.imageSide === 'left' ? 'left' : ''}`}>
           {body}
@@ -352,12 +430,14 @@ function renderBlock(
             <div>
               {withMedia}
               {film}
+              {details}
             </div>
           </div>
         ) : (
           <>
             {withMedia}
             {film}
+            {details}
           </>
         ),
       }
@@ -574,7 +654,10 @@ function renderBlock(
             ) : block.variant === 'cards' ? (
               <ul className="gallery" data-variant="cards">
                 {screens.map(({ screen, item }, i) => (
-                  <li key={item.id ?? i}>
+                  <li
+                    key={item.id ?? i}
+                    data-tone={item.badge ? (item.badgeTone ?? 'live') : undefined}
+                  >
                     <figure>
                       <div className="shot">
                         {/* eslint-disable-next-line @next/next/no-img-element -- square card, served by Payload */}
@@ -583,12 +666,12 @@ function renderBlock(
                       <div className="card-title">
                         {item.title}
                         {item.badge ? (
-                          <span className="status" data-tone="live">
+                          <span className="status" data-tone={item.badgeTone ?? 'live'}>
                             {item.badge}
                           </span>
                         ) : null}
                       </div>
-                      {item.caption ? <p className="meta">{item.caption}</p> : null}
+                      {item.caption ? <p className="card-role">{item.caption}</p> : null}
                     </figure>
                   </li>
                 ))}

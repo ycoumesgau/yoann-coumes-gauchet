@@ -9,6 +9,7 @@ import * as migration_20261020_212418_site_v2_blocks from './20261020_212418_sit
 import * as migration_20261021_040203_seo_plugin from './20261021_040203_seo_plugin'
 import * as migration_20261021_043746_section_lead from './20261021_043746_section_lead'
 import * as migration_20261021_045844_hero_measures_work_illustration from './20261021_045844_hero_measures_work_illustration'
+import * as migration_20261021_052418_gallery_badge_tone from './20261021_052418_gallery_badge_tone'
 
 export const migrations = [
   {
@@ -65,5 +66,10 @@ export const migrations = [
     up: migration_20261021_045844_hero_measures_work_illustration.up,
     down: migration_20261021_045844_hero_measures_work_illustration.down,
     name: '20261021_045844_hero_measures_work_illustration',
+  },
+  {
+    up: migration_20261021_052418_gallery_badge_tone.up,
+    down: migration_20261021_052418_gallery_badge_tone.down,
+    name: '20261021_052418_gallery_badge_tone',
   },
 ]

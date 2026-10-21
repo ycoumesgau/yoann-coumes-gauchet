@@ -539,6 +539,10 @@ export interface GalleryBlock {
     caption?: string | null;
     tag?: string | null;
     badge?: string | null;
+    /**
+     * Dot of the badge: past (grey), live (accent), private (hollow). A live card gets an accent top rule.
+     */
+    badgeTone?: ('past' | 'live' | 'private') | null;
     id?: string | null;
   }[];
   id?: string | null;
@@ -1237,6 +1241,7 @@ export interface GalleryBlockSelect<T extends boolean = true> {
         caption?: T;
         tag?: T;
         badge?: T;
+        badgeTone?: T;
         id?: T;
       };
   id?: T;
