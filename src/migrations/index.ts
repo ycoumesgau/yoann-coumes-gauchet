@@ -6,6 +6,7 @@ import * as migration_20261020_142120_third_party_notice from './20261020_142120
 import * as migration_20261020_143717_media_storage_fields from './20261020_143717_media_storage_fields'
 import * as migration_20261020_145310_direct_embeds from './20261020_145310_direct_embeds'
 import * as migration_20261020_212418_site_v2_blocks from './20261020_212418_site_v2_blocks'
+import * as migration_20261021_040203_seo_plugin from './20261021_040203_seo_plugin'
 
 export const migrations = [
   {
@@ -47,5 +48,10 @@ export const migrations = [
     up: migration_20261020_212418_site_v2_blocks.up,
     down: migration_20261020_212418_site_v2_blocks.down,
     name: '20261020_212418_site_v2_blocks',
+  },
+  {
+    up: migration_20261021_040203_seo_plugin.up,
+    down: migration_20261021_040203_seo_plugin.down,
+    name: '20261021_040203_seo_plugin',
   },
 ]

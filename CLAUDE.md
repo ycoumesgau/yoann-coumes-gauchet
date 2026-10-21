@@ -11,7 +11,8 @@ for one app and one developer working through agents.
 
 Replaced, never extended (25 lines max).
 
-- L0–L2 merged; production on `yoann-coumes-gauchet.vercel.app` (cdg1), connector live.
+- L0–L2 merged. Production: `yoann.coumes-gauchet.fr` (DNS at OVH, CNAME to Vercel, cdg1);
+  `SITE_URL` is that origin (canonical, sitemap, MCP issuer); `*.vercel.app` 308s to it (proxy).
 - L3a merged: `/en` `/fr` routing and language switch. L3b merged: blocks as plain HTML, S3 media
   storage. L3c merged: players load with the page, no consent step (ADR-4, Yoann's call). The
   `privacy` page (FR, EN) is published, linked from the footer; its text is
@@ -20,9 +21,9 @@ Replaced, never extended (25 lines max).
   `src/app/(frontend)/_films/`, their files in `public/films/`; Luma plays from her `.riv`
   (`_blocks/luma.tsx`, runtime wasm served from `public/rive/`). L3e: all content entered in
   production through the MCP server, both locales published; no server-side URL fetch into media.
-- Not live: `yoann.coumes-gauchet.fr` still points at the old Figma Sites page (DNS in Figma).
-- Owed by Yoann: DNS (L5), the go to drop `noindex`, a read of the French lines the session
-  translated itself (listed in the L3e morning report).
+- L5 (2026-10-21): indexed. `@payloadcms/plugin-seo` owns `pages.meta`; an empty field falls back
+  to the page (`domain/seo.ts`); `robots.txt` admits every crawler, AI ones included.
+- Owed by Yoann: a read of the French lines the session translated itself (L3e morning report).
 - MCP code: `src/domain/mcp-oauth/` (pure), `src/mcp/` (server side). Only `oauth-store.ts` may
   skip access, and the lint exemption names it.
 

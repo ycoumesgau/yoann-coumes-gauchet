@@ -32,13 +32,6 @@ export const Pages: CollectionConfig = {
       admin: { position: 'sidebar', description: '`home` is the root page.' },
     },
     { name: 'layout', type: 'blocks', blocks: pageBlocks, localized: true },
-    {
-      name: 'meta',
-      type: 'group',
-      fields: [
-        { name: 'title', type: 'text', localized: true },
-        { name: 'description', type: 'textarea', localized: true },
-      ],
-    },
+    // `meta` (title, description, share image) is added by the SEO plugin (`plugins/seo.ts`).
   ],
 }
