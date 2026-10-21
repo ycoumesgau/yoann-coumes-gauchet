@@ -226,6 +226,28 @@ export const deferredDetails = (
   return moves
 }
 
+/**
+ * Two films in a row, neither with a heading nor inside a step, sit side by
+ * side (prototype L285-288). Maps the first of each pair to the second.
+ */
+export const filmPairs = (blocks: readonly PageBlock[]): Map<number, number> => {
+  const flags = stepFlags(blocks)
+  const alone = (i: number) => {
+    const block = blocks[i]
+    return (
+      block?.blockType === 'demo' && isDemoKey(block.demo) && !block.heading && flags[i] === null
+    )
+  }
+  const pairs = new Map<number, number>()
+  for (let i = 0; i < blocks.length - 1; i += 1) {
+    if (alone(i) && alone(i + 1)) {
+      pairs.set(i, i + 1)
+      i += 1
+    }
+  }
+  return pairs
+}
+
 /** The id of a step's heading, which its details point to. */
 const stepHeadingId = (block: PageBlock, index: number) => `step-${block.id ?? index}`
 
@@ -270,7 +292,21 @@ export function RenderBlocks({
   )
   const moves = deferredDetails(blocks, (index) => inStep[index] !== null)
   const deferred = new Set(moves.values())
+  const pairs = filmPairs(blocks)
+  const paired = new Set(pairs.values())
   return blocks.map((block, index) => {
+    if (paired.has(index)) return null
+    const partner = pairs.get(index)
+    if (partner !== undefined) {
+      const first = renderBlock(block, index, locale, frame, texts)
+      const second = renderBlock(blocks[partner] as PageBlock, partner, locale, frame, texts)
+      return (
+        <section key={block.id ?? `pair-${index}`} className="block film-pair">
+          <div>{first?.inner}</div>
+          <div>{second?.inner}</div>
+        </section>
+      )
+    }
     const key = block.id ?? `${block.blockType}-${index}`
     const flag = flags[index]
     const content =
@@ -544,7 +580,11 @@ function renderBlock(
                 {block.intro}
               </p>
             ) : null}
-            <ol className="facts" data-columns={block.columns ?? '2'}>
+            <ol
+              className="facts"
+              data-columns={block.columns ?? '2'}
+              data-numbered={block.numbered ? '' : undefined}
+            >
               {block.items.map((item, i) => (
                 <li key={item.id ?? i} className={cards ? 'fact fact-card' : 'fact'}>
                   {block.numbered ? (
@@ -586,7 +626,17 @@ function renderBlock(
             <Heading text={block.heading} />
             {block.body ? (
               <div className="stats-grid">
-                {figures}
+                <ol className="dates">
+                  {block.items.map((item, i) => (
+                    <li key={item.id ?? i}>
+                      <span className="date-index">{String(i + 1).padStart(2, '0')}</span>
+                      <span className="date-text">
+                        <span className="date-value">{item.value}</span>
+                        <span className="date-label">{item.label}</span>
+                      </span>
+                    </li>
+                  ))}
+                </ol>
                 <div className="rich">
                   <RichText data={block.body} />
                 </div>

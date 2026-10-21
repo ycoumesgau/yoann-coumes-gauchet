@@ -963,6 +963,29 @@ main {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
 }
 
+/* A numbered list: one column under a 2 px rule, grey numbers (prototype L279-284). */
+.facts[data-numbered] {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  max-width: 1000px;
+  border-left: 2px solid var(--ink);
+}
+
+.facts[data-numbered] .fact {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 8px;
+  padding: 16px 0 16px 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.facts[data-numbered] .fact-number {
+  font-size: 12px;
+  line-height: 27px;
+  color: var(--mut);
+  padding-top: 0;
+}
+
 /* Three facts a row at desktop width, each under a hairline (prototype L210-217). */
 .facts[data-columns='3'] {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
@@ -1012,10 +1035,54 @@ main {
 
 /* Stats */
 .stats-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(16px, 3vw, 48px);
+  align-items: flex-start;
+}
+
+.stats-grid > .rich {
+  flex: 3 1 420px;
+  max-width: 40em;
+}
+
+/* Dates beside a text: a narrow list under a 2 px rule (prototype L262-266). */
+.dates {
+  flex: 1 1 220px;
+  max-width: 320px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-left: 2px solid var(--ink);
+}
+
+.dates li {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
-  gap: clamp(24px, 4vw, 64px);
-  align-items: start;
+  grid-template-columns: 44px 1fr;
+  gap: 8px;
+  padding: 10px 0 10px 14px;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.date-index {
+  color: var(--mut);
+}
+
+.date-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.date-value {
+  color: var(--ink);
+}
+
+.date-label {
+  color: var(--ink2);
 }
 
 .stats {
@@ -1863,4 +1930,13 @@ a.link-row:hover {
     transition: none !important;
     animation: none !important;
   }
+}
+
+/* Two films in a row, side by side (prototype L285-288). */
+.block.film-pair {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr));
+  gap: clamp(20px, 2.5vw, 32px);
+  align-items: start;
+  padding-top: clamp(36px, 4vw, 56px);
 }
