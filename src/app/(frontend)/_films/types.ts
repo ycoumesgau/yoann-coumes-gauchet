@@ -9,6 +9,11 @@ export type StageProps = {
   playing: boolean
   /** The stage's width in CSS pixels; under 600 the film draws its narrow layout. */
   width: number
+  /**
+   * The stage's height: what `height(width)` asks for, cut on a phone to fit the
+   * screen (`fit.ts`). A film lays itself out in it.
+   */
+  height: number
   texts: FilmTexts
 }
 
@@ -21,7 +26,7 @@ export type FilmModule = {
   duration: number
   /** The film's shots, as [start, length] in seconds; the shell shows one segment each. */
   plans: readonly (readonly [number, number])[]
-  /** Stage height for a width. */
+  /** The stage height a film asks for at a width; on a phone it may get less. */
   height: (width: number) => number
   Stage: (props: StageProps) => React.ReactNode
 }

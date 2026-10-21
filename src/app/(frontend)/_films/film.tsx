@@ -9,6 +9,7 @@ import type { FrameLabels } from '../_blocks/render-blocks'
 import { film as nexcanInventory } from './nexcan-inventory'
 import { film as nexcanPhotos } from './nexcan-photos'
 import { film as nexcanScreening } from './nexcan-screening'
+import { stageHeight } from './fit'
 import type { FilmModule } from './types'
 import { film as wsbFunding } from './wsb-funding'
 import { film as hostileReview } from './hostile-review'
@@ -89,7 +90,7 @@ function FilmStill({ demo, film, texts }: { demo: DemoKey; film: FilmModule; tex
           transform: `translate(-50%, -50%) scale(${scale.toFixed(4)})`,
         }}
       >
-        <film.Stage t={film.duration} playing={false} width={firstWidth} texts={texts} />
+        <film.Stage t={film.duration} playing={false} width={firstWidth} height={H} texts={texts} />
       </div>
     </div>
   )
@@ -116,6 +117,41 @@ function FilmPlayer({
   const [t, setT] = useState(D)
   const [playing, setPlaying] = useState(false)
   const [played, setPlayed] = useState(false)
+  const stage = useRef<HTMLDivElement>(null)
+  const [frame, setFrame] = useState({ viewport: 0, header: 0, chrome: 0 })
+
+  // What the screen leaves for the stage: the small viewport, less the sticky
+  // header and the film's own controls and caption.
+  useEffect(() => {
+    const probe = document.createElement('div')
+    probe.style.cssText =
+      'position:fixed;top:0;left:0;width:0;height:100svh;visibility:hidden;pointer-events:none'
+    document.body.appendChild(probe)
+    const measure = () => {
+      const el = root.current
+      const st = stage.current
+      if (!el || !st) return
+      const next = {
+        viewport: probe.offsetHeight || window.innerHeight,
+        header: document.querySelector('.site-header')?.getBoundingClientRect().height ?? 0,
+        chrome: el.offsetHeight - st.offsetHeight,
+      }
+      setFrame((old) =>
+        old.viewport === next.viewport && old.header === next.header && old.chrome === next.chrome
+          ? old
+          : next,
+      )
+    }
+    measure()
+    window.addEventListener('resize', measure)
+    const ro = new ResizeObserver(measure)
+    if (root.current) ro.observe(root.current)
+    return () => {
+      window.removeEventListener('resize', measure)
+      ro.disconnect()
+      probe.remove()
+    }
+  }, [])
 
   useEffect(() => {
     const c = { t: D, on: false, last: 0, raf: 0, played: false, userPaused: false, reduced: false }
@@ -211,7 +247,7 @@ function FilmPlayer({
 
   const now = Math.min(t, D)
   const button = playing ? labels.pause : now >= D && played ? labels.replay : labels.play
-  const H = film.height(width)
+  const H = stageHeight(film.height(width), { width, ...frame })
   const control: React.CSSProperties = {
     fontFamily: 'var(--sans)',
     color: 'var(--ink)',
@@ -313,9 +349,10 @@ function FilmPlayer({
         </button>
       </div>
       <div
+        ref={stage}
         style={{ position: 'relative', overflow: 'hidden', height: H, background: 'var(--surf)' }}
       >
-        <film.Stage t={now} playing={playing} width={width} texts={texts} />
+        <film.Stage t={now} playing={playing} width={width} height={H} texts={texts} />
         {!playing && !played && labels.play ? (
           <button
             type="button"

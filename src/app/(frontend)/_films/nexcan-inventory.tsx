@@ -33,10 +33,9 @@ const prepare = (videos: Readonly<Record<string, HTMLVideoElement | null>>, cut:
 
 const height = (width: number) => Math.round(width < 600 ? width * 1.5 : width / 1.5257)
 
-function Stage({ t, playing, width, texts }: StageProps) {
+function Stage({ t, playing, width, height: H, texts }: StageProps) {
   const { bind, onLoaded } = useVideoSync(cuts, t, playing, prepare)
   const narrow = width < 600
-  const H = height(width)
   const onB = cutAt(cuts, t).video === 'b'
   const fadeT = 'opacity .35s ease'
   let bSt: React.CSSProperties
