@@ -963,6 +963,17 @@ main {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
 }
 
+/* Three facts a row at desktop width, each under a hairline (prototype L210-217). */
+.facts[data-columns='3'] {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  gap: 0 clamp(24px, 3vw, 48px);
+}
+
+.facts[data-columns='3'] .fact {
+  padding: 18px 0;
+  border-top: 1px solid var(--line);
+}
+
 .fact {
   display: flex;
   gap: 14px;
@@ -1124,6 +1135,21 @@ main {
 
 .gallery figure {
   margin: 0;
+}
+
+/* Screenshots of a site: 4:3 crops from the top, under their source (prototype L223-227). */
+.gallery[data-variant='screens'] {
+  gap: clamp(14px, 2vw, 24px);
+}
+
+.source + .gallery[data-variant='screens'] {
+  margin-top: clamp(32px, 4vw, 56px);
+}
+
+.gallery[data-variant='screens'] .shot img {
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  object-position: center top;
 }
 
 .gallery[data-variant='cards'] .shot {
@@ -1289,6 +1315,11 @@ main {
   margin: -12px 0 20px;
 }
 
+/* The source sits 8 px under its heading (prototype L220-221). */
+.h2 + .source {
+  margin-top: calc(8px - clamp(20px, 2.2vw, 32px));
+}
+
 /* Columns */
 .columns {
   display: grid;
@@ -1297,7 +1328,17 @@ main {
 }
 
 .columns .h2 {
-  margin-bottom: 14px;
+  margin-bottom: 16px;
+}
+
+/* Sub-headings of two texts side by side (prototype L234, L238). */
+.columns[data-heading='small'] {
+  gap: clamp(40px, 4vw, 64px) clamp(24px, 4vw, 64px);
+}
+
+.columns[data-heading='small'] .h2 {
+  font-size: clamp(24px, 2.2vw, 32px);
+  letter-spacing: normal;
 }
 
 /* Callout */

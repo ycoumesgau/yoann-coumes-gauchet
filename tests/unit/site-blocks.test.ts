@@ -267,6 +267,37 @@ describe('callouts and galleries', () => {
   })
 })
 
+describe('fact lists and columns', () => {
+  const html = (blocks: unknown[]) =>
+    renderToStaticMarkup(RenderBlocks({ blocks: blocks as PageBlock[], locale: 'en' }))
+
+  it('lays a fact list out in the columns chosen in Payload, two unless chosen', () => {
+    const facts = (columns?: string) =>
+      html([
+        {
+          blockType: 'factList',
+          columns,
+          items: [{ lead: 'Product.', body: 'B' }],
+        },
+      ])
+    expect(facts('3')).toContain('class="facts" data-columns="3"')
+    expect(facts()).toContain('class="facts" data-columns="2"')
+  })
+
+  it('sets the headings of side-by-side texts at the size chosen in Payload, large unless chosen', () => {
+    const columns = (headingSize?: string) =>
+      html([
+        {
+          blockType: 'columns',
+          headingSize,
+          columns: [{ heading: 'H', body }],
+        },
+      ])
+    expect(columns('small')).toContain('class="columns" data-heading="small"')
+    expect(columns()).toContain('class="columns" data-heading="large"')
+  })
+})
+
 describe('films and players', () => {
   it('knows only the films of the closed list', () => {
     expect(isDemoKey('nexcan-inventory')).toBe(true)

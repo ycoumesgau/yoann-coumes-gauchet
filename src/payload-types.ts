@@ -479,7 +479,10 @@ export interface FactListBlock {
   heading?: string | null;
   intro?: string | null;
   numbered?: boolean | null;
-  columns?: ('1' | '2' | '4') | null;
+  /**
+   * 1: one narrow column. 2: two columns. 3: as many 340 px columns as fit, each fact under a hairline. 4: cards.
+   */
+  columns?: ('1' | '2' | '3' | '4') | null;
   items: {
     kicker?: string | null;
     lead?: string | null;
@@ -554,6 +557,7 @@ export interface GalleryBlock {
  * via the `definition` "ColumnsBlock".
  */
 export interface ColumnsBlock {
+  headingSize?: ('large' | 'small') | null;
   columns: {
     status?: string | null;
     heading?: string | null;
@@ -1252,6 +1256,7 @@ export interface GalleryBlockSelect<T extends boolean = true> {
  * via the `definition` "ColumnsBlock_select".
  */
 export interface ColumnsBlockSelect<T extends boolean = true> {
+  headingSize?: T;
   columns?:
     | T
     | {

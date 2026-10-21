@@ -6,6 +6,15 @@ export const ColumnsBlock: Block = {
   interfaceName: 'ColumnsBlock',
   fields: [
     {
+      name: 'headingSize',
+      type: 'select',
+      defaultValue: 'large',
+      options: [
+        { label: 'Large, as a section heading', value: 'large' },
+        { label: 'Small, as a sub-heading', value: 'small' },
+      ],
+    },
+    {
       name: 'columns',
       type: 'array',
       required: true,

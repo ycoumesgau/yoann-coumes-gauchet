@@ -687,7 +687,7 @@ function renderBlock(
       return {
         Tag: 'section',
         inner: (
-          <div className="columns">
+          <div className="columns" data-heading={block.headingSize ?? 'large'}>
             {block.columns.map((column, i) => (
               <div key={column.id ?? i}>
                 {column.status ? (

@@ -10,6 +10,7 @@ import * as migration_20261021_040203_seo_plugin from './20261021_040203_seo_plu
 import * as migration_20261021_043746_section_lead from './20261021_043746_section_lead'
 import * as migration_20261021_045844_hero_measures_work_illustration from './20261021_045844_hero_measures_work_illustration'
 import * as migration_20261021_052418_gallery_badge_tone from './20261021_052418_gallery_badge_tone'
+import * as migration_20261021_054325_fact_columns_three_column_heading_size from './20261021_054325_fact_columns_three_column_heading_size'
 
 export const migrations = [
   {
@@ -71,5 +72,10 @@ export const migrations = [
     up: migration_20261021_052418_gallery_badge_tone.up,
     down: migration_20261021_052418_gallery_badge_tone.down,
     name: '20261021_052418_gallery_badge_tone',
+  },
+  {
+    up: migration_20261021_054325_fact_columns_three_column_heading_size.up,
+    down: migration_20261021_054325_fact_columns_three_column_heading_size.down,
+    name: '20261021_054325_fact_columns_three_column_heading_size',
   },
 ]
