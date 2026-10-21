@@ -540,11 +540,12 @@ main {
 
 .status[data-tone='live']::before {
   background: var(--acc);
+  box-shadow: 0 0 0 1px var(--ink);
 }
 
 .status[data-tone='private']::before {
   background: transparent;
-  border: 1.5px solid var(--mut);
+  border: 1.5px solid var(--ink);
 }
 
 .tag {
@@ -715,6 +716,7 @@ main {
 }
 
 .details > summary {
+  min-height: 32px;
   cursor: pointer;
   font-weight: 600;
   font-size: 15px;

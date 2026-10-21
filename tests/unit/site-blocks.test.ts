@@ -17,6 +17,7 @@ import {
   type PageBlock,
 } from '@/app/(frontend)/_blocks/render-blocks'
 import { isDemoKey } from '@/domain/demos'
+import { GalleryBlock } from '@/blocks/gallery'
 
 const body = { root: { type: 'root', children: [] } } as never
 
@@ -86,6 +87,25 @@ describe('details of a step', () => {
     const html = renderToStaticMarkup(RenderBlocks({ blocks: steps, locale: 'en' }))
     expect(html.split('rule details').length - 1).toBe(1)
     expect(html.indexOf('rule details')).toBeGreaterThan(html.indexOf('stat one'))
+  })
+
+  it('keeps the details when the last block of the step shows nothing', () => {
+    const empty = {
+      blockType: 'gallery',
+      items: [{ image: 7 }],
+    } as unknown as PageBlock
+    const blocks = [...steps.slice(0, 2), empty]
+    expect(deferredDetails(blocks, (i) => i !== 2)).toEqual(new Map([[1, 0]]))
+    const html = renderToStaticMarkup(RenderBlocks({ blocks, locale: 'en' }))
+    expect(html.split('rule details').length - 1).toBe(1)
+    expect(html.indexOf('rule details')).toBeGreaterThan(html.indexOf('stat one'))
+  })
+
+  it('ties the summary of the details to the heading of its step', () => {
+    const html = renderToStaticMarkup(RenderBlocks({ blocks: steps, locale: 'en' }))
+    const id = /<h2 class="h2" id="([^"]+)">Rules</.exec(html)?.[1]
+    expect(id).toBeTruthy()
+    expect(html).toContain(`<summary aria-describedby="${id}">More</summary>`)
   })
 
   it('leaves the details in place when the step has nothing after it', () => {
@@ -221,6 +241,15 @@ describe('callouts and galleries', () => {
     expect(card('in progress', 'private')).toMatch(/class="status" data-tone="private"/)
     expect(card('in use')).toMatch(/<li[^>]*data-tone="live"/)
     expect(card()).not.toMatch(/<li[^>]*data-tone/)
+  })
+
+  it('reads a badge as live unless Payload says otherwise, as Fred is in the prototype', () => {
+    const items = GalleryBlock.fields.find((f) => 'name' in f && f.name === 'items')
+    const tone =
+      items && 'fields' in items
+        ? items.fields.find((f) => 'name' in f && f.name === 'badgeTone')
+        : undefined
+    expect(tone && 'defaultValue' in tone ? tone.defaultValue : undefined).toBe('live')
   })
 
   it('marks a gallery of screenshots, so its tags sit where the prototype puts them', () => {
