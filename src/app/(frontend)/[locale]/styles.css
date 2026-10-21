@@ -438,11 +438,17 @@ main {
 }
 
 /* A section's text set as a lead, and the callouts' text (prototype: 18–21 px, ink). */
-.lead-text {
+.rich.lead-text {
+  max-width: none;
+}
+
+.rich.lead-text p,
+.rich.lead-text li {
   max-width: 40em;
 }
 
 .rich.lead-text p,
+.rich.lead-text li,
 .callout .text {
   font-size: clamp(18px, 1.45vw, 21px);
   line-height: 1.5;
@@ -782,11 +788,11 @@ main {
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
 }
 
-.thumb > .step-row .film {
+.step-row .film {
   max-width: 1000px;
 }
 
-.film-still {
+.thumb > .film-still {
   position: absolute;
   inset: 0;
 }
