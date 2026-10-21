@@ -1,7 +1,11 @@
 import { getPayload, type Payload } from 'payload'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
-import { findPublishedPage, publishedLocales } from '@/app/(frontend)/_lib/content'
+import {
+  findPublishedPage,
+  findPublishedPages,
+  publishedLocales,
+} from '@/app/(frontend)/_lib/content'
 import config from '@/payload.config'
 
 /**
@@ -37,6 +41,11 @@ describe('public pages by language', () => {
     expect((await findPublishedPage(payload, slug, 'en'))?.title).toBe('English only')
     expect(await findPublishedPage(payload, slug, 'fr')).toBeNull()
     expect(await publishedLocales(payload, slug)).toEqual(['en'])
+    // The sitemap lists it in English only.
+    const slugsIn = async (locale: 'en' | 'fr') =>
+      (await findPublishedPages(payload, locale)).map((page) => page.slug)
+    expect(await slugsIn('en')).toContain(slug)
+    expect(await slugsIn('fr')).not.toContain(slug)
   })
 
   it('serves French once French is published, in French', async () => {
@@ -64,5 +73,7 @@ describe('public pages by language', () => {
     })
     expect(await findPublishedPage(payload, slug, 'fr')).toBeNull()
     expect((await findPublishedPage(payload, slug, 'en'))?.title).toBe('English only')
+    const french = await findPublishedPages(payload, 'fr')
+    expect(french.map((page) => page.slug)).not.toContain(slug)
   })
 })

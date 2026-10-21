@@ -203,6 +203,10 @@ export interface Page {
   meta?: {
     title?: string | null;
     description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
   };
   createdBy?: {
     relationTo: 'users';
@@ -1033,6 +1037,7 @@ export interface PagesSelect<T extends boolean = true> {
     | {
         title?: T;
         description?: T;
+        image?: T;
       };
   createdBy?: T;
   updatedBy?: T;

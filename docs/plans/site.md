@@ -31,7 +31,7 @@ The detailed brief (content, demos, Claude Design) lives in Yoann's project file
 | L3d   | Front end from prototype v2 (Tangerine), all blocks, one migration          | In progress            |
 | L3e   | Films (Nexcan captures, WSB curve, Recipe2Video, review, agents), Luma Rive | In progress            |
 | L4    | Demos, in batches                                                           | To do                  |
-| L5    | Lighthouse, repository public, DNS switched to Vercel                       | Yoann's go             |
+| L5    | DNS switched (done 2026-10-21), indexing and SEO; Lighthouse, public repo   | In progress            |
 
 ## 2. Owed by Yoann
 
@@ -39,8 +39,8 @@ The detailed brief (content, demos, Claude Design) lives in Yoann's project file
   claude.ai (Yoann's messages in the project thread).
 - S3 keys for Supabase Storage, before any media upload in production: wired in L3b, inactive
   until the five `S3_*` variables exist in Vercel (`.env.example`).
-- `SITE_URL` is the `vercel.app` URL until the DNS switch (L5), then `https://yoann.coumes-gauchet.fr`.
-- Switch the DNS of `yoann.coumes-gauchet.fr` from Figma to Vercel (L5).
+- Done on 2026-10-21: the CNAME of `yoann.coumes-gauchet.fr` at OVH points to Vercel; `SITE_URL`
+  is `https://yoann.coumes-gauchet.fr`. Yoann re-adds the claude.ai connector at that origin.
 
 ## 3. Open questions for Yoann
 
@@ -131,3 +131,12 @@ Source: Yoann's project file `synthese/03-site-refonte-concept.md` §3 (2026-10-
   went, as planned; `luma.riv` stays as a test fixture (`tests/fixtures/`), read by the Luma
   test. French lines with no validated source were translated by the session and listed in the
   morning report for Yoann.
+- 2026-10-21: L5, indexing. Yoann asked to drop `noindex` and to complete SEO with Payload's
+  plugin. `@payloadcms/plugin-seo` replaces the hand-written `meta` group (same columns, plus a
+  share image per language); an empty field falls back to the page itself (title with the site
+  name, hero lead, hero image). `robots.txt` admits every crawler and keeps out `/admin`, `/api/`
+  (media files excepted, for link previews) and `/oauth/`; `sitemap.xml` lists each published
+  language with `hreflang`. Home carries a `Person` JSON-LD: the name and the footer's web
+  profiles, nothing else. Vercel had no certificate for the domain (added in 2025, before it
+  pointed there); one was issued by the API. Yoann set the 308 from the `vercel.app` domain to
+  the domain in Vercel.

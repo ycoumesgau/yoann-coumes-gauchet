@@ -26,6 +26,9 @@ importers:
       '@payloadcms/plugin-mcp':
         specifier: 4.0.0-beta.3
         version: 4.0.0-beta.3(payload@4.0.0-beta.3(graphql@16.14.2)(typescript@6.0.3))
+      '@payloadcms/plugin-seo':
+        specifier: 4.0.0-beta.3
+        version: 4.0.0-beta.3(@types/react@19.3.0)(monaco-editor@0.57.0)(payload@4.0.0-beta.3(graphql@16.14.2)(typescript@6.0.3))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@6.0.3)
       '@payloadcms/richtext-lexical':
         specifier: 4.0.0-beta.3
         version: 4.0.0-beta.3(@faceless-ui/modal@3.0.2(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@faceless-ui/scroll-info@2.0.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@types/react@19.3.0)(monaco-editor@0.57.0)(payload@4.0.0-beta.3(graphql@16.14.2)(typescript@6.0.3))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@6.0.3)(yjs@13.6.33)
@@ -1735,6 +1738,13 @@ packages:
     hasBin: true
     peerDependencies:
       payload: 4.0.0-beta.3
+
+  '@payloadcms/plugin-seo@4.0.0-beta.3':
+    resolution: {integrity: sha512-6hADHhlTtzxI+E+huN02Jn8qbYBGFyaLS1frAZFstk6icdm4i7ZyFsV1lcCM/Dfl0yz0Im6lyM5KA/oMhYzdsw==}
+    peerDependencies:
+      payload: 4.0.0-beta.3
+      react: ^19.0.1 || ^19.1.2 || ^19.2.1
+      react-dom: ^19.0.1 || ^19.1.2 || ^19.2.1
 
   '@payloadcms/richtext-lexical@4.0.0-beta.3':
     resolution: {integrity: sha512-+8hVxG59ci0Bi2y8u9b901C/ur2hojWY6F6XX8zyxS1t9gaCBey8CLafdubDkyCgT7gfMQIkSGDpBlKfa3Erxg==}
@@ -6233,6 +6243,20 @@ snapshots:
       '@modelcontextprotocol/server': 2.3.1
       payload: 4.0.0-beta.3(graphql@16.14.2)(typescript@6.0.3)
       tsx: 4.23.15
+
+  '@payloadcms/plugin-seo@4.0.0-beta.3(@types/react@19.3.0)(monaco-editor@0.57.0)(payload@4.0.0-beta.3(graphql@16.14.2)(typescript@6.0.3))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@6.0.3)':
+    dependencies:
+      '@payloadcms/translations': 4.0.0-beta.3
+      '@payloadcms/ui': 4.0.0-beta.3(@types/react@19.3.0)(monaco-editor@0.57.0)(payload@4.0.0-beta.3(graphql@16.14.2)(typescript@6.0.3))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@6.0.3)
+      payload: 4.0.0-beta.3(graphql@16.14.2)(typescript@6.0.3)
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
+    transitivePeerDependencies:
+      - '@types/react'
+      - date-fns-tz
+      - monaco-editor
+      - supports-color
+      - typescript
 
   '@payloadcms/richtext-lexical@4.0.0-beta.3(@faceless-ui/modal@3.0.2(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@faceless-ui/scroll-info@2.0.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@types/react@19.3.0)(monaco-editor@0.57.0)(payload@4.0.0-beta.3(graphql@16.14.2)(typescript@6.0.3))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@6.0.3)(yjs@13.6.33)':
     dependencies:

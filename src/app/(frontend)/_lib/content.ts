@@ -23,8 +23,9 @@ export const findPublishedPage = async (
   payload: Payload,
   slug: string,
   locale: Locale,
-  // 0 to know whether it exists; 2 to render it (blocks → projects → their page and image).
-  depth: 0 | 2 = 0,
+  // 0 to know whether it exists; 1 for its metadata (share image); 2 to render it
+  // (blocks → projects → their page and image).
+  depth: 0 | 1 | 2 = 0,
 ): Promise<Page | null> => {
   const { docs } = await payload.find({
     collection: 'pages',
@@ -36,6 +37,23 @@ export const findPublishedPage = async (
   })
   // The anonymous read filters on the requested language's `_status`.
   return docs[0] ?? null
+}
+
+/** Every page published in a language (slug and date only), for the sitemap. */
+export const findPublishedPages = async (
+  payload: Payload,
+  locale: Locale,
+): Promise<{ slug: string; updatedAt: string }[]> => {
+  const { docs } = await payload.find({
+    collection: 'pages',
+    locale,
+    depth: 0,
+    limit: 0,
+    pagination: false,
+    select: { slug: true, updatedAt: true },
+    ...anonymous,
+  })
+  return docs.map((page) => ({ slug: page.slug, updatedAt: page.updatedAt }))
 }
 
 /** The languages a page is published in, for `hreflang` and the language switch. */

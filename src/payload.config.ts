@@ -18,6 +18,7 @@ import { defaultLocale, localeLabels, locales } from './domain/locales'
 import { mediaStorageConfig } from './domain/media-storage'
 import { Site } from './globals/Site'
 import { sitePlugins } from './mcp/plugin'
+import { seo } from './plugins/seo'
 
 const storage = mediaStorageConfig(process.env)
 if (!storage.enabled && process.env.VERCEL_ENV === 'production') {
@@ -96,5 +97,5 @@ export default buildConfig({
         : {},
     }),
   ],
-  plugins: sitePlugins(),
+  plugins: [...sitePlugins(), seo()],
 })
