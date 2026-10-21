@@ -76,6 +76,38 @@ export const shareImage = (media: unknown): ShareImage | undefined => {
   }
 }
 
+/** The share image of a page with none of its own: Yoann's portrait, served from `public/`. */
+export const DEFAULT_SHARE_IMAGE: ShareImage = { url: '/photo-ycg.jpg', width: 800, height: 800 }
+
+/**
+ * What a page says about itself to search engines and link previews: the
+ * editor's SEO fields first, the page's own content when one is empty.
+ */
+export const resolveMeta = (input: {
+  readonly slug: string
+  readonly pageTitle: string
+  readonly siteName: string
+  readonly meta?:
+    | {
+        readonly title?: string | null | undefined
+        readonly description?: string | null | undefined
+        readonly image?: unknown
+      }
+    | null
+    | undefined
+  readonly layout?: readonly unknown[] | null | undefined
+}): { title: string; description?: string; image: ShareImage } => {
+  const description = input.meta?.description || defaultMetaDescription(input.layout)
+  return {
+    title: input.meta?.title || defaultMetaTitle(input.pageTitle, input.siteName, input.slug),
+    ...(description ? { description } : {}),
+    image:
+      shareImage(input.meta?.image) ??
+      shareImage(defaultMetaImage(input.layout)) ??
+      DEFAULT_SHARE_IMAGE,
+  }
+}
+
 /** Open Graph wants a territory; the site's two languages, as read in France and the US. */
 export const openGraphLocale: Readonly<Record<Locale, string>> = { en: 'en_US', fr: 'fr_FR' }
 
@@ -88,7 +120,7 @@ export const robotsRules = (origin: URL | undefined) => ({
     {
       userAgent: '*',
       allow: ['/', '/api/media/file/'],
-      disallow: ['/admin', '/api/', '/oauth/'],
+      disallow: ['/admin', '/api/', '/oauth'],
     },
   ],
   ...(origin ? { sitemap: new URL('/sitemap.xml', origin).href } : {}),

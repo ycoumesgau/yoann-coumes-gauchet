@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 
@@ -9,6 +9,8 @@ import {
   excerpt,
   jsonLdScript,
   personJsonLd,
+  resolveMeta,
+  DEFAULT_SHARE_IMAGE,
   robotsRules,
   shareImage,
   sitemapEntries,
@@ -23,7 +25,7 @@ describe('robots.txt', () => {
       {
         userAgent: '*',
         allow: ['/', '/api/media/file/'],
-        disallow: ['/admin', '/api/', '/oauth/'],
+        disallow: ['/admin', '/api/', '/oauth'],
       },
     ])
     expect(robots.sitemap).toBe('https://yoann.example/sitemap.xml')
@@ -33,12 +35,19 @@ describe('robots.txt', () => {
     expect(robotsRules(undefined)).not.toHaveProperty('sitemap')
   })
 
-  it('is no longer blocked by a noindex on every page', () => {
-    const layout = readFileSync(
-      path.resolve(__dirname, '../../src/app/(frontend)/[locale]/layout.tsx'),
-      'utf8',
-    )
-    expect(layout).not.toMatch(/index:\s*false/)
+  it('is no longer blocked by a noindex anywhere in the app or its headers', () => {
+    const root = path.resolve(__dirname, '../..')
+    const files = [
+      ...readdirSync(path.join(root, 'src/app'), { recursive: true, encoding: 'utf8' })
+        .filter((file) => /\.(ts|tsx)$/.test(file))
+        .map((file) => path.join(root, 'src/app', file)),
+      path.join(root, 'next.config.ts'),
+      path.join(root, 'src/proxy.ts'),
+    ]
+    expect(files.length).toBeGreaterThan(5)
+    for (const file of files) {
+      expect(readFileSync(file, 'utf8'), file).not.toMatch(/noindex|index:\s*false|x-robots-tag/i)
+    }
   })
 })
 
@@ -163,5 +172,29 @@ describe('structured data', () => {
 
   it('cannot close its script element', () => {
     expect(jsonLdScript({ name: '</script><script>alert(1)</script>' })).not.toContain('<')
+  })
+})
+
+describe('page metadata', () => {
+  const layout = [{ blockType: 'hero', headline: 'Headline', subhead: 'Lead.', image: 12 }]
+  const page = { slug: 'nexcan', pageTitle: 'Nexcan', siteName: 'Yoann', layout }
+  const image = { url: '/api/media/file/a.webp', mimeType: 'image/webp', width: 1200, height: 630 }
+
+  it("prefers the editor's SEO fields to the page's own content", () => {
+    expect(
+      resolveMeta({ ...page, meta: { title: 'Mine', description: 'My words', image } }),
+    ).toEqual({
+      title: 'Mine',
+      description: 'My words',
+      image: { url: '/api/media/file/a.webp', width: 1200, height: 630 },
+    })
+  })
+
+  it('falls back to the page, then to the portrait for the image', () => {
+    expect(resolveMeta({ ...page, meta: { title: '', description: null } })).toEqual({
+      title: 'Nexcan · Yoann',
+      description: 'Lead.',
+      image: DEFAULT_SHARE_IMAGE,
+    })
   })
 })

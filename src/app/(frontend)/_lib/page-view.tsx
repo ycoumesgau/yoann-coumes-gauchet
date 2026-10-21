@@ -3,15 +3,7 @@ import { notFound, permanentRedirect, redirect } from 'next/navigation'
 
 import { alternateLanguages, decidePage, languageLinks, pagePath } from '@/domain/locale-routing'
 import { isLocale, locales } from '@/domain/locales'
-import {
-  defaultMetaDescription,
-  defaultMetaImage,
-  defaultMetaTitle,
-  jsonLdScript,
-  openGraphLocale,
-  personJsonLd,
-  shareImage,
-} from '@/domain/seo'
+import { jsonLdScript, openGraphLocale, personJsonLd, resolveMeta } from '@/domain/seo'
 
 import { PageTitle, RenderBlocks } from '../_blocks/render-blocks'
 import {
@@ -84,10 +76,14 @@ export async function pageMetadata(locale: string, slug: string): Promise<Metada
   if (!page) return {}
   const site = await findSite(payload, locale)
   const published = await publishedLocales(payload, slug)
-  const title = page.meta?.title || defaultMetaTitle(page.title, site.name, slug)
-  const description = page.meta?.description || defaultMetaDescription(page.layout)
-  const image = shareImage(page.meta?.image) ?? shareImage(defaultMetaImage(page.layout))
-  const images = image ? [image] : undefined
+  const { title, description, image } = resolveMeta({
+    slug,
+    pageTitle: page.title,
+    siteName: site.name,
+    meta: page.meta,
+    layout: page.layout,
+  })
+  const images = [image]
   return {
     metadataBase: siteOrigin() ?? null,
     title,
@@ -109,7 +105,7 @@ export async function pageMetadata(locale: string, slug: string): Promise<Metada
       images,
     },
     twitter: {
-      card: image ? 'summary_large_image' : 'summary',
+      card: 'summary_large_image',
       title,
       description,
       images,
