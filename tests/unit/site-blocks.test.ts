@@ -10,6 +10,7 @@ import {
 import { footerLinkUrl, isOutboundUrl } from '@/domain/links'
 import {
   deferredDetails,
+  filmPairs,
   filmTextsByFilm,
   linkHref,
   RenderBlocks,
@@ -295,6 +296,61 @@ describe('fact lists and columns', () => {
       ])
     expect(columns('small')).toContain('class="columns" data-heading="small"')
     expect(columns()).toContain('class="columns" data-heading="large"')
+  })
+})
+
+describe('nexcan blocks', () => {
+  const html = (blocks: unknown[]) =>
+    renderToStaticMarkup(RenderBlocks({ blocks: blocks as PageBlock[], locale: 'en' }))
+  const items = [
+    { value: 'April 2026', label: 'first automations' },
+    { value: 'October 2026', label: 'company incorporated' },
+  ]
+
+  it('lists dates beside a text, numbered, and figures without one as figures', () => {
+    const dated = html([{ blockType: 'stats', items, body }])
+    expect(dated).toContain('class="dates"')
+    expect(dated).toMatch(/<span class="date-index" aria-hidden="true">02<\/span>/)
+    const figures = html([{ blockType: 'stats', items }])
+    expect(figures).toContain('class="stats"')
+    expect(figures).not.toContain('class="dates"')
+  })
+
+  it('marks a numbered fact list, and no other', () => {
+    const facts = (numbered: boolean) =>
+      html([
+        {
+          blockType: 'factList',
+          numbered,
+          items: [{ lead: 'Totals.', body: 'B' }],
+        },
+      ])
+    expect(facts(true)).toMatch(/class="facts"[^>]*data-numbered=""/)
+    expect(facts(false)).not.toContain('data-numbered')
+  })
+
+  it('sets two films in a row side by side, unless one has a heading or sits in a step', () => {
+    const film = (demo: string, heading?: string) => ({
+      blockType: 'demo',
+      demo,
+      heading,
+    })
+    const step = { blockType: 'section', number: '01', body }
+    expect(filmPairs([film('nexcan-screening'), film('nexcan-photos')] as PageBlock[])).toEqual(
+      new Map([[0, 1]]),
+    )
+    expect(
+      filmPairs([film('nexcan-screening'), film('nexcan-photos', 'Photos')] as PageBlock[]),
+    ).toEqual(new Map())
+    expect(
+      filmPairs([step, film('nexcan-screening'), film('nexcan-photos')] as PageBlock[]),
+    ).toEqual(new Map())
+    expect(filmPairs([film('nope'), film('nexcan-photos')] as PageBlock[])).toEqual(new Map())
+    const three = [film('nexcan-screening'), film('nexcan-photos'), film('hostile-review')]
+    expect(filmPairs(three as PageBlock[])).toEqual(new Map([[0, 1]]))
+    const markup = html([film('nexcan-screening'), film('nexcan-photos')])
+    expect(markup.split('class="block film-pair"').length - 1).toBe(1)
+    expect(markup.split('class="film"').length - 1).toBe(2)
   })
 })
 
