@@ -708,15 +708,16 @@ main {
 }
 
 .details {
+  max-width: 44em;
   margin-top: 20px;
   border-top: 1px solid var(--line);
-  padding-top: 14px;
+  padding-top: 12px;
 }
 
 .details > summary {
   cursor: pointer;
   font-weight: 600;
-  font-size: 16px;
+  font-size: 15px;
   color: var(--acc-ink);
 }
 
@@ -724,46 +725,72 @@ main {
   margin-top: 14px;
 }
 
-.steps .block.in-step,
-.block.step {
-  padding-top: clamp(40px, 4vw, 64px);
+/* Method steps (prototype L438-560): one list under a continuous 2 px rule,
+   each step a row with its number, closed by a hairline once its column ends. */
+.block.step,
+.block.in-step {
+  --step-indent: clamp(14px, 1.5vw, 24px);
+  --step-number: clamp(36px, 4vw, 64px);
+  --step-gap: clamp(8px, 1.5vw, 24px);
+  --step-pad: clamp(24px, 3vw, 40px);
+  background: linear-gradient(var(--ink), var(--ink)) no-repeat;
+  background-size: 2px 100%;
 }
 
 .block.step {
-  padding-top: var(--gap-section);
+  padding-top: 0;
+  background-origin: content-box;
+  background-position: 0 0;
+}
+
+/* The first step sits one section below what precedes it. */
+.block:not(.step):not(.in-step) + .block.step {
+  padding-top: clamp(64px, 7vw, 112px);
+}
+
+.block.in-step {
+  padding-top: 0;
+  background-origin: padding-box;
+  background-position: var(--gutter) 0;
 }
 
 .step-row {
   display: grid;
-  grid-template-columns: 64px minmax(0, 1fr);
-  gap: clamp(12px, 2vw, 32px);
-  border-top: 1px solid var(--line);
-  padding-top: clamp(20px, 2vw, 28px);
+  grid-template-columns: var(--step-number) minmax(0, 1fr);
+  gap: var(--step-gap);
+  padding: var(--step-pad) 0 var(--step-pad) var(--step-indent);
+  border-bottom: 1px solid var(--line);
 }
 
 .step-number {
   font-family: var(--mono);
-  font-size: 14px;
-  color: var(--acc-ink);
-  padding-top: 8px;
-}
-
-.block.in-step {
-  padding-top: clamp(24px, 3vw, 40px);
+  font-size: 12px;
+  line-height: 36px;
+  color: var(--mut);
 }
 
 .block.in-step > .in-step-body {
-  margin-left: calc(64px + clamp(12px, 2vw, 32px));
+  padding: 20px 0 var(--step-pad) calc(var(--step-indent) + var(--step-number) + var(--step-gap));
+  border-bottom: 1px solid var(--line);
 }
 
-@media (max-width: 700px) {
-  .step-row {
-    grid-template-columns: 1fr;
-  }
+/* A step goes on in the next block: the hairline waits for the end of its column. */
+.block.step:has(+ .block.in-step) .step-row,
+.block.in-step:has(+ .block.in-step) > .in-step-body {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
 
-  .block.in-step > .in-step-body {
-    margin-left: 0;
-  }
+.step-row .h2 {
+  margin-bottom: 14px;
+}
+
+.step-row .h2 + .rich.lead-text {
+  margin-top: 20px;
+}
+
+.in-step-body .film {
+  max-width: 1000px;
 }
 
 /* Features (Build · Secure · Create) */
@@ -1008,11 +1035,12 @@ main {
   margin-top: 6px;
 }
 
-/* Checklist */
+/* Checklist (prototype L478-496) */
 .checklist-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
-  gap: clamp(16px, 3vw, 40px);
+  gap: clamp(20px, 3vw, 40px);
+  max-width: 1000px;
   align-items: start;
 }
 
@@ -1022,43 +1050,64 @@ main {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
 }
 
 .checks li {
-  display: flex;
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
   gap: 10px;
+  align-items: start;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
   font-size: 16px;
   line-height: 1.5;
-  color: var(--ink2);
+  color: var(--ink);
 }
 
 .checks li::before {
   content: '✓';
-  color: var(--acc-ink);
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  border-radius: 4px;
+  background: var(--ink);
+  color: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
   font-weight: 700;
 }
 
 .note {
-  border-left: 3px solid var(--acc);
-  background: var(--surf);
-  padding: 16px 18px;
-  border-radius: 0 6px 6px 0;
+  background: var(--acc-soft);
+  border-left: 4px solid var(--acc);
+  border-radius: 0 8px 8px 0;
+  padding: 18px 20px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
 }
 
 .note-kicker {
   font-family: var(--mono);
-  font-size: 12px;
-  color: var(--mut);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--acc-ink);
 }
 
 .note-title {
   font-family: var(--serif);
-  font-size: 20px;
+  font-size: clamp(22px, 2vw, 28px);
+  line-height: 1.15;
   color: var(--ink);
+}
+
+.note .text {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--ink2);
 }
 
 /* Gallery */
@@ -1094,6 +1143,134 @@ main {
   font-size: 20px;
   color: var(--ink);
   margin-top: 12px;
+}
+
+.card-role {
+  font-size: 14px;
+  color: var(--mut);
+  margin: 4px 0 0;
+}
+
+/* Inside a method step, the blocks take the prototype's step forms (L464-560). */
+.in-step-body .stats {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+  gap: 0;
+  max-width: 900px;
+  border-top: 2px solid var(--ink);
+  background: var(--surf);
+}
+
+.in-step-body .stat {
+  background: none;
+  border: 0;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  padding: 16px 18px 18px;
+}
+
+.in-step-body .stat-value {
+  font-size: clamp(28px, 2.6vw, 38px);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.in-step-body .stat-label {
+  color: var(--ink2);
+  line-height: 1.4;
+  margin-top: 8px;
+}
+
+.in-step-body .facts[data-columns='4'] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  max-width: 1000px;
+}
+
+.in-step-body .fact-card {
+  /* The prototype's 220 px basis excludes padding and border (content-box). */
+  flex: 1 1 calc(220px + 2 * 18px + 2px);
+  border-top: 3px solid var(--acc);
+  border-radius: 8px;
+  padding: 16px 18px;
+}
+
+.in-step-body .fact-card .text {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--ink2);
+}
+
+.in-step-body .fact-card .fact-kicker {
+  font-size: 11px;
+  margin: 0;
+}
+
+.in-step-body .fact-card .fact-lead {
+  font-family: var(--sans);
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 0;
+}
+
+.in-step-body .gallery[data-variant='screens'] {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+  gap: clamp(14px, 2vw, 24px);
+  max-width: 1000px;
+}
+
+.in-step-body .gallery[data-variant='screens'] .shot img {
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.in-step-body .gallery[data-variant='cards'] {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: clamp(12px, 1.6vw, 20px);
+  max-width: 1000px;
+}
+
+.in-step-body .gallery[data-variant='cards'] figure {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+  padding: 14px;
+  background: var(--surf);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.in-step-body .gallery[data-variant='cards'] li[data-tone='live'] figure {
+  border-top: 3px solid var(--acc);
+}
+
+.in-step-body .gallery[data-variant='cards'] .shot {
+  border: 0;
+  border-radius: 6px;
+  background: #f3f2ee;
+}
+
+.in-step-body .card-title {
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  font-size: 24px;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.in-step-body .card-role {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0;
 }
 
 .gallery-wide img {

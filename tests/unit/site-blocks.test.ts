@@ -9,6 +9,7 @@ import {
 } from '@/app/(frontend)/_blocks/shorts'
 import { footerLinkUrl, isOutboundUrl } from '@/domain/links'
 import {
+  deferredDetails,
   filmTextsByFilm,
   linkHref,
   RenderBlocks,
@@ -57,6 +58,43 @@ describe('method steps', () => {
   })
 })
 
+describe('details of a step', () => {
+  const details = (text: string) =>
+    ({
+      root: {
+        type: 'root',
+        children: [{ type: 'paragraph', children: [{ type: 'text', text, version: 1 }] }],
+      },
+    }) as never
+  const steps: PageBlock[] = [
+    {
+      blockType: 'section',
+      number: '01',
+      heading: 'Rules',
+      body,
+      detailsLabel: 'More',
+      details: details('rule details'),
+    },
+    { blockType: 'stats', items: [{ value: '1', label: 'stat one' }] },
+    { blockType: 'section', body },
+    { blockType: 'section', number: '02', heading: 'Review', body },
+  ] as PageBlock[]
+  const [rules, , , review] = steps as [PageBlock, PageBlock, PageBlock, PageBlock]
+
+  it("moves a step's details under the last block of the step, as the prototype closes each step", () => {
+    expect(deferredDetails(steps)).toEqual(new Map([[2, 0]]))
+    const html = renderToStaticMarkup(RenderBlocks({ blocks: steps, locale: 'en' }))
+    expect(html.split('rule details').length - 1).toBe(1)
+    expect(html.indexOf('rule details')).toBeGreaterThan(html.indexOf('stat one'))
+  })
+
+  it('leaves the details in place when the step has nothing after it', () => {
+    expect(deferredDetails([rules, review])).toEqual(new Map())
+    const html = renderToStaticMarkup(RenderBlocks({ blocks: [rules], locale: 'en' }))
+    expect(html).toContain('rule details')
+  })
+})
+
 describe('lead paragraphs', () => {
   const html = (lead: boolean) =>
     renderToStaticMarkup(
@@ -77,7 +115,13 @@ describe('hero measures', () => {
     renderToStaticMarkup(
       RenderBlocks({
         blocks: [
-          { blockType: 'hero', headline: 'H', subhead: 'S', headlineWidth, subheadWidth },
+          {
+            blockType: 'hero',
+            headline: 'H',
+            subhead: 'S',
+            headlineWidth,
+            subheadWidth,
+          },
         ] as PageBlock[],
         locale: 'en',
       }),
@@ -156,6 +200,29 @@ describe('callouts and galleries', () => {
     expect(html([callout('plain')])).not.toContain('pill-link')
   })
 
+  it('gives a card the tone of its badge, live unless chosen, and no tone without a badge', () => {
+    const image = {
+      id: 1,
+      url: '/a.webp',
+      alt: 'alt',
+      width: 8,
+      height: 8,
+      mimeType: 'image/webp',
+    }
+    const card = (badge?: string, badgeTone?: string) =>
+      html([
+        {
+          blockType: 'gallery',
+          variant: 'cards',
+          items: [{ image, title: 'Lili', badge, badgeTone }],
+        },
+      ])
+    expect(card('in progress', 'private')).toMatch(/<li[^>]*data-tone="private"/)
+    expect(card('in progress', 'private')).toMatch(/class="status" data-tone="private"/)
+    expect(card('in use')).toMatch(/<li[^>]*data-tone="live"/)
+    expect(card()).not.toMatch(/<li[^>]*data-tone/)
+  })
+
   it('marks a gallery of screenshots, so its tags sit where the prototype puts them', () => {
     const image = {
       id: 1,
@@ -200,7 +267,10 @@ describe('film texts', () => {
         { film: 'hostile-review', key: 'total', text: 'Blocking' },
         { film: 'wsb-funding', key: 'note', text: null as never },
       ]),
-    ).toEqual({ 'wsb-funding': { total: '€162M funded' }, 'hostile-review': { total: 'Blocking' } })
+    ).toEqual({
+      'wsb-funding': { total: '€162M funded' },
+      'hostile-review': { total: 'Blocking' },
+    })
     expect(filmTextsByFilm(undefined)).toEqual({})
   })
 })
