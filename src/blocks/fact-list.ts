@@ -17,8 +17,13 @@ export const FactListBlock: Block = {
       options: [
         { label: '1', value: '1' },
         { label: '2', value: '2' },
+        { label: '3', value: '3' },
         { label: '4', value: '4' },
       ],
+      admin: {
+        description:
+          '1: one narrow column. 2: two columns. 3: as many 340 px columns as fit, each fact under a hairline. 4: cards.',
+      },
     },
     {
       name: 'items',
