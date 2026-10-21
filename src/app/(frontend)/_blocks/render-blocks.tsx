@@ -265,14 +265,34 @@ type SpotifyBlock = Extract<PageBlock, { blockType: 'spotify' }>
 /**
  * A Spotify player right after the shorts, with no heading or intro of its
  * own, sits under the strip in the shorts' side column (prototype L380-383).
- * Maps the shorts' index to the player's.
+ * Only shorts outside a step that show a video host it; otherwise the player
+ * stays on its own. Maps the shorts' index to the player's.
  */
+/**
+ * The place, among the videos shown, of the one chosen in Payload by its place
+ * in the list as entered (1-based); the first when that one is not shown.
+ */
+export const shownStart = (
+  videos: readonly { platform: VideoPlatform; videoId: string }[],
+  start: number | null | undefined,
+): number | null => {
+  if (typeof start !== 'number' || !Number.isInteger(start) || start < 1 || start > videos.length)
+    return null
+  const chosen = videos[start - 1]
+  if (!chosen || !videoEmbedUrl(chosen.platform, chosen.videoId)) return null
+  return videos.slice(0, start).filter((video) => videoEmbedUrl(video.platform, video.videoId))
+    .length
+}
+
 export const shortsAsides = (blocks: readonly PageBlock[]): Map<number, number> => {
   const asides = new Map<number, number>()
+  const flags = stepFlags(blocks)
   blocks.forEach((block, i) => {
     const next = blocks[i + 1]
     if (
       block.blockType === 'videoCarousel' &&
+      flags[i] === null &&
+      block.videos.some((video) => videoEmbedUrl(video.platform, video.videoId)) &&
       next?.blockType === 'spotify' &&
       !next.heading &&
       !next.intro
@@ -461,7 +481,15 @@ function renderBlock(
               <div className="hero-grid">
                 {text}
                 <div className={badge ? 'hero-photo' : 'hero-photo plain'}>
-                  <MediaImage media={image} sizes="(max-width: 1023px) 340px, 520px" priority />
+                  <MediaImage
+                    media={image}
+                    sizes={
+                      badge
+                        ? '(max-width: 1023px) 340px, 520px'
+                        : '(max-width: 1023px) 100vw, 624px'
+                    }
+                    priority
+                  />
                   {badge ? (
                     <div className="hero-badge">
                       <MediaImage media={badge} sizes="112px" />
@@ -1070,7 +1098,7 @@ function renderBlock(
                 play: block.labels?.play ?? '',
               }}
               links={(block.links ?? []).filter((link) => isWeb(link.url))}
-              start={block.start ?? null}
+              start={shownStart(block.videos, block.start)}
               aside={aside ? <SpotifyPlayer block={aside} /> : null}
             />
           </>

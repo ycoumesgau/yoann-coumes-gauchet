@@ -2216,6 +2216,10 @@ a.link-row:hover {
   opacity: 1;
 }
 
+.short[aria-current='true']:focus-visible {
+  outline-color: var(--acc-ink);
+}
+
 .short-thumb {
   position: relative;
   display: block;

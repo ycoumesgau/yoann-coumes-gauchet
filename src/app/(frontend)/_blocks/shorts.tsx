@@ -44,8 +44,10 @@ export const startIndex = (start: number | null | undefined, count: number): num
  * The series of shorts, as in the prototype (L341-387): at rest, the player
  * shows the video's thumbnail and title behind a play button, and YouTube
  * loads only once the visitor asks for it (ADR-4, amended 2026-10-21). The
- * strip picks and plays another; the arrows change the video without starting
- * it. Once a video played, the next follows it unless the visitor turned that off.
+ * strip picks and plays another; before the first play, the arrows change the
+ * video without starting it, and after it they play the one they reach, as in
+ * the prototype. Once a video played, the next follows it unless the visitor
+ * turned that off. TikTok and Instagram players load with the page (ADR-4).
  */
 export function Shorts({
   videos,
@@ -72,8 +74,12 @@ export function Shorts({
   const count = videos.length
   const playing = video?.videoId ?? ''
 
-  const step = (by: number) => setIndex((current) => (current + by + count) % count)
+  const step = (by: number) => {
+    ended.current = null
+    setIndex((current) => (current + by + count) % count)
+  }
   const pick = (next: number) => {
+    ended.current = null
     setIndex((next + count) % count)
     setStarted(true)
   }
@@ -109,6 +115,7 @@ export function Shorts({
 
   if (!video) return null
   const youtube = video.platform === 'youtube'
+  const loaded = started || !youtube
   const src = youtube ? youtubeSrc(video.src, true) : video.src
   const thumb = (id: string) => `https://i.ytimg.com/vi/${id}/hqdefault.jpg`
 
@@ -116,13 +123,14 @@ export function Shorts({
     <div className="shorts">
       <div className="shorts-main">
         <div className="shorts-player">
-          {started ? (
+          {loaded ? (
             <iframe
               ref={frame}
               key={src}
               src={src}
               title={video.title}
-              allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+              loading="lazy"
+              allow={`encrypted-media; picture-in-picture; fullscreen${youtube ? '; autoplay' : ''}`}
               referrerPolicy="strict-origin-when-cross-origin"
               onLoad={(event) => {
                 // Ask the player to report its state (YouTube's iframe API handshake).
