@@ -1,8 +1,8 @@
 # ADR-2 — An MCP server reachable from Claude, behind OAuth
 
-| Status                                               | Date       | Decided by |
-| ---------------------------------------------------- | ---------- | ---------- |
-| Accepted: §2 and §4 (Yoann); §1, §3, §5, §6 proposed | 2026-10-20 | Yoann      |
+| Status                                                            | Date       | Decided by |
+| ----------------------------------------------------------------- | ---------- | ---------- |
+| Accepted: §1 (2026-10-21), §2 and §4 (Yoann); §3, §5, §6 proposed | 2026-10-20 | Yoann      |
 
 ## Context (measured 2026-10-20)
 
@@ -26,10 +26,12 @@ Yoann's words (2026-10-20): "le MCP a la main complète, y compris sur la suppre
 une confirmation de ma part". Points 2 and 4 carry them; 1, 3, 5 and 6 are proposals of the
 first session, kept unless Yoann says otherwise.
 
-1. **Tools** (proposed): everything an administrator does in `/admin` (create, edit, publish and
+1. **Tools**: everything an administrator does in `/admin` (create, edit, publish and
    unpublish each locale, upload media, edit the global, trash, restore), through the official
    plugin and custom tools where the generic ones fall short. Not exposed: the `users`
-   collection and the OAuth collections, which are the keys, not the content.
+   collection and the OAuth collections, which are the keys, not the content. Yoann
+   (2026-10-21): "le MCP doit être à jour de tous les outils dont on a besoin. Tu le tiens à
+   jour au fil de tes besoins": a session that lacks a tool adds it, in its own PR.
 2. **Auth**: an OAuth 2.1 server in this app, ported from Nexcan and reduced (one administrator,
    no tenants), wired into the plugin through `overrideGetAuthorizedMCP`. Every call re-checks
    that the grant still exists.
@@ -58,6 +60,9 @@ first session, kept unless Yoann says otherwise.
   challenge without a valid token, then the plugin, whose `overrideGetAuthorizedMCP` checks the
   token again and filters tools by a closed list (`isExposedItem`).
 - Connections are listed in `/admin` (Claude connections); deleting one cuts its tokens at once.
+- Blocks: `updateBlock` changes the fields of one block of a page in one locale and writes the
+  rest back; `updateDocument` with `layout` replaces the whole list. Restore tools drop `select`
+  (`withoutSelect`), which saved an empty version in 4.0.0-beta.3 (`docs/pitfalls.md`).
 - Deletion: trash through `updateDocument` with `deletedAt`; `requestPermanentDeletion` creates a
   `deletion-requests` row that only `/admin` can confirm (`adminOutsideMcp`), within 24 hours.
 - Journal (§5 as built): `mcp-events`, one row per consent, token event and tool call that reaches

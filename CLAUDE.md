@@ -75,6 +75,7 @@ never from memory: a claim it does not back is not published.
 4. **Migrations**: `payload migrate` only, in CI and production (`push: false`). Never edit a
    migration once applied anywhere. CI replays the chain from an empty database.
 5. **Content never arrives through a migration**: it is entered through the MCP server or `/admin`.
+   A tool the work needs and the MCP server lacks is added to it, in its own PR (ADR-2 §1).
 6. **Nothing is deleted outright**: content collections (`pages`, `projects`, `media`) use
    `trash`, and a trashed document is never public; the MCP server deletes for good only after
    Yoann's explicit confirmation (ADR-2).
