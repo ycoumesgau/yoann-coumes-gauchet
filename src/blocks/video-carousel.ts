@@ -17,7 +17,22 @@ export const VideoCarouselBlock: Block = {
         { name: 'previous', type: 'text', localized: true },
         { name: 'next', type: 'text', localized: true },
         { name: 'autoplay', type: 'text', localized: true },
+        {
+          name: 'play',
+          type: 'text',
+          localized: true,
+          admin: {
+            description: 'Read out before the title on the play button, as in “Play Saint-Honoré”.',
+          },
+        },
       ],
+    },
+    {
+      name: 'start',
+      type: 'number',
+      defaultValue: 1,
+      min: 1,
+      admin: { description: 'The video shown first, by its place in the list (1 = the first).' },
     },
     {
       name: 'links',

@@ -749,7 +749,15 @@ export interface VideoCarouselBlock {
     previous?: string | null;
     next?: string | null;
     autoplay?: string | null;
+    /**
+     * Read out before the title on the play button, as in “Play Saint-Honoré”.
+     */
+    play?: string | null;
   };
+  /**
+   * The video shown first, by its place in the list (1 = the first).
+   */
+  start?: number | null;
   /**
    * The channels, under the player.
    */
@@ -1406,7 +1414,9 @@ export interface VideoCarouselBlockSelect<T extends boolean = true> {
         previous?: T;
         next?: T;
         autoplay?: T;
+        play?: T;
       };
+  start?: T;
   links?:
     | T
     | {

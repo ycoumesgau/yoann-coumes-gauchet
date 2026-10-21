@@ -260,6 +260,70 @@ export const filmPairs = (blocks: readonly PageBlock[]): Map<number, number> => 
   return pairs
 }
 
+type SpotifyBlock = Extract<PageBlock, { blockType: 'spotify' }>
+
+/**
+ * A Spotify player right after the shorts, with no heading or intro of its
+ * own, sits under the strip in the shorts' side column (prototype L380-383).
+ * Only shorts outside a step that show a video host it; otherwise the player
+ * stays on its own. Maps the shorts' index to the player's.
+ */
+/**
+ * The place, among the videos shown, of the one chosen in Payload by its place
+ * in the list as entered (1-based); the first when that one is not shown.
+ */
+export const shownStart = (
+  videos: readonly { platform: VideoPlatform; videoId: string }[],
+  start: number | null | undefined,
+): number | null => {
+  if (typeof start !== 'number' || !Number.isInteger(start) || start < 1 || start > videos.length)
+    return null
+  const chosen = videos[start - 1]
+  if (!chosen || !videoEmbedUrl(chosen.platform, chosen.videoId)) return null
+  return videos.slice(0, start).filter((video) => videoEmbedUrl(video.platform, video.videoId))
+    .length
+}
+
+export const shortsAsides = (blocks: readonly PageBlock[]): Map<number, number> => {
+  const asides = new Map<number, number>()
+  const flags = stepFlags(blocks)
+  blocks.forEach((block, i) => {
+    const next = blocks[i + 1]
+    if (
+      block.blockType === 'videoCarousel' &&
+      flags[i] === null &&
+      block.videos.some((video) => videoEmbedUrl(video.platform, video.videoId)) &&
+      next?.blockType === 'spotify' &&
+      !next.heading &&
+      !next.intro
+    )
+      asides.set(i, i + 1)
+  })
+  return asides
+}
+
+function SpotifyPlayer({ block }: { block: SpotifyBlock }) {
+  const src = spotifyEmbedUrl(block.ref)
+  if (!src) return null
+  const [kind, id] = block.ref.split(':')
+  return (
+    <div className="spotify">
+      <Embed
+        src={src}
+        title={block.heading ? `${block.heading} · Spotify` : 'Spotify'}
+        aspect="player"
+      />
+      {block.linkLabel ? (
+        <p className="channel-links">
+          <a href={`https://open.spotify.com/${kind}/${id}`} target="_blank" rel="noopener">
+            → {block.linkLabel}
+          </a>
+        </p>
+      ) : null}
+    </div>
+  )
+}
+
 /** The id of a step's heading, which its details point to. */
 const stepHeadingId = (block: PageBlock, index: number) => `step-${block.id ?? index}`
 
@@ -306,8 +370,10 @@ export function RenderBlocks({
   const deferred = new Set(moves.values())
   const pairs = filmPairs(blocks)
   const paired = new Set(pairs.values())
+  const asides = shortsAsides(blocks)
+  const asideOf = new Set(asides.values())
   return blocks.map((block, index) => {
-    if (paired.has(index)) return null
+    if (paired.has(index) || asideOf.has(index)) return null
     const partner = pairs.get(index)
     if (partner !== undefined) {
       const first = renderBlock(block, index, locale, frame, texts)
@@ -324,7 +390,15 @@ export function RenderBlocks({
     const content =
       flag === 'in-step'
         ? inStep[index]
-        : renderBlock(block, index, locale, frame, texts, deferred.has(index))
+        : renderBlock(
+            block,
+            index,
+            locale,
+            frame,
+            texts,
+            deferred.has(index),
+            asides.has(index) ? (blocks[asides.get(index) as number] as SpotifyBlock) : undefined,
+          )
     if (content === undefined) return null
     if (content === null) return null
     if (flag === 'in-step') {
@@ -369,6 +443,7 @@ function renderBlock(
   labels: FrameLabels,
   texts: Readonly<Partial<Record<string, FilmTexts>>>,
   withoutDetails = false,
+  aside?: SpotifyBlock,
 ): Rendered | null {
   switch (block.blockType) {
     case 'hero': {
@@ -406,7 +481,15 @@ function renderBlock(
               <div className="hero-grid">
                 {text}
                 <div className={badge ? 'hero-photo' : 'hero-photo plain'}>
-                  <MediaImage media={image} sizes="(max-width: 1023px) 340px, 520px" priority />
+                  <MediaImage
+                    media={image}
+                    sizes={
+                      badge
+                        ? '(max-width: 1023px) 340px, 520px'
+                        : '(max-width: 1023px) 100vw, 624px'
+                    }
+                    priority
+                  />
                   {badge ? (
                     <div className="hero-badge">
                       <MediaImage media={badge} sizes="112px" />
@@ -702,11 +785,7 @@ function renderBlock(
           <>
             <Heading text={block.heading} />
             {block.source ? <p className="source">{block.source}</p> : null}
-            {block.intro ? (
-              <p className="text" style={{ marginBottom: 24 }}>
-                {block.intro}
-              </p>
-            ) : null}
+            {block.intro ? <p className="text intro">{block.intro}</p> : null}
             {block.variant === 'wide' ? (
               <div className="gallery-wide">
                 {screens.map(({ screen }) => (
@@ -1009,51 +1088,33 @@ function renderBlock(
         inner: (
           <>
             <Heading text={block.heading} />
-            {block.intro ? (
-              <p className="text" style={{ marginBottom: 24 }}>
-                {block.intro}
-              </p>
-            ) : null}
+            {block.intro ? <p className="text intro">{block.intro}</p> : null}
             <Shorts
               videos={videos}
               labels={{
                 previous: block.labels?.previous ?? labels.previous ?? '',
                 next: block.labels?.next ?? labels.next ?? '',
                 autoplay: block.labels?.autoplay ?? '',
+                play: block.labels?.play ?? '',
               }}
               links={(block.links ?? []).filter((link) => isWeb(link.url))}
+              start={shownStart(block.videos, block.start)}
+              aside={aside ? <SpotifyPlayer block={aside} /> : null}
             />
           </>
         ),
       }
     }
     case 'spotify': {
-      const src = spotifyEmbedUrl(block.ref)
-      if (!src) return null
-      const [kind, id] = block.ref.split(':')
+      if (!spotifyEmbedUrl(block.ref)) return null
       return {
         Tag: 'section',
         className: 'tight',
         inner: (
           <>
             <Heading text={block.heading} />
-            {block.intro ? (
-              <p className="text" style={{ marginBottom: 24 }}>
-                {block.intro}
-              </p>
-            ) : null}
-            <Embed
-              src={src}
-              title={block.heading ? `${block.heading} · Spotify` : 'Spotify'}
-              aspect="player"
-            />
-            {block.linkLabel ? (
-              <p className="channel-links">
-                <a href={`https://open.spotify.com/${kind}/${id}`} target="_blank" rel="noopener">
-                  → {block.linkLabel}
-                </a>
-              </p>
-            ) : null}
+            {block.intro ? <p className="text intro">{block.intro}</p> : null}
+            <SpotifyPlayer block={block} />
           </>
         ),
       }
@@ -1084,7 +1145,9 @@ function renderBlock(
               />
             ) : fallback ? (
               <figure className="rive-stage" style={{ margin: 0 }}>
-                <MediaImage media={fallback} sizes="420px" />
+                <div className="rive-square">
+                  <MediaImage media={fallback} sizes="420px" />
+                </div>
                 {block.caption ? (
                   <figcaption className="visually-hidden">{block.caption}</figcaption>
                 ) : null}

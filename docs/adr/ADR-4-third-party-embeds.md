@@ -60,3 +60,23 @@ visitor presses that button, and then plays at once (`autoplay` delegated, `allo
 `encrypted-media; picture-in-picture; fullscreen; autoplay`): the press is the visitor's choice
 to play. The video id is part of the film, like its drawings, so it lives in the code, not in
 Payload.
+
+## Amendment 2 — the series of shorts loads YouTube on play (2026-10-21, batch L)
+
+The prototype shows the shorts as a still: the video's picture and title behind a play button.
+Asked how to match it, Yoann chose on 2026-10-21 « Façade au clic » : « Vignette et titre au
+repos, YouTube se charge quand le visiteur appuie sur lecture ; ADR-4 amendée sur ce point ».
+So, on that one player only:
+
+- At rest, the page shows the thumbnail from `i.ytimg.com` (built from the validated id) and a
+  play button; no YouTube player loads until the visitor presses play or picks a video in the
+  strip (`tests/unit/site-blocks.test.ts`).
+- Before the first play, the arrows change the video without starting it; after it, the
+  player plays each video the visitor reaches, by the arrows or the strip, as in the prototype.
+  The switch is on by default, as in the prototype: it only acts after the visitor pressed
+  play, so nothing plays on page load and Amendment 1 still holds.
+- A TikTok or Instagram video in the series keeps the decision above: its player loads with
+  the page, without autoplay.
+- The thumbnail is still a request to Google's servers on page load; the privacy page already
+  names YouTube.
+- Every other player keeps the decision above: it loads with the page.

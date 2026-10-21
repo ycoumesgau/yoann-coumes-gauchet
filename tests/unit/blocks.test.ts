@@ -39,7 +39,7 @@ const paragraph = (text: string) => ({
 })
 
 describe('blocks', () => {
-  it('loads each player with the page, only from a URL the site rebuilds (ADR-4)', () => {
+  it('loads each player with the page, the YouTube shorts on play, only from addresses the site rebuilds (ADR-4)', () => {
     const html = render([
       {
         blockType: 'videoCarousel',
@@ -48,13 +48,11 @@ describe('blocks', () => {
       },
       { blockType: 'spotify', heading: 'Playlist', ref: 'playlist:32nEjBqPrGjsohHLfqVhI9' },
     ])
-    // The player's API is on (to follow on to the next video), autoplay is not.
-    expect(html).toContain(
-      'src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?enablejsapi=1&amp;playsinline=1&amp;rel=0"',
-    )
+    // The series of shorts shows a still until the visitor presses play (Amendment 2).
+    expect(html).not.toContain('youtube-nocookie.com')
+    expect(html).toContain('url(https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg)')
     expect(html).toContain('src="https://open.spotify.com/embed/playlist/32nEjBqPrGjsohHLfqVhI9"')
-    expect(html.match(/<iframe[^>]*loading="lazy"/g)).toHaveLength(2)
-    expect(html).toContain('title="A recipe · YouTube"')
+    expect(html.match(/<iframe[^>]*loading="lazy"/g)).toHaveLength(1)
     expect(html).not.toContain('autoplay')
   })
 

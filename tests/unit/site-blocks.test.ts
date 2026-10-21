@@ -5,6 +5,7 @@ import {
   advancesOn,
   isPlayerOrigin,
   playerState,
+  startIndex,
   youtubeSrc,
 } from '@/app/(frontend)/_blocks/shorts'
 import { footerLinkUrl, isOutboundUrl } from '@/domain/links'
@@ -14,6 +15,8 @@ import {
   filmTextsByFilm,
   linkHref,
   RenderBlocks,
+  shortsAsides,
+  shownStart,
   stepFlags,
   timelineSpan,
   columnCard,
@@ -520,6 +523,98 @@ describe('the series of shorts', () => {
     expect(advancesOn(null, 'a')).toBe(true)
     expect(advancesOn('a', 'a')).toBe(false)
     expect(advancesOn('a', 'b')).toBe(true)
+  })
+
+  const shorts = (extra: Record<string, unknown> = {}) => ({
+    blockType: 'videoCarousel',
+    labels: { previous: 'Previous', next: 'Next', autoplay: 'Autoplay', play: 'Play' },
+    videos: [
+      { platform: 'youtube', videoId: 'aaaaaaaaaaa', title: 'Paris-Brest' },
+      { platform: 'youtube', videoId: 'bbbbbbbbbbb', title: 'Saint-Honoré' },
+    ],
+    ...extra,
+  })
+  const spotify = (extra: Record<string, unknown> = {}) => ({
+    blockType: 'spotify',
+    ref: 'artist:3r1CwJAxYcji4TTINozzWi',
+    linkLabel: 'Spotify',
+    ...extra,
+  })
+  const html = (blocks: unknown[]) =>
+    renderToStaticMarkup(RenderBlocks({ blocks: blocks as PageBlock[], locale: 'en' }))
+
+  it('shows the chosen video first, and the first when the choice is outside the list', () => {
+    expect(startIndex(2, 21)).toBe(1)
+    expect(startIndex(1, 21)).toBe(0)
+    expect(startIndex(21, 21)).toBe(20)
+    expect(startIndex(22, 21)).toBe(0)
+    expect(startIndex(0, 21)).toBe(0)
+    expect(startIndex(-1, 21)).toBe(0)
+    expect(startIndex(1.5, 21)).toBe(0)
+    expect(startIndex(null, 21)).toBe(0)
+    const yt = (videoId: string) => ({ platform: 'youtube' as const, videoId })
+    const bad = { platform: 'youtube' as const, videoId: '../evil' }
+    expect(shownStart([bad, yt('aaaaaaaaaaa'), yt('bbbbbbbbbbb')], 3)).toBe(2)
+    expect(shownStart([yt('aaaaaaaaaaa'), bad, yt('bbbbbbbbbbb')], 2)).toBeNull()
+    expect(shownStart([yt('aaaaaaaaaaa')], 2)).toBeNull()
+    expect(shownStart([yt('aaaaaaaaaaa')], null)).toBeNull()
+  })
+
+  it('loads no YouTube player before the visitor presses play, and plays on through the series once started', () => {
+    const markup = html([shorts({ start: 2 })])
+    expect(markup).not.toContain('<iframe')
+    expect(markup).toMatch(/class="shorts-facade"[^>]*aria-label="Play Saint-Honoré"/)
+    expect(markup).toContain(
+      'class="shorts-thumb" style="background-image:url(https://i.ytimg.com/vi/bbbbbbbbbbb/hqdefault.jpg)"',
+    )
+    expect(markup).toMatch(/role="switch" aria-checked="true"/)
+    const withRefused = html([
+      shorts({
+        start: 3,
+        videos: [
+          { platform: 'youtube', videoId: '../evil', title: 'Refused' },
+          { platform: 'youtube', videoId: 'aaaaaaaaaaa', title: 'Paris-Brest' },
+          { platform: 'youtube', videoId: 'bbbbbbbbbbb', title: 'Saint-Honoré' },
+        ],
+      }),
+    ])
+    expect(withRefused).toMatch(/class="shorts-facade"[^>]*aria-label="Play Saint-Honoré"/)
+  })
+
+  it('puts a bare Spotify player under the strip of the shorts before it, and leaves a titled one alone', () => {
+    expect(shortsAsides([shorts(), spotify()] as PageBlock[])).toEqual(new Map([[0, 1]]))
+    expect(shortsAsides([shorts(), spotify({ heading: 'Songs' })] as PageBlock[]).size).toBe(0)
+    expect(shortsAsides([shorts(), spotify({ intro: 'Listen' })] as PageBlock[]).size).toBe(0)
+    expect(shortsAsides([spotify(), shorts()] as PageBlock[]).size).toBe(0)
+    const paired = html([shorts(), spotify()])
+    expect(paired.match(/open\.spotify\.com\/embed/g)).toHaveLength(1)
+    expect(paired).toMatch(/class="shorts-side"[\s\S]*class="spotify"/)
+    const alone = html([shorts(), spotify({ heading: 'Songs' })])
+    expect(alone.indexOf('class="spotify"')).toBeGreaterThan(alone.indexOf('</section>'))
+    expect(alone).toContain('Songs')
+    expect(alone.match(/open\.spotify\.com\/embed/g)).toHaveLength(1)
+  })
+
+  it('leaves the Spotify player on its own after shorts in a step, or shorts that show nothing', () => {
+    const step = { blockType: 'section', number: '01', heading: 'Videos', body }
+    const inStep = [step, shorts(), spotify()]
+    expect(shortsAsides(inStep as PageBlock[]).size).toBe(0)
+    expect(html(inStep).match(/open\.spotify\.com\/embed/g)).toHaveLength(1)
+    const empty = [
+      shorts({ videos: [{ platform: 'youtube', videoId: '../evil', title: 'X' }] }),
+      spotify(),
+    ]
+    expect(shortsAsides(empty as PageBlock[]).size).toBe(0)
+    expect(html(empty).match(/open\.spotify\.com\/embed/g)).toHaveLength(1)
+  })
+
+  it('loads a TikTok short with the page, as every player but YouTube (ADR-4)', () => {
+    const markup = html([
+      shorts({ videos: [{ platform: 'tiktok', videoId: '7300000000000000000', title: 'Tatin' }] }),
+    ])
+    expect(markup).toMatch(/<iframe[^>]*loading="lazy"/)
+    expect(markup).not.toContain('autoplay')
+    expect(markup).not.toContain('shorts-facade')
   })
 })
 

@@ -54,25 +54,27 @@ export function Luma({
 
   return (
     <figure className="rive-stage" style={{ margin: 0 }}>
-      <Image
-        src={fallback.src}
-        alt={fallback.alt}
-        width={fallback.width}
-        height={fallback.height}
-        sizes="420px"
-        aria-hidden={shown ? true : undefined}
-        style={shown ? { visibility: 'hidden' } : undefined}
-      />
-      {live ? (
-        <LumaCanvas
-          src={src}
-          stateMachine={resolveStateMachine(stateMachine)}
-          label={fallback.alt}
-          ready={ready}
-          onReady={setReady}
-          onFail={() => setFailed(true)}
+      <div className="rive-square">
+        <Image
+          src={fallback.src}
+          alt={fallback.alt}
+          width={fallback.width}
+          height={fallback.height}
+          sizes="420px"
+          aria-hidden={shown ? true : undefined}
+          style={shown ? { visibility: 'hidden' } : undefined}
         />
-      ) : null}
+        {live ? (
+          <LumaCanvas
+            src={src}
+            stateMachine={resolveStateMachine(stateMachine)}
+            label={fallback.alt}
+            ready={ready}
+            onReady={setReady}
+            onFail={() => setFailed(true)}
+          />
+        ) : null}
+      </div>
       {caption ? <figcaption className="visually-hidden">{caption}</figcaption> : null}
     </figure>
   )
