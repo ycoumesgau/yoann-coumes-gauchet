@@ -963,6 +963,17 @@ main {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
 }
 
+/* Three facts a row at desktop width, each under a hairline (prototype L210-217). */
+.facts[data-columns='3'] {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  gap: 0 clamp(24px, 3vw, 48px);
+}
+
+.facts[data-columns='3'] .fact {
+  padding: 18px 0;
+  border-top: 1px solid var(--line);
+}
+
 /* A numbered list: one column under a 2 px rule, grey numbers (prototype L279-284). */
 .facts[data-numbered] {
   grid-template-columns: minmax(0, 1fr);
@@ -984,17 +995,6 @@ main {
   line-height: 27px;
   color: var(--mut);
   padding-top: 0;
-}
-
-/* Three facts a row at desktop width, each under a hairline (prototype L210-217). */
-.facts[data-columns='3'] {
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
-  gap: 0 clamp(24px, 3vw, 48px);
-}
-
-.facts[data-columns='3'] .fact {
-  padding: 18px 0;
-  border-top: 1px solid var(--line);
 }
 
 .fact {

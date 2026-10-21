@@ -588,7 +588,9 @@ function renderBlock(
               {block.items.map((item, i) => (
                 <li key={item.id ?? i} className={cards ? 'fact fact-card' : 'fact'}>
                   {block.numbered ? (
-                    <span className="fact-number">{String(i + 1).padStart(2, '0')}</span>
+                    <span className="fact-number" aria-hidden="true">
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
                   ) : null}
                   <p className="text">
                     {item.kicker ? <span className="fact-kicker">{item.kicker}</span> : null}
@@ -624,12 +626,15 @@ function renderBlock(
         inner: (
           <>
             <Heading text={block.heading} />
+            {/* Items beside a text are dates (prototype L262-266); without one, figures. */}
             {block.body ? (
               <div className="stats-grid">
-                <ol className="dates">
+                <ol className="dates" role="list">
                   {block.items.map((item, i) => (
                     <li key={item.id ?? i}>
-                      <span className="date-index">{String(i + 1).padStart(2, '0')}</span>
+                      <span className="date-index" aria-hidden="true">
+                        {String(i + 1).padStart(2, '0')}
+                      </span>
                       <span className="date-text">
                         <span className="date-value">{item.value}</span>
                         <span className="date-label">{item.label}</span>

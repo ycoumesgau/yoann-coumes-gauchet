@@ -310,7 +310,7 @@ describe('nexcan blocks', () => {
   it('lists dates beside a text, numbered, and figures without one as figures', () => {
     const dated = html([{ blockType: 'stats', items, body }])
     expect(dated).toContain('class="dates"')
-    expect(dated).toMatch(/<span class="date-index">02<\/span>/)
+    expect(dated).toMatch(/<span class="date-index" aria-hidden="true">02<\/span>/)
     const figures = html([{ blockType: 'stats', items }])
     expect(figures).toContain('class="stats"')
     expect(figures).not.toContain('class="dates"')
