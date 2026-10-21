@@ -1683,8 +1683,13 @@ a.link-row:hover {
 
 .timeline li {
   display: flex;
-  flex: var(--span, 1) 1 0;
-  min-width: 0;
+  /* The cell's own padding is its base, as in the prototype, where the cell is the flex item. */
+  flex: var(--span, 1) 1 20px;
+  /* No min-width: 0, so a cell never gets narrower than its longest word (« Valrhona » at 1024 px). */
+}
+
+.timeline li[data-tone='highlight'] {
+  flex-basis: 32px;
 }
 
 .timeline .t-cell {
