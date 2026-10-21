@@ -9,7 +9,6 @@ import {
   excerpt,
   jsonLdScript,
   personJsonLd,
-  publicHostRedirect,
   robotsRules,
   shareImage,
   sitemapEntries,
@@ -164,19 +163,5 @@ describe('structured data', () => {
 
   it('cannot close its script element', () => {
     expect(jsonLdScript({ name: '</script><script>alert(1)</script>' })).not.toContain('<')
-  })
-})
-
-describe('public host', () => {
-  it('sends a vercel.app address of production to the same path on the domain', () => {
-    expect(publicHostRedirect(new URL('https://site.vercel.app/fr/nexcan?x=1'), origin)?.href).toBe(
-      'https://yoann.example/fr/nexcan?x=1',
-    )
-  })
-
-  it('leaves the domain itself, any other host, and previews without an origin alone', () => {
-    expect(publicHostRedirect(new URL('https://yoann.example/en'), origin)).toBeNull()
-    expect(publicHostRedirect(new URL('http://localhost:3000/en'), origin)).toBeNull()
-    expect(publicHostRedirect(new URL('https://site.vercel.app/en'), undefined)).toBeNull()
   })
 })

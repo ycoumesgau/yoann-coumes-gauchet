@@ -138,5 +138,5 @@ Source: Yoann's project file `synthese/03-site-refonte-concept.md` §3 (2026-10-
   (media files excepted, for link previews) and `/oauth/`; `sitemap.xml` lists each published
   language with `hreflang`. Home carries a `Person` JSON-LD: the name and the footer's web
   profiles, nothing else. Vercel had no certificate for the domain (added in 2025, before it
-  pointed there); one was issued by the API. The API cannot set a redirect on the `vercel.app`
-  domain, so the proxy sends production's `*.vercel.app` hosts to `SITE_URL` (308).
+  pointed there); one was issued by the API. Yoann set the 308 from the `vercel.app` domain to
+  the domain in Vercel.

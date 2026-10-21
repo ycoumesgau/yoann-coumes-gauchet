@@ -1,24 +1,14 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
 import { localeCookie, localeOfPath, negotiateLocale } from '@/domain/locale-routing'
-import { parsePublicUrl } from '@/domain/mcp-oauth/config'
-import { publicHostRedirect } from '@/domain/seo'
 
 /**
- * A page asked on a `vercel.app` address of production goes to the public
- * domain (`publicHostRedirect`). Then a path without a language goes to the
- * visitor's language: `/` → `/en` or `/fr`. Each language keeps its own URL so search engines, which send no
+ * Sends a path without a language to the visitor's language: `/` → `/en` or
+ * `/fr`. Each language keeps its own URL so search engines, which send no
  * `Accept-Language`, index both (`hreflang` in the page metadata).
  */
 export function proxy(request: NextRequest) {
-  const origin = process.env.SITE_URL ? parsePublicUrl(process.env.SITE_URL.trim()) : null
   const { pathname, search } = request.nextUrl
-  // The host the visitor typed: `request.url` may carry the server's own.
-  const host = request.headers.get('host')
-  const asked = host ? new URL(`${pathname}${search}`, `https://${host}`) : null
-  const publicUrl = asked && publicHostRedirect(asked, origin ? new URL(origin) : undefined)
-  if (publicUrl) return NextResponse.redirect(publicUrl, 308)
-
   if (localeOfPath(pathname)) return NextResponse.next()
 
   const locale = negotiateLocale({

@@ -152,14 +152,3 @@ export const personJsonLd = (input: {
 
 /** JSON for a `<script>` element: a `<` in the content can never close it. */
 export const jsonLdScript = (data: unknown): string => JSON.stringify(data).replace(/</g, '\\u003c')
-
-/**
- * Where a request on a `*.vercel.app` address of production goes: the same
- * path on the public origin, so search engines see one copy of the site.
- * Nothing without a public origin (previews), or already on it.
- */
-export const publicHostRedirect = (requestUrl: URL, origin: URL | undefined): URL | null => {
-  if (!origin || requestUrl.host === origin.host) return null
-  if (!requestUrl.hostname.endsWith('.vercel.app')) return null
-  return new URL(`${requestUrl.pathname}${requestUrl.search}`, origin)
-}

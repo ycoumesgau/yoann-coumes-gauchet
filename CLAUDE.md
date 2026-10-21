@@ -12,7 +12,7 @@ for one app and one developer working through agents.
 Replaced, never extended (25 lines max).
 
 - L0–L2 merged. Production: `yoann.coumes-gauchet.fr` (DNS at OVH, CNAME to Vercel, cdg1);
-  `SITE_URL` is that origin (canonical, sitemap, MCP issuer); `*.vercel.app` 308s to it (proxy).
+  `SITE_URL` is that origin (canonical, sitemap, MCP issuer); `vercel.app` 308s to it (Vercel).
 - L3a merged: `/en` `/fr` routing and language switch. L3b merged: blocks as plain HTML, S3 media
   storage. L3c merged: players load with the page, no consent step (ADR-4, Yoann's call). The
   `privacy` page (FR, EN) is published, linked from the footer; its text is
