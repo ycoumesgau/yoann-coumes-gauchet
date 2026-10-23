@@ -8,8 +8,10 @@ import type { Access, FieldAccess, PayloadRequest, Where } from 'payload'
  * collection. Any other principal (an API key of another collection, a future
  * MCP identity that is not a user) is not an administrator.
  */
-export const isAdmin = ({ req }: { req: PayloadRequest }): boolean =>
-  req.user?.collection === 'users'
+export const isAdminUser = (user: PayloadRequest['user'] | undefined): boolean =>
+  user?.collection === 'users'
+
+export const isAdmin = ({ req }: { req: PayloadRequest }): boolean => isAdminUser(req.user)
 
 export const adminOnly: Access = ({ req }) => isAdmin({ req })
 

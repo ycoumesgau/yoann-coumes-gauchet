@@ -1,5 +1,6 @@
-import { getPayload, type Payload } from 'payload'
+import { getPayload, type Payload, type PayloadRequest } from 'payload'
 
+import { isAdminUser } from '@/domain/access'
 import { locales, type Locale } from '@/domain/locales'
 import { parsePublicUrl } from '@/domain/mcp-oauth/config'
 import type { Page, Site } from '@/payload-types'
@@ -37,6 +38,47 @@ export const findPublishedPage = async (
   })
   // The anonymous read filters on the requested language's `_status`.
   return docs[0] ?? null
+}
+
+/**
+ * A page's latest draft in one language, for the live preview. Read as the
+ * caller, never past access: only an administrator reads a draft, anyone
+ * else gets what the public sees. The preview route refuses them first.
+ */
+export const findPreviewPage = async (
+  payload: Payload,
+  slug: string,
+  locale: Locale,
+  user: NonNullable<PayloadRequest['user']>,
+): Promise<Page | null> => {
+  const { docs } = await payload.find({
+    collection: 'pages',
+    where: { slug: { equals: slug } },
+    locale,
+    limit: 1,
+    depth: 2,
+    draft: true,
+    overrideAccess: false,
+    user,
+    fallbackLocale: false,
+  })
+  return docs[0] ?? null
+}
+
+/**
+ * What the preview route serves for a request: the draft for a signed-in
+ * administrator, `null` for anyone else (a visitor, an API key), which the
+ * route turns into a 404.
+ */
+export const readPreviewPage = async (
+  payload: Payload,
+  headers: Headers,
+  slug: string,
+  locale: Locale,
+): Promise<Page | null> => {
+  const { user } = await payload.auth({ headers })
+  if (!user || !isAdminUser(user)) return null
+  return findPreviewPage(payload, slug, locale, user)
 }
 
 /** Every page published in a language (slug and date only), for the sitemap. */

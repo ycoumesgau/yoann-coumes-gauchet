@@ -23,6 +23,8 @@ Replaced, never extended (25 lines max).
   production through the MCP server, both locales published; no server-side URL fetch into media.
 - L5 (2026-10-21): indexed. `@payloadcms/plugin-seo` owns `pages.meta`; an empty field falls back
   to the page (`domain/seo.ts`); `robots.txt` admits every crawler, AI ones included.
+- Live preview (2026-10-23): `/admin` frames `/<locale>/preview/<slug>`, a 404 for anyone but a
+  `users` account; the only framable route, by the site's origin only (`domain/preview.ts`).
 - Owed by Yoann: a read of the French lines the session translated itself (L3e morning report).
 - MCP code: `src/domain/mcp-oauth/` (pure), `src/mcp/` (server side). Only `oauth-store.ts` may
   skip access, and the lint exemption names it.

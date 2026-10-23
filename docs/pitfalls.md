@@ -98,3 +98,15 @@ Correction, same day: the `site` global does keep versions (`_site_v`). `updateG
 `select` failed three times on the version insert, "null value in column version_name" in the
 Postgres log, and wrote nothing; the same call without `select` went through. `updateGlobal` now
 drops `select` too.
+
+## 2026-10-23 — Live preview: a path, not `req.origin`; and the last header rule wins
+
+`admin.livePreview.url` returns a path. On the admin page the server's request has no URL, so
+`req.origin` falls back to `http://<host>` (`createPayloadRequest`, no `serverURL` set): an
+`https` admin would frame an `http` URL, blocked as mixed content, and the `postMessage` origin
+checks would fail too. The admin makes a path absolute in the browser (`formatAbsoluteURL`,
+`window.location.origin`). Locally both are `http`, so only a test of the value catches it
+(`tests/unit/preview.test.ts`). The frame needs its own framing headers: every page answers
+`frame-ancestors 'none'` and `X-Frame-Options: DENY`, and when two `headers()` rules of
+`next.config.ts` match a path, Next sends the value of the last one; the preview rule sits after
+the catch-all. A `next.config.ts` change needs `next dev` restarted to show.
