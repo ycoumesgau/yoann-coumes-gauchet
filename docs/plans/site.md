@@ -140,3 +140,10 @@ Source: Yoann's project file `synthese/03-site-refonte-concept.md` §3 (2026-10-
   profiles, nothing else. Vercel had no certificate for the domain (added in 2025, before it
   pointed there); one was issued by the API. Yoann set the 308 from the `vercel.app` domain to
   the domain in Vercel.
+- 2026-10-23: live preview, asked by Yoann ("t'avais pas branché la live preview sur le cms ?",
+  then "oui vas-y"). `/admin` shows a page's draft beside its form, EN or FR, at 390 and 1440 px,
+  framed from `/<locale>/preview/<slug>`; the frame reloads on each save (pages have no autosave,
+  so on "Save Draft" or "Publish"). The route answers 404 to anyone but a signed-in `users`
+  account and reads as the caller, never past access; the public pages keep reading published
+  content only. `preview` is now a reserved slug (no page used it). Framing is allowed for that
+  route only, by the site's own origin; a link clicked in the preview opens that page's preview.

@@ -16,6 +16,7 @@ import { Projects } from './collections/Projects'
 import { Users } from './collections/Users'
 import { defaultLocale, localeLabels, locales } from './domain/locales'
 import { mediaStorageConfig } from './domain/media-storage'
+import { previewUrl } from './domain/preview'
 import { Site } from './globals/Site'
 import { sitePlugins } from './mcp/plugin'
 import { seo } from './plugins/seo'
@@ -33,6 +34,15 @@ export default buildConfig({
   admin: {
     user: Users.slug,
     importMap: { baseDir: path.resolve(dirname) },
+    // A page's draft beside its form, refreshed on each save (`/<locale>/preview/<slug>`).
+    livePreview: {
+      collections: ['pages'],
+      url: ({ data, locale }) => previewUrl({ locale: locale?.code, slug: data?.slug }),
+      breakpoints: [
+        { name: 'mobile', label: 'Mobile', width: 390, height: 844 },
+        { name: 'desktop', label: 'Desktop', width: 1440, height: 900 },
+      ],
+    },
     components: {
       views: {
         // The MCP consent screen (ADR-2). It enforces the session itself.
