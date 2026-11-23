@@ -2,7 +2,7 @@
  * Luma, Licorn's mascot, as its Rive file drives it. Pure: names, codes and the
  * timing of what the component plays (`src/app/(frontend)/_blocks/luma.tsx`).
  *
- * The contract is Licorn's own (`monorepo/packages/mascot`): the file plays the
+ * The contract is Licorn's own (its `mascot` package): the file plays the
  * `LumaFace` state machine and is driven by data binding, through the four
  * properties of its view model `ViewModel1` (bound with `autoBind`), not through
  * state machine inputs.
