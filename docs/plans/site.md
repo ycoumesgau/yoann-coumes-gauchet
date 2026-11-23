@@ -3,19 +3,19 @@
 Memory between sessions: read at the start, updated at the end. Decisions: `docs/adr/`.
 The detailed brief (content, demos, Claude Design) lives in Yoann's project files.
 
-## 0. State on 2026-10-20
+## 0. State on 2026-10-23
 
 - Yoann's decisions (2026-10-20): the site is a demonstration; Payload 4; an MCP server usable
   from Claude everywhere, including deletion under his confirmation; Supabase EU free plan; French
-  and English; he alone decides when it goes public and when he applies to jobs. Nothing is
-  published before it is ready and clean.
+  and English; he alone decides when it goes public. Nothing is published before it is ready and
+  clean.
 - Languages (Yoann, 2026-10-20): the browser's language decides, the switch is clearly visible
   in the header, any other language falls back to English. Proposed by the session in the same
   message Yoann answered "je suis ta reco": one URL per language (`/en`, `/fr`) so both are
   indexed, and the switch's choice remembered. Also the session's: a page missing in one
   language redirects to the other rather than a 404.
-- Visual direction: the "1A" mockup was criticised and is not kept; a new Claude Design pass
-  follows the message platform. Nothing visual is coded before it.
+- Visual direction: Claude Design prototype v2 (Tangerine), coded in L3d. The "1A" mockup was
+  criticised and is not kept.
 
 ## 1. Batches
 
@@ -28,8 +28,8 @@ The detailed brief (content, demos, Claude Design) lives in Yoann's project file
 | L3a   | `/en` and `/fr` URLs, language from the browser, visible switch, `hreflang` | Merged                 |
 | L3b   | Page blocks as plain HTML, players on click (ADR-4), media on Supabase S3   | Merged                 |
 | L3c   | Players loaded with the page (ADR-4 decided by Yoann), notice field removed | Merged                 |
-| L3d   | Front end from prototype v2 (Tangerine), all blocks, one migration          | In progress            |
-| L3e   | Films (Nexcan captures, WSB curve, Recipe2Video, review, agents), Luma Rive | In progress            |
+| L3d   | Front end from prototype v2 (Tangerine), all blocks, one migration          | Merged                 |
+| L3e   | Films (Nexcan captures, WSB curve, Recipe2Video, review, agents), Luma Rive | Merged                 |
 | L4    | Demos, in batches                                                           | To do                  |
 | L5    | DNS switched (done 2026-10-21), indexing and SEO; Lighthouse, public repo   | In progress            |
 
@@ -39,14 +39,15 @@ The detailed brief (content, demos, Claude Design) lives in Yoann's project file
   claude.ai (Yoann's messages in the project thread).
 - S3 keys for Supabase Storage, before any media upload in production: wired in L3b, inactive
   until the five `S3_*` variables exist in Vercel (`.env.example`).
+- Open: a read of the French lines the session translated itself in L3e (listed in that
+  batch's morning report).
 - Done on 2026-10-21: the CNAME of `yoann.coumes-gauchet.fr` at OVH points to Vercel; `SITE_URL`
   is `https://yoann.coumes-gauchet.fr`. Yoann re-adds the claude.ai connector at that origin.
 
 ## 3. Open questions for Yoann
 
-- None open on this batch. Visual direction and texts: a new Claude Design pass after the
-  message platform is settled (Yoann's project files, `synthese/branding/07-plateforme-de-message.md`);
-  the "1A" mockup is not the one kept.
+- None open on this batch. Texts: a pass after the message platform is settled (Yoann's project
+  files).
 
 ## 4. Content inputs given by Yoann
 
@@ -55,7 +56,7 @@ The detailed brief (content, demos, Claude Design) lives in Yoann's project file
 
 ## 5. Demos
 
-Source: Yoann's project file `synthese/03-site-refonte-concept.md` §3 (2026-10-20). The ids are
+Source: the site's concept brief in Yoann's project files, §3 (2026-10-20). The ids are
 `src/domain/demos.ts`; what each one may show is decided there, not here.
 
 | Id  | Key                       | Demo                                             |

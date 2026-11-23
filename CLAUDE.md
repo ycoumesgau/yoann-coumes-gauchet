@@ -4,28 +4,27 @@ The working contract of this repository, loaded in every Claude Code session. It
 and reflexes only. Stories go in `docs/plans/site.md`; decisions in `docs/adr/`; measured traps
 in `docs/pitfalls.md`. Size capped by `scripts/agent-memory-check.mjs` (hook, commit, push, CI).
 
-The method is a scaled-down copy of Nexcan's (`nexcan-ai/nexcan`, private): same reflexes, sized
-for one app and one developer working through agents.
+The method is a scaled-down copy of the one used on Nexcan (a private repository): same reflexes,
+sized for one app and one developer working through agents.
 
 ## 0. Current state
 
 Replaced, never extended (25 lines max).
 
-- L0–L2 merged. Production: `yoann.coumes-gauchet.fr` (DNS at OVH, CNAME to Vercel, cdg1);
+- L0 to L3e merged. Production: `yoann.coumes-gauchet.fr` (DNS at OVH, CNAME to Vercel, cdg1);
   `SITE_URL` is that origin (canonical, sitemap, MCP issuer); `vercel.app` 308s to it (Vercel).
-- L3a merged: `/en` `/fr` routing and language switch. L3b merged: blocks as plain HTML, S3 media
-  storage. L3c merged: players load with the page, no consent step (ADR-4, Yoann's call). The
-  `privacy` page (FR, EN) is published, linked from the footer; its text is
-  `/mnt/project-files/synthese/contenu/politique-confidentialite.md`. L3d (2026-10-20, night):
-  the site from Claude Design prototype v2 (Tangerine), every block its pages need; films in
+- Routing: `/en` and `/fr`, with a language switch. Blocks render as plain HTML; media are stored
+  on S3. Players load with the page, no consent step (ADR-4, Yoann's call). The `privacy` page
+  (FR, EN) is published and linked from the footer.
+- The site follows Claude Design prototype v2 (Tangerine), every block its pages need; films in
   `src/app/(frontend)/_films/`, their files in `public/films/`; Luma plays from her `.riv`
-  (`_blocks/luma.tsx`, runtime wasm served from `public/rive/`). L3e: all content entered in
-  production through the MCP server, both locales published; no server-side URL fetch into media.
-- L5 (2026-10-21): indexed. `@payloadcms/plugin-seo` owns `pages.meta`; an empty field falls back
-  to the page (`domain/seo.ts`); `robots.txt` admits every crawler, AI ones included.
-- Live preview (2026-10-23): `/admin` frames `/<locale>/preview/<slug>`, a 404 for anyone but a
-  `users` account; the only framable route, by the site's origin only (`domain/preview.ts`).
-- Owed by Yoann: a read of the French lines the session translated itself (L3e morning report).
+  (`_blocks/luma.tsx`, runtime wasm served from `public/rive/`).
+- All content is entered in production through the MCP server, both locales published; no
+  server-side URL fetch into media.
+- L5: indexed. `@payloadcms/plugin-seo` owns `pages.meta`; an empty field falls back to the page
+  (`domain/seo.ts`); `robots.txt` admits every crawler, AI ones included.
+- Live preview: `/admin` frames `/<locale>/preview/<slug>`, a 404 for anyone but a `users`
+  account; the only framable route, by the site's origin only (`domain/preview.ts`).
 - MCP code: `src/domain/mcp-oauth/` (pure), `src/mcp/` (server side). Only `oauth-store.ts` may
   skip access, and the lint exemption names it.
 
